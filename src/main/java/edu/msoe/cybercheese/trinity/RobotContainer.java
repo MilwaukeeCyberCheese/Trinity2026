@@ -42,8 +42,14 @@ public class RobotContainer {
         }
         this.vision = new Vision(this.drive, cameras);
 
+        
         this.autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
+        this.setupSysIdAutoChooser();
 
+        this.configureButtonBindings();
+    }
+
+    private void setupSysIdAutoChooser() {
         this.autoChooser.addOption(
                 "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive)
         );
@@ -64,8 +70,6 @@ public class RobotContainer {
         this.autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         );
-
-        this.configureButtonBindings();
     }
 
     private void configureButtonBindings() {
