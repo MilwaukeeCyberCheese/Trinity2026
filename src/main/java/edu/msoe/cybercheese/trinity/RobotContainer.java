@@ -77,7 +77,7 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
-        // Lock to 0° when A button is held
+        // Lock to 0 deg when A button is held
         this.controller
                 .a()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
