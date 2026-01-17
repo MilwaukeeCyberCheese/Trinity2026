@@ -1,6 +1,7 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive.gyro;
 
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
+import edu.msoe.cybercheese.trinity.odometry.CanandGyroHardware;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.msoe.cybercheese.trinity.subsystems.drive.SparkOdometryThread;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +14,8 @@ public class GyroIOCanandGyro implements GyroIO {
 
     private final Canandgyro inner = new Canandgyro(DriveConstants.CANANDGYRO_CAN_ID);
 
+    private final CanandGyroHardware gyroHal = new CanandGyroHardware(this.inner);
+
     public GyroIOCanandGyro() {
     }
 
@@ -22,7 +25,7 @@ public class GyroIOCanandGyro implements GyroIO {
 
     @Override
     public void updateInputs(GyroInputs inputs) {
-        inputs.connected = inner.isConnected();
+        inputs.connected = this.inner.isConnected();
         inputs.yawPosition = this.readAngle();
         inputs.yawVelocityRadPerSec = Units.rotationsToRadians(this.inner.getAngularVelocityYaw());
 

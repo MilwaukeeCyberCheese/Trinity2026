@@ -19,6 +19,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.msoe.cybercheese.trinity.odometry.SparkSwerveModuleHardware;
 import edu.msoe.cybercheese.trinity.subsystems.drive.SparkOdometryThread;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
@@ -26,10 +27,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
 
-/**
- * Module IO implementation for Spark Flex drive motor controller, Spark Max turn motor controller,
- * and duty cycle absolute encoder.
- */
 public class ModuleIOSpark implements ModuleIO {
     private final Rotation2d zeroRotation;
 
@@ -38,6 +35,8 @@ public class ModuleIOSpark implements ModuleIO {
     private final SparkBase turnSpark;
     private final RelativeEncoder driveEncoder;
     private final AbsoluteEncoder turnEncoder;
+
+    private final SparkSwerveModuleHardware odometryHal;
 
     // Closed loop controllers
     private final SparkClosedLoopController driveController;
@@ -58,6 +57,7 @@ public class ModuleIOSpark implements ModuleIO {
         this.turnSpark = new SparkMax(moduleDef.turnCanId(), MotorType.kBrushless);
         this.driveEncoder = driveSpark.getEncoder();
         this.turnEncoder = turnSpark.getAbsoluteEncoder();
+        this.odometryHal = new SparkSwerveModuleHardware(this.driveSpark, this.turnSpark, this.driveEncoder, this.turnEncoder);
         this.driveController = driveSpark.getClosedLoopController();
         this.turnController = turnSpark.getClosedLoopController();
 
@@ -178,6 +178,11 @@ public class ModuleIOSpark implements ModuleIO {
     }
 
     @Override
+    public SparkSwerveModuleHardware getOdometryHal() {
+        return this.odometryHal;
+    }
+
+    @Override
     public void setDriveOpenLoop(double output) {
         driveSpark.setVoltage(output);
     }
@@ -190,7 +195,7 @@ public class ModuleIOSpark implements ModuleIO {
     @Override
     public void setDriveVelocity(double velocityRadPerSec) {
         double ffVolts = DRIVE_KS * Math.signum(velocityRadPerSec) + DRIVE_KV * velocityRadPerSec;
-        driveController.setSetpoint(
+        this.driveController.setSetpoint(
                 velocityRadPerSec,
                 ControlType.kVelocity,
                 ClosedLoopSlot.kSlot0,
@@ -203,6 +208,6 @@ public class ModuleIOSpark implements ModuleIO {
         double setpoint =
                 MathUtil.inputModulus(
                         rotation.plus(zeroRotation).getRadians(), TURN_PID_MIN_INPUT, TURN_PID_MAX_INPUT);
-        turnController.setSetpoint(setpoint, ControlType.kPosition);
+        this.turnController.setSetpoint(setpoint, ControlType.kPosition);
     }
 }

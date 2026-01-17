@@ -1,5 +1,6 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive.gyro;
 
+import edu.msoe.cybercheese.trinity.odometry.GyroHardware;
 import edu.msoe.cybercheese.trinity.replay.IO;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
@@ -13,5 +14,9 @@ public interface GyroIO extends IO<GyroIO.GyroInputs> {
         public double yawVelocityRadPerSec = 0.0;
         public double[] odometryYawTimestamps = new double[] {};
         public double[] odometryYawPositions = new double[] {};
+    }
+
+    default GyroHardware getGyroHal() {
+        return null;
     }
 }

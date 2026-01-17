@@ -1,8 +1,6 @@
 package edu.msoe.cybercheese.trinity.odometry;
 
-interface GyroHardware {
-
-    boolean isConnected();
+public interface GyroHardware {
 
     double readYaw();
 }

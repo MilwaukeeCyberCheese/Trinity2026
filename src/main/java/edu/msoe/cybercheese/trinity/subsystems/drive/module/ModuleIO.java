@@ -1,5 +1,6 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive.module;
 
+import edu.msoe.cybercheese.trinity.odometry.SwerveModuleHardware;
 import edu.msoe.cybercheese.trinity.replay.IO;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
@@ -23,6 +24,10 @@ public interface ModuleIO extends IO<ModuleIO.ModuleInputs> {
         public double[] odometryTimestamps = new double[] {};
         public double[] odometryDrivePositionsRad = new double[] {};
         public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
+    }
+
+    default SwerveModuleHardware getOdometryHal() {
+        return null;
     }
 
     /** Run the drive motor at the specified open loop value. */
