@@ -1,0 +1,42 @@
+[versions]
+akit = "26.0.0"
+choreo = "2026.0.1"
+indra = "4.0.0"
+photonvision = "v2026.1.1-rc-2"
+reduxlib = "2026.0.0-beta1"
+revlib = "2026.0.0"
+urcl = "2026.0.0"
+wpilib = "2026.1.1"
+
+[libraries]
+akit = { group = "org.littletonrobotics.akit", name = "akit-java", version.ref = "akit" }
+akit-autolog = { group = "org.littletonrobotics.akit", name = "akit-autolog", version.ref = "akit" }
+akit-wpilibio = { group = "org.littletonrobotics.akit", name = "akit-wpilibio", version.ref = "akit" }
+
+choreo = { group = "choreo", name = "ChoreoLib-java", version.ref = "choreo" }
+
+fastutil = { group = "it.unimi.dsi", name = "fastutil", version = "8.5.18" }
+
+jspecify = { group = "org.jspecify", name = "jspecify", version = "1.0.0" }
+
+photonvision = { group = "org.photonvision", name = "photonlib-java", version.ref = "photonvision" }
+photonvision-targeting = { group = "org.photonvision", name = "photontargeting-java", version.ref = "photonvision" }
+photonvision-targeting-native = { group = "org.photonvision", name = "photontargeting-cpp", version.ref = "photonvision" }
+
+reduxlib = { group = "com.reduxrobotics.frc", name = "ReduxLib-java", version.ref = "reduxlib" }
+reduxlib-fifo = { group = "com.reduxrobotics.frc", name = "ReduxLib-fifo", version.ref = "reduxlib" }
+
+revlib = { group = "com.revrobotics.frc", name = "REVLib-java", version.ref = "revlib" }
+revlib-driver = { group = "com.revrobotics.frc", name = "REVLib-driver", version.ref = "revlib" }
+revlib-driver-backend = { group = "com.revrobotics.frc", name = "RevLibBackendDriver", version.ref = "revlib" }
+revlib-driver-backend-wpi = { group = "com.revrobotics.frc", name = "RevLibWpiBackendDriver", version.ref = "revlib" }
+
+urcl = { group = "org.littletonrobotics.urcl", name = "URCL-java", version.ref = "urcl" }
+urcl-driver = { group = "org.littletonrobotics.urcl", name = "URCL-driver", version.ref = "urcl" }
+
+wpilib-commands = { group = "edu.wpi.first.wpilibNewCommands", name = "wpilibNewCommands-java", version.ref = "wpilib" }
+
+[plugins]
+indra-git = { id = "net.kyori.indra.git", version.ref = "indra" }
+gradlerio = { id = "edu.wpi.first.GradleRIO", version.ref = "wpilib" }
+shadow = { id = "com.gradleup.shadow", version = "9.3.1" }
