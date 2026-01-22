@@ -5,11 +5,12 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public final class LogUtil {
 
-    public static <T extends LoggableInputs> void update(final String key, final IO<T> io, final T inputs) {
-        io.updateInputs(inputs);
+  public static <T extends LoggableInputs> void update(
+      final String key, final IO<T> io, final T inputs) {
+    io.updateInputs(inputs);
 
-        Logger.processInputs(key, inputs);
-    }
+    Logger.processInputs(key, inputs);
+  }
 
-    private LogUtil() {}
+  private LogUtil() {}
 }

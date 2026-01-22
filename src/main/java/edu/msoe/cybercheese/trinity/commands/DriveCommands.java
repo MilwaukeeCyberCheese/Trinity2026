@@ -1,5 +1,7 @@
 package edu.msoe.cybercheese.trinity.commands;
 
+import edu.msoe.cybercheese.trinity.subsystems.drive.Drive;
+import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -15,8 +17,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.msoe.cybercheese.trinity.subsystems.drive.Drive;
-import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;

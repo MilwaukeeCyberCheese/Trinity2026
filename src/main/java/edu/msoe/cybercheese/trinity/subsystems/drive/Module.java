@@ -6,95 +6,97 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import org.littletonrobotics.junction.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class Module {
-    private final ModuleIO io;
-    private final ModuleIO.ModuleInputs inputs = new ModuleIO.ModuleInputs();
-    private final int index;
+  private final ModuleIO io;
+  private final ModuleIO.ModuleInputs inputs = new ModuleIO.ModuleInputs();
+  private final int index;
 
-    private final Alert driveDisconnectedAlert;
-    private final Alert turnDisconnectedAlert;
+  private final Alert driveDisconnectedAlert;
+  private final Alert turnDisconnectedAlert;
 
-    private final List<SwerveModulePosition> odometryPositions = new ArrayList<>();
+  private final List<SwerveModulePosition> odometryPositions = new ArrayList<>();
 
-    public Module(ModuleIO io, int index) {
-        this.io = io;
-        this.index = index;
-        this.driveDisconnectedAlert = new Alert("Disconnected drive motor on module " + index, AlertType.kError);
-        this.turnDisconnectedAlert = new Alert("Disconnected turn motor on module " + index, AlertType.kError);
+  public Module(ModuleIO io, int index) {
+    this.io = io;
+    this.index = index;
+    this.driveDisconnectedAlert =
+        new Alert("Disconnected drive motor on module " + index, AlertType.kError);
+    this.turnDisconnectedAlert =
+        new Alert("Disconnected turn motor on module " + index, AlertType.kError);
+  }
+
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.processInputs("Drive/Module/" + index, inputs);
+
+    this.driveDisconnectedAlert.set(!this.inputs.driveConnected);
+    this.turnDisconnectedAlert.set(!this.inputs.turnConnected);
+
+    int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
+    this.odometryPositions.clear();
+    for (int i = 0; i < sampleCount; i++) {
+      double positionMeters =
+          this.inputs.odometryDrivePositionsRad[i] * DriveConstants.WHEEL_RADIUS_METERS;
+      Rotation2d angle = this.inputs.odometryTurnPositions[i];
+      this.odometryPositions.add(new SwerveModulePosition(positionMeters, angle));
     }
+  }
 
-    public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Drive/Module/" + index, inputs);
+  public void runSetpoint(SwerveModuleState state) {
+    state.optimize(getAngle());
+    state.cosineScale(this.inputs.turnPosition);
 
-        this.driveDisconnectedAlert.set(!this.inputs.driveConnected);
-        this.turnDisconnectedAlert.set(!this.inputs.turnConnected);
+    this.io.setDriveVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_RADIUS_METERS);
+    this.io.setTurnPosition(state.angle);
+  }
 
-        int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
-        this.odometryPositions.clear();
-        for (int i = 0; i < sampleCount; i++) {
-            double positionMeters = this.inputs.odometryDrivePositionsRad[i] * DriveConstants.WHEEL_RADIUS_METERS;
-            Rotation2d angle = this.inputs.odometryTurnPositions[i];
-            this.odometryPositions.add(new SwerveModulePosition(positionMeters, angle));
-        }
-    }
+  public void runCharacterization(double output) {
+    this.io.setDriveOpenLoop(output);
+    this.io.setTurnPosition(Rotation2d.kZero);
+  }
 
-    public void runSetpoint(SwerveModuleState state) {
-        state.optimize(getAngle());
-        state.cosineScale(this.inputs.turnPosition);
+  public void stop() {
+    this.io.setDriveOpenLoop(0.0);
+    this.io.setTurnOpenLoop(0.0);
+  }
 
-        this.io.setDriveVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_RADIUS_METERS);
-        this.io.setTurnPosition(state.angle);
-    }
+  public Rotation2d getAngle() {
+    return this.inputs.turnPosition;
+  }
 
-    public void runCharacterization(double output) {
-        this.io.setDriveOpenLoop(output);
-        this.io.setTurnPosition(Rotation2d.kZero);
-    }
+  public double getPositionMeters() {
+    return this.inputs.drivePositionRad * DriveConstants.WHEEL_RADIUS_METERS;
+  }
 
-    public void stop() {
-        this.io.setDriveOpenLoop(0.0);
-        this.io.setTurnOpenLoop(0.0);
-    }
+  public double getVelocityMetersPerSec() {
+    return inputs.driveVelocityRadPerSec * DriveConstants.WHEEL_RADIUS_METERS;
+  }
 
-    public Rotation2d getAngle() {
-        return this.inputs.turnPosition;
-    }
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(getPositionMeters(), getAngle());
+  }
 
-    public double getPositionMeters() {
-        return this.inputs.drivePositionRad * DriveConstants.WHEEL_RADIUS_METERS;
-    }
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
+  }
 
-    public double getVelocityMetersPerSec() {
-        return inputs.driveVelocityRadPerSec * DriveConstants.WHEEL_RADIUS_METERS;
-    }
+  public List<SwerveModulePosition> getOdometryPositions() {
+    return this.odometryPositions;
+  }
 
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getPositionMeters(), getAngle());
-    }
+  public double[] getOdometryTimestamps() {
+    return this.inputs.odometryTimestamps;
+  }
 
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
-    }
+  public double getWheelRadiusCharacterizationPosition() {
+    return this.inputs.drivePositionRad;
+  }
 
-    public List<SwerveModulePosition> getOdometryPositions() {
-        return this.odometryPositions;
-    }
-
-    public double[] getOdometryTimestamps() {
-        return this.inputs.odometryTimestamps;
-    }
-
-    public double getWheelRadiusCharacterizationPosition() {
-        return this.inputs.drivePositionRad;
-    }
-
-    public double getFFCharacterizationVelocity() {
-        return this.inputs.driveVelocityRadPerSec;
-    }
+  public double getFFCharacterizationVelocity() {
+    return this.inputs.driveVelocityRadPerSec;
+  }
 }

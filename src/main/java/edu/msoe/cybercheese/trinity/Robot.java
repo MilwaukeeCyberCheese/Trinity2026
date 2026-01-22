@@ -19,90 +19,90 @@ import org.littletonrobotics.urcl.URCL;
  * project.
  */
 public class Robot extends LoggedRobot {
-    private final RobotContainer robotContainer;
+  private final RobotContainer robotContainer;
 
-    private @Nullable Command autonomousCommand;
+  private @Nullable Command autonomousCommand;
 
-    public Robot() {
-        Logger.recordMetadata("BuildTimestamp", BuildConstants.BUILD_TIME.toString());
-        Logger.recordMetadata("ImplementationTitle", BuildConstants.TITLE);
-        Logger.recordMetadata("ImplementationVersion", BuildConstants.VERSION);
+  public Robot() {
+    Logger.recordMetadata("BuildTimestamp", BuildConstants.BUILD_TIME.toString());
+    Logger.recordMetadata("ImplementationTitle", BuildConstants.TITLE);
+    Logger.recordMetadata("ImplementationVersion", BuildConstants.VERSION);
 
-        Logger.recordMetadata("GitCommit", BuildConstants.GIT_COMMIT);
-        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    Logger.recordMetadata("GitCommit", BuildConstants.GIT_COMMIT);
+    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
 
-        Logger.recordMetadata("Mode", Constants.CURRENT_MODE.toString());
+    Logger.recordMetadata("Mode", Constants.CURRENT_MODE.toString());
 
-        switch (Constants.CURRENT_MODE) {
-            case REAL -> {
-                Logger.addDataReceiver(new WPILOGWriter());
-                Logger.addDataReceiver(new NT4Publisher());
-            }
-            case SIM -> Logger.addDataReceiver(new NT4Publisher());
-            case REPLAY -> {
-                this.setUseTiming(false);
-                final var logPath = LogFileUtil.findReplayLog();
-                Logger.setReplaySource(new WPILOGReader(logPath));
-                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-            }
-        }
-
-        Logger.registerURCL(URCL.startExternal());
-        StatusLogger.disableAutoLogging();
-
-        Logger.start();
-
-        this.robotContainer = new RobotContainer();
+    switch (Constants.CURRENT_MODE) {
+      case REAL -> {
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new NT4Publisher());
+      }
+      case SIM -> Logger.addDataReceiver(new NT4Publisher());
+      case REPLAY -> {
+        this.setUseTiming(false);
+        final var logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+      }
     }
 
-    @Override
-    public void robotPeriodic() {
-        // Optionally switch the thread to high priority to improve loop
-        // timing (see the template project documentation for details)
-        // Threads.setCurrentThreadPriority(true, 99);
+    Logger.registerURCL(URCL.startExternal());
+    StatusLogger.disableAutoLogging();
 
-        CommandScheduler.getInstance().run();
+    Logger.start();
 
-        // Return to non-RT thread priority (do not modify the first argument)
-        // Threads.setCurrentThreadPriority(false, 10);
+    this.robotContainer = new RobotContainer();
+  }
+
+  @Override
+  public void robotPeriodic() {
+    // Optionally switch the thread to high priority to improve loop
+    // timing (see the template project documentation for details)
+    // Threads.setCurrentThreadPriority(true, 99);
+
+    CommandScheduler.getInstance().run();
+
+    // Return to non-RT thread priority (do not modify the first argument)
+    // Threads.setCurrentThreadPriority(false, 10);
+  }
+
+  @Override
+  public void disabledInit() {}
+
+  @Override
+  public void disabledPeriodic() {}
+
+  @Override
+  public void autonomousInit() {
+    this.autonomousCommand = this.robotContainer.getAutonomousCommand();
+    CommandScheduler.getInstance().schedule(this.autonomousCommand);
+  }
+
+  @Override
+  public void autonomousPeriodic() {}
+
+  @Override
+  public void teleopInit() {
+    if (this.autonomousCommand != null) {
+      this.autonomousCommand.cancel();
     }
+  }
 
-    @Override
-    public void disabledInit() {}
+  @Override
+  public void teleopPeriodic() {}
 
-    @Override
-    public void disabledPeriodic() {}
+  @Override
+  public void testInit() {
+    CommandScheduler.getInstance().cancelAll();
+  }
 
-    @Override
-    public void autonomousInit() {
-        this.autonomousCommand = this.robotContainer.getAutonomousCommand();
-        CommandScheduler.getInstance().schedule(this.autonomousCommand);
-    }
+  @Override
+  public void testPeriodic() {}
 
-    @Override
-    public void autonomousPeriodic() {}
+  @Override
+  public void simulationInit() {}
 
-    @Override
-    public void teleopInit() {
-        if (this.autonomousCommand != null) {
-            this.autonomousCommand.cancel();
-        }
-    }
-
-    @Override
-    public void teleopPeriodic() {}
-
-    @Override
-    public void testInit() {
-        CommandScheduler.getInstance().cancelAll();
-    }
-
-    @Override
-    public void testPeriodic() {}
-
-    @Override
-    public void simulationInit() {}
-
-    @Override
-    public void simulationPeriodic() {}
+  @Override
+  public void simulationPeriodic() {}
 }

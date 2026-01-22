@@ -6,12 +6,12 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public interface GyroIO extends IO<GyroIO.GyroInputs> {
-    @AutoLog
-    class GyroInputs implements LoggableInputs {
-        public boolean connected = false;
-        public Rotation2d yawPosition = Rotation2d.kZero;
-        public double yawVelocityRadPerSec = 0.0;
-        public double[] odometryYawTimestamps = new double[] {};
-        public double[] odometryYawPositions = new double[] {};
-    }
+  @AutoLog
+  class GyroInputs implements LoggableInputs {
+    public boolean connected = false;
+    public Rotation2d yawPosition = Rotation2d.kZero;
+    public double yawVelocityRadPerSec = 0.0;
+    public double[] odometryYawTimestamps = new double[] {};
+    public double[] odometryYawPositions = new double[] {};
+  }
 }
