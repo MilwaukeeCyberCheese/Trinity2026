@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.indra.git)
     alias(libs.plugins.shadow)
     alias(libs.plugins.gradlerio)
-//    id("com.diffplug.spotless") version "6.12.0"
+    id("com.diffplug.spotless") version "6.20.0"
 }
 
 group = "edu.msoe.cybercheese"
@@ -173,33 +173,32 @@ tasks {
     }
 }
 
-//project.compileJava.dependsOn(spotlessApply)
-//spotless {
-//    java {
-//        target fileTree(".") {
-//            include "**/*.java"
-//            exclude "**/build/**", "**/build-*/**"
-//        }
-//        toggleOffOn()
-//        googleJavaFormat()
-//        removeUnusedImports()
-//        trimTrailingWhitespace()
-//        endWithNewline()
-//    }
-//    json {
-//        target fileTree(".") {
-//            include "**/*.json"
-//            exclude "**/build/**", "**/build-*/**"
-//        }
-//        gson().indentWithSpaces(2)
-//    }
-//    format "misc", {
-//        target fileTree(".") {
-//            include "**/*.md", "**/.gitignore"
-//            exclude "**/build/**", "**/build-*/**"
-//        }
-//        trimTrailingWhitespace()
-//        indentWithSpaces(2)
-//        endWithNewline()
-//    }
-//}
+tasks.named("compileJava").configure {
+    dependsOn("spotlessApply")
+}
+spotless {
+        java {
+            target("src/**/*.java")
+            googleJavaFormat()
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+
+    json {
+        target(fileTree(".") {
+            include("**/*.json")
+            exclude("**/build/**", "**/build-*/**")
+        })
+        gson().indentWithSpaces(2)
+    }
+    format("misc") {
+        target(fileTree(".") {
+            include("**/*.md", "**/.gitignore")
+            exclude("**/build/**", "**/build-*/**")
+        })
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
+}
