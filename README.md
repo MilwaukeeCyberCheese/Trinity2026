@@ -13,3 +13,4 @@ The Milwaukee Cyber Cheese's 2026 robot code, Trinity.
 - List of scopes that are acceptable to use: `auto`, `teleop`, `build`. You can use more for your specific scope, but verify then with a codeowner first.
 - Subsystems should have hardware abstracted so they can be simulated both with the WPIlib simulator and with AdvantageKit
 - Commands should handle exactly one task and do it well, without blocking and without causing loop overruns (50hz).
+- Code should be linted using Spotless. To lint the code locally, run `./gradlew spotlessApply`.
