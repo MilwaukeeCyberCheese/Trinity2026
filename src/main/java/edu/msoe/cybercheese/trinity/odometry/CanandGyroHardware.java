@@ -1,6 +1,7 @@
 package edu.msoe.cybercheese.trinity.odometry;
 
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
+import edu.wpi.first.math.util.Units;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
@@ -23,6 +24,6 @@ public class CanandGyroHardware implements OdometryCallback {
     @Override
     public void collectOdometry(double fpgaTime) {
         this.timestamps.add(fpgaTime);
-        this.rotations.add(this.inner.getMultiturnYaw());
+        this.rotations.add(Units.rotationsToRadians(this.inner.getMultiturnYaw()));
     }
 }

@@ -3,7 +3,6 @@ package edu.msoe.cybercheese.trinity.subsystems.drive;
 import static edu.wpi.first.units.Units.*;
 import static edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants.*;
 
-import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
@@ -31,14 +30,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.msoe.cybercheese.trinity.Constants;
 import edu.msoe.cybercheese.trinity.Constants.Mode;
 
-import java.util.ArrayList;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements Vision.VisionConsumer {
-    static final Lock ODOMETRY_LOCK = new ReentrantLock();
 
     private final OdometryCollector odometryCollector;
 
@@ -119,17 +114,17 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     @Override
     public void periodic() {
-        ODOMETRY_LOCK.lock(); // Prevents odometry updates while reading data
+        this.odometryCollector.lock();
         try {
-            gyroIo.updateInputs(gyroInputs);
-            Logger.processInputs("Drive/Gyro", gyroInputs);
+            this.gyroIo.updateInputs(this.gyroInputs);
+            Logger.processInputs("Drive/Gyro", this.gyroInputs);
             for (var module : modules) {
                 module.periodic();
             }
 
             this.odometryCollector.clearAll();
         } finally {
-            ODOMETRY_LOCK.unlock();
+            this.odometryCollector.unlock();
         }
 
         // Stop moving when disabled

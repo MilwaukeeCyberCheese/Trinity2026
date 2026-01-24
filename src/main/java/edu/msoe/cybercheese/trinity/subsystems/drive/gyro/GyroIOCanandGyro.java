@@ -14,14 +14,10 @@ public class GyroIOCanandGyro implements GyroIO {
 
     private final CanandGyroHardware gyroHal = new CanandGyroHardware(this.inner);
 
-    private Rotation2d readAngle() {
-        return Rotation2d.fromRotations(this.inner.getYaw());
-    }
-
     @Override
     public void updateInputs(GyroInputs inputs) {
         inputs.connected = this.inner.isConnected();
-        inputs.yawPosition = this.readAngle();
+        inputs.yawPosition = Units.rotationsToRadians(this.inner.getMultiturnYaw());
         inputs.yawVelocityRadPerSec = Units.rotationsToRadians(this.inner.getAngularVelocityYaw());
 
         inputs.odometryYawTimestamps =  this.gyroHal.timestamps.toDoubleArray();

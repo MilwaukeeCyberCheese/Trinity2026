@@ -24,7 +24,17 @@ public final class OdometryCollector implements AutoCloseable {
         this.notifier.setName(this.getClass().getSimpleName() + "-" + INIT_COUNT.getAndIncrement());
     }
 
+    public void lock() {
+        this.bufferLock.lock();
+    }
+
+    public void unlock() {
+        this.bufferLock.unlock();
+    }
+
     public void addCallback(final @Nullable OdometryCallback callback) {
+        if (callback == null) return;
+
         this.callbacks.add(callback);
     }
 
@@ -47,14 +57,14 @@ public final class OdometryCollector implements AutoCloseable {
     private void readData() {
         final var fpgaTime = RobotController.getFPGATime();
 
-        this.bufferLock.lock();
+        this.lock();
         try {
             for (final var cb : this.callbacks) {
                 cb.clearFrame();
                 cb.collectOdometry(fpgaTime);
             }
         } finally {
-            this.bufferLock.unlock();
+            this.unlock();
         }
     }
 
