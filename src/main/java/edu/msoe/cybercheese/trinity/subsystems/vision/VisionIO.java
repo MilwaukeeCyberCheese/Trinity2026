@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import java.util.Set;
 
 public interface VisionIO extends IO<VisionIO.VisionInputs> {
 
-    @AutoLog
     class VisionInputs implements LoggableInputs {
         public boolean connected = false;
         public TargetObservation latestTargetObservation = new TargetObservation(Rotation2d.kZero, Rotation2d.kZero);

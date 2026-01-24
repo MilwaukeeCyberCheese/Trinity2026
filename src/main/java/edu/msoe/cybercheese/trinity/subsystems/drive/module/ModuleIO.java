@@ -1,33 +1,27 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive.module;
 
-import edu.msoe.cybercheese.trinity.odometry.SwerveModuleHardware;
 import edu.msoe.cybercheese.trinity.replay.IO;
 import edu.wpi.first.math.geometry.Rotation2d;
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public interface ModuleIO extends IO<ModuleIO.ModuleInputs> {
-    @AutoLog
+
     class ModuleInputs implements LoggableInputs {
         public boolean driveConnected = false;
-        public double drivePositionRad = 0.0;
-        public double driveVelocityRadPerSec = 0.0;
+        public double drivePosition = 0.0;
+        public double driveVelocity = 0.0;
         public double driveAppliedVolts = 0.0;
         public double driveCurrentAmps = 0.0;
 
         public boolean turnConnected = false;
-        public Rotation2d turnPosition = Rotation2d.kZero;
-        public double turnVelocityRadPerSec = 0.0;
+        public double turnPosition = 0.0;
+        public double turnVelocity = 0.0;
         public double turnAppliedVolts = 0.0;
         public double turnCurrentAmps = 0.0;
 
         public double[] odometryTimestamps = new double[] {};
-        public double[] odometryDrivePositionsRad = new double[] {};
-        public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
-    }
-
-    default SwerveModuleHardware getOdometryHal() {
-        return null;
+        public double[] odometryDrivePositions = new double[] {};
+        public double[] odometryTurnPositions = new double[] {};
     }
 
     /** Run the drive motor at the specified open loop value. */

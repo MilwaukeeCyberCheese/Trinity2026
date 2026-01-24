@@ -60,23 +60,23 @@ public class ModuleIOSim implements ModuleIO {
 
         // Update drive inputs
         inputs.driveConnected = true;
-        inputs.drivePositionRad = driveSim.getAngularPositionRad();
-        inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
+        inputs.drivePosition = driveSim.getAngularPositionRad();
+        inputs.driveVelocity = driveSim.getAngularVelocityRadPerSec();
         inputs.driveAppliedVolts = driveAppliedVolts;
         inputs.driveCurrentAmps = Math.abs(driveSim.getCurrentDrawAmps());
 
         // Update turn inputs
         inputs.turnConnected = true;
-        inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
-        inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
+        inputs.turnPosition = turnSim.getAngularPositionRad();
+        inputs.turnVelocity = turnSim.getAngularVelocityRadPerSec();
         inputs.turnAppliedVolts = turnAppliedVolts;
         inputs.turnCurrentAmps = Math.abs(turnSim.getCurrentDrawAmps());
 
         // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't
         // matter)
         inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
-        inputs.odometryDrivePositionsRad = new double[] {inputs.drivePositionRad};
-        inputs.odometryTurnPositions = new Rotation2d[] {inputs.turnPosition};
+        inputs.odometryDrivePositions = new double[] {inputs.drivePosition};
+        inputs.odometryTurnPositions = new double[] {inputs.turnPosition};
     }
 
     @Override

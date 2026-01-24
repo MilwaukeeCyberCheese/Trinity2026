@@ -1,68 +1,57 @@
 package edu.msoe.cybercheese.trinity.odometry;
 
+import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-public final class OdometryCollector {
-    
-    private final GyroHardware gyro;
-    private final SwerveModuleHardware[] swerveModules;
-    
+public final class OdometryCollector implements AutoCloseable {
+
+    private static final AtomicInteger INIT_COUNT = new AtomicInteger();
+
     private final ReentrantLock bufferLock = new ReentrantLock();
-    private OdometryBuffer currentBuffer = new OdometryBuffer();
-    private OdometryBuffer mainThreadBuffer = new OdometryBuffer();
-    
-    public OdometryCollector(GyroHardware gyro, SwerveModuleHardware[] swerveModules) {
-        this.gyro = gyro;
-        this.swerveModules = swerveModules;
+    private List<OdometryCallback> callbacks = new ArrayList<>();
+
+    private final Notifier notifier = new Notifier(this::readData);
+
+    public OdometryCollector() {
+        this.notifier.setName(this.getClass().getSimpleName() + "-" + INIT_COUNT.getAndIncrement());
     }
 
-    public OdometryBuffer getMainThreadBuffer() {
-        return mainThreadBuffer;
+    public void addCallback(final @Nullable OdometryCallback callback) {
+        this.callbacks.add(callback);
     }
 
-    public void swapBuffers() {
-        this.bufferLock.lock();
-        try {
-            final var newBuffer = this.mainThreadBuffer;
-            this.mainThreadBuffer = this.currentBuffer;
-            this.currentBuffer = newBuffer;
-            this.currentBuffer.clear();
-        } finally {
-            this.bufferLock.unlock();
-        }
+    public void start() {
+        this.callbacks = Collections.unmodifiableList(this.callbacks);
+        this.notifier.startPeriodic(1.0 / DriveConstants.ODOMETRY_FREQUENCY);
     }
 
-    public static final class OdometryBuffer {
+    @Override
+    public void close() {
+        this.notifier.stop();
+    }
 
-        public final DoubleList timestamps = new DoubleArrayList();
-
-        public final DoubleList gyroRotations = new DoubleArrayList();
-
-        public final DoubleList drivePositions = new DoubleArrayList();
-        public final DoubleList turnPositions = new DoubleArrayList();
-
-        public void clear() {
-            this.timestamps.clear();
-            this.gyroRotations.clear();
-            this.drivePositions.clear();
-            this.turnPositions.clear();
+    public void clearAll() {
+        for (final var cb : this.callbacks) {
+            cb.clearFrame();
         }
     }
 
     private void readData() {
+        final var fpgaTime = RobotController.getFPGATime();
+
         this.bufferLock.lock();
         try {
-            this.currentBuffer.timestamps.add(RobotController.getFPGATime());
-
-            this.currentBuffer.gyroRotations.add(this.gyro.readYaw());
-
-            for (final var swerveModule : this.swerveModules) {
-                this.currentBuffer.drivePositions.add(swerveModule.readDrivePosition());
-                this.currentBuffer.turnPositions.add(swerveModule.readTurnPosition());
+            for (final var cb : this.callbacks) {
+                cb.clearFrame();
+                cb.collectOdometry(fpgaTime);
             }
         } finally {
             this.bufferLock.unlock();
