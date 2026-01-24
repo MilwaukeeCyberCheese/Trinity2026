@@ -6,6 +6,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class DriveConstants {
+
     public static final double MAX_SPEED = 4.8;
     public static final double ODOMETRY_FREQUENCY = 100.0; // Hz
     public static final double TRACK_WIDTH = Units.inchesToMeters(26.5);

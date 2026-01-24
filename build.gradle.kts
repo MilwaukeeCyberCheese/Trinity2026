@@ -140,7 +140,6 @@ dependencies {
     wpilibJni(libs.urcl.driver)
 
     implementation(libs.akit)
-    annotationProcessor(libs.akit.autolog)
     wpilibJni(libs.akit.wpilibio)
 
     implementation(libs.photonvision)

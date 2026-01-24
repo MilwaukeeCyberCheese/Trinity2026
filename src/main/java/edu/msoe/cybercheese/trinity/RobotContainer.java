@@ -2,7 +2,7 @@ package edu.msoe.cybercheese.trinity;
 
 import edu.msoe.cybercheese.trinity.subsystems.drive.*;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
-import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIONavX;
+import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOCanandGyro;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
@@ -106,7 +106,7 @@ public class RobotContainer {
     }
 
     private GyroIO createGyroIo() {
-        if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIONavX();
+        if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOCanandGyro();
 
         return inputs -> {};
     }

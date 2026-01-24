@@ -3,6 +3,7 @@ package edu.msoe.cybercheese.trinity.subsystems.drive;
 import static edu.wpi.first.units.Units.*;
 import static edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants.*;
 
+import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.vision.Vision;
@@ -29,46 +30,52 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.msoe.cybercheese.trinity.Constants;
 import edu.msoe.cybercheese.trinity.Constants.Mode;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements Vision.VisionConsumer {
-    static final Lock ODOMETRY_LOCK = new ReentrantLock();
+
+    private final OdometryCollector odometryCollector;
+
     private final GyroIO gyroIo;
     private final GyroIO.GyroInputs gyroInputs = new GyroIO.GyroInputs();
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
     private final SysIdRoutine sysId;
-    private final Alert gyroDisconnectedAlert =
-            new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+    private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
-    private Rotation2d rawGyroRotation = Rotation2d.kZero;
-    private final SwerveModulePosition[] lastModulePositions = // For delta tracking
-            new SwerveModulePosition[] {
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition()
-            };
-    private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+    private double rawGyroRotation = 0.0;
+    private final SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[] {
+            new SwerveModulePosition(),
+            new SwerveModulePosition(),
+            new SwerveModulePosition(),
+            new SwerveModulePosition()
+    };
+    private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.kZero, lastModulePositions, Pose2d.kZero);
 
     public Drive(
             GyroIO gyroIo,
             ModuleIO flModuleIO,
             ModuleIO frModuleIO,
             ModuleIO blModuleIO,
-            ModuleIO brModuleIO) {
+            ModuleIO brModuleIO
+    ) {
         this.gyroIo = gyroIo;
         this.modules[0] = new Module(flModuleIO, 0);
         this.modules[1] = new Module(frModuleIO, 1);
         this.modules[2] = new Module(blModuleIO, 2);
         this.modules[3] = new Module(brModuleIO, 3);
 
+        this.odometryCollector = new OdometryCollector();
+
+        this.odometryCollector.addCallback(this.gyroIo.getOdometryCallback());
+        for (final var module : this.modules) {
+            this.odometryCollector.addCallback(module.getIo().getOdometryCallback());
+        }
+
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
 
-        SparkOdometryThread.getInstance().start();
+        this.odometryCollector.start();
 
 //    AutoBuilder.configure(
 //        this::getPose,
@@ -90,27 +97,35 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 //          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
 //        });
 
-        // Configure SysId
-        sysId =
-                new SysIdRoutine(
-                        new SysIdRoutine.Config(
-                                null,
-                                null,
-                                null,
-                                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-                        new SysIdRoutine.Mechanism(
-                                (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+        sysId = new SysIdRoutine(
+                new SysIdRoutine.Config(
+                        null,
+                        null,
+                        null,
+                        (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                        (voltage) -> runCharacterization(voltage.in(Volts)),
+                        null,
+                        this
+                )
+        );
     }
 
     @Override
     public void periodic() {
-        ODOMETRY_LOCK.lock(); // Prevents odometry updates while reading data
-        gyroIo.updateInputs(gyroInputs);
-        Logger.processInputs("Drive/Gyro", gyroInputs);
-        for (var module : modules) {
-            module.periodic();
+        this.odometryCollector.lock();
+        try {
+            this.gyroIo.updateInputs(this.gyroInputs);
+            Logger.processInputs("Drive/Gyro", this.gyroInputs);
+            for (var module : modules) {
+                module.periodic();
+            }
+
+            this.odometryCollector.clearAll();
+        } finally {
+            this.odometryCollector.unlock();
         }
-        ODOMETRY_LOCK.unlock();
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {
@@ -150,11 +165,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             } else {
                 // Use the angle delta from the kinematics and module deltas
                 Twist2d twist = kinematics.toTwist2d(moduleDeltas);
-                rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
+                rawGyroRotation = rawGyroRotation + twist.dtheta;
             }
 
             // Apply update
-            poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+            poseEstimator.updateWithTime(sampleTimestamps[i], Rotation2d.fromRadians(rawGyroRotation), modulePositions);
         }
 
         // Update gyro alert
@@ -271,7 +286,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     /** Resets the current odometry pose. */
     public void setPose(Pose2d pose) {
-        poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+        poseEstimator.resetPosition(Rotation2d.fromRadians(rawGyroRotation), getModulePositions(), pose);
     }
 
     @Override

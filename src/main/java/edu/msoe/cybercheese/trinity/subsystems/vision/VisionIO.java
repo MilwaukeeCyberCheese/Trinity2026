@@ -7,22 +7,37 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import org.littletonrobotics.junction.AutoLog;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public interface VisionIO extends IO<VisionIO.VisionInputs> {
 
-    @AutoLog
     class VisionInputs implements LoggableInputs {
         public boolean connected = false;
         public TargetObservation latestTargetObservation = new TargetObservation(Rotation2d.kZero, Rotation2d.kZero);
         public List<PoseObservation> poseObservations = new ArrayList<>();
-        public Set<Short> tagIds = new HashSet<>();
+        public IntSet tagIds = new IntOpenHashSet();
+
+        @Override
+        public void toLog(LogTable table) {
+            table.put("connected", this.connected);
+            table.put("latestTargetObservation", this.latestTargetObservation);
+            table.put("poseObservations", this.poseObservations.toArray(PoseObservation[]::new));
+            table.put("tagIds", this.tagIds.toIntArray());
+        }
+
+        @Override
+        public void fromLog(LogTable table) {
+            this.connected = table.get("connected", this.connected);
+            this.latestTargetObservation = table.get("latestTargetObservation", this.latestTargetObservation);
+            this.poseObservations = new ArrayList<>(Arrays.asList(table.get("poseObservations", this.poseObservations.toArray(PoseObservation[]::new))));
+            this.tagIds = new IntOpenHashSet(IntList.of(table.get("tagIds", this.tagIds.toIntArray())));
+        }
     }
 
     record TargetObservation(Rotation2d tx, Rotation2d ty) {}

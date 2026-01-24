@@ -38,15 +38,15 @@ public class Module {
         int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
         this.odometryPositions.clear();
         for (int i = 0; i < sampleCount; i++) {
-            double positionMeters = this.inputs.odometryDrivePositionsRad[i] * DriveConstants.WHEEL_RADIUS_METERS;
-            Rotation2d angle = this.inputs.odometryTurnPositions[i];
+            double positionMeters = this.inputs.odometryDrivePositions[i] * DriveConstants.WHEEL_RADIUS_METERS;
+            Rotation2d angle = Rotation2d.fromRadians(this.inputs.odometryTurnPositions[i]);
             this.odometryPositions.add(new SwerveModulePosition(positionMeters, angle));
         }
     }
 
     public void runSetpoint(SwerveModuleState state) {
         state.optimize(getAngle());
-        state.cosineScale(this.inputs.turnPosition);
+        state.cosineScale(Rotation2d.fromRadians(this.inputs.turnPosition));
 
         this.io.setDriveVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_RADIUS_METERS);
         this.io.setTurnPosition(state.angle);
@@ -62,16 +62,20 @@ public class Module {
         this.io.setTurnOpenLoop(0.0);
     }
 
+    public ModuleIO getIo() {
+        return io;
+    }
+
     public Rotation2d getAngle() {
-        return this.inputs.turnPosition;
+        return Rotation2d.fromRadians(this.inputs.turnPosition);
     }
 
     public double getPositionMeters() {
-        return this.inputs.drivePositionRad * DriveConstants.WHEEL_RADIUS_METERS;
+        return this.inputs.drivePosition * DriveConstants.WHEEL_RADIUS_METERS;
     }
 
     public double getVelocityMetersPerSec() {
-        return inputs.driveVelocityRadPerSec * DriveConstants.WHEEL_RADIUS_METERS;
+        return inputs.driveVelocity * DriveConstants.WHEEL_RADIUS_METERS;
     }
 
     public SwerveModulePosition getPosition() {
@@ -91,10 +95,10 @@ public class Module {
     }
 
     public double getWheelRadiusCharacterizationPosition() {
-        return this.inputs.drivePositionRad;
+        return this.inputs.drivePosition;
     }
 
     public double getFFCharacterizationVelocity() {
-        return this.inputs.driveVelocityRadPerSec;
+        return this.inputs.driveVelocity;
     }
 }

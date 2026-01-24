@@ -44,7 +44,9 @@ public class VisionIOPhotonVision implements VisionIO {
                     totalTagDistance += target.bestCameraToTarget.getTranslation().getNorm();
                 }
 
-                inputs.tagIds.addAll(multitagResult.fiducialIDsUsed);
+                for (final var id : multitagResult.fiducialIDsUsed) {
+                    inputs.tagIds.add(id);
+                }
 
                 inputs.poseObservations.add(new PoseObservation(
                         result.getTimestampSeconds(),
