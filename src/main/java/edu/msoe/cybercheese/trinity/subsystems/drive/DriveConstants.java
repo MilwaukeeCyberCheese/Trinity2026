@@ -8,9 +8,9 @@ import edu.wpi.first.math.util.Units;
 public class DriveConstants {
 
     public static final double MAX_SPEED = 4.8;
-    public static final double ODOMETRY_FREQUENCY = 100.0; // Hz
-    public static final double TRACK_WIDTH = Units.inchesToMeters(26.5);
-    public static final double WHEEL_BASE = Units.inchesToMeters(26.5);
+    public static final double ODOMETRY_FREQUENCY = 250.0; // Hz
+    public static final double TRACK_WIDTH = Units.inchesToMeters(28);
+    public static final double WHEEL_BASE = Units.inchesToMeters(28);
     public static final double DRIVE_BASE_RADIUS = Math.hypot(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0);
 
 
@@ -22,10 +22,14 @@ public class DriveConstants {
     };
 
     public static final ModuleDefinition[] MODULE_DEFINITIONS = new ModuleDefinition[] {
-            new ModuleDefinition(1, 2, new Rotation2d(0)),
-            new ModuleDefinition(3, 4, new Rotation2d(0)),
-            new ModuleDefinition(5, 6, new Rotation2d(0)),
-            new ModuleDefinition(7, 8, new Rotation2d(0)),
+            // fl
+            new ModuleDefinition(1, 2, Rotation2d.fromDegrees(-90)),
+            // fr
+            new ModuleDefinition(11, 12, Rotation2d.fromDegrees(0)),
+            // bl
+            new ModuleDefinition(5, 6, Rotation2d.fromDegrees(180)),
+            // br
+            new ModuleDefinition(7, 8, Rotation2d.fromDegrees(90)),
     };
 
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 50;

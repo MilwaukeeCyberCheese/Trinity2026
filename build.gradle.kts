@@ -87,7 +87,7 @@ deploy.targets.register<RoboRIO>("roborio") {
 
     with (artifacts) {
         register<FRCJavaArtifact>("frcJava") {
-            setJarTask(tasks.jar)
+            setJarTask(tasks.shadowJar.get())
 
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
             jvmArgs.add("-XX:GCTimeRatio=5")
