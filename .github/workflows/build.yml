@@ -12,7 +12,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Grant execute permission
-        run: chmod +x gradlew
       - name: Build robot code
         run: ./gradlew build
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck
