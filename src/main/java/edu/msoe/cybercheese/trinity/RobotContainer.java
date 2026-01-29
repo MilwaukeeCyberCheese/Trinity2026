@@ -42,7 +42,9 @@ public class RobotContainer {
         this.vision = new Vision(this.drive, cameras);
 
         this.autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
-        this.setupSysIdAutoChooser();
+        if (Constants.ENABLE_SYSID) {
+            this.setupSysIdAutoChooser();
+        }
 
         this.configureButtonBindings();
     }
