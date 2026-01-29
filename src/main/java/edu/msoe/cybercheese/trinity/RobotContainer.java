@@ -2,6 +2,7 @@ package edu.msoe.cybercheese.trinity;
 
 import edu.msoe.cybercheese.trinity.commands.DriveCommands;
 import edu.msoe.cybercheese.trinity.subsystems.drive.*;
+import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOPigeon2;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
@@ -64,15 +65,18 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
         this.drive.setDefaultCommand(DriveCommands.joystickDrive(
-                this.drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
+                this.drive,
+                () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
+                () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
+                () -> -controller.getRightX() * DriveConstants.JOYSTICK_MULTIPLIER));
 
         // Lock to 0 deg when A button is held
         this.controller
                 .a()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
                         this.drive,
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX(),
+                        () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
+                        () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
                         () -> Rotation2d.kZero));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));

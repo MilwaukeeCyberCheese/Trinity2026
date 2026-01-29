@@ -81,5 +81,7 @@ public class DriveConstants {
     public static final int PIGEON_CAN_ID = 60;
     public static final CANBus GYRO_CAN_BUS = CANBus.roboRIO();
 
+    public static final double JOYSTICK_MULTIPLIER = 0.4;
+
     public record ModuleDefinition(int driveCanId, int turnCanId, Rotation2d zeroRotation) {}
 }
