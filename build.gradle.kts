@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.indra.git)
     alias(libs.plugins.shadow)
     alias(libs.plugins.gradlerio)
-//    id("com.diffplug.spotless") version "6.12.0"
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 group = "edu.msoe.cybercheese"
@@ -34,6 +34,7 @@ repositories {
     maven("https://maven.photonvision.org/repository/internal")
     maven("https://maven.photonvision.org/repository/snapshots")
     maven("https://maven.reduxrobotics.com/")
+    maven("https://maven.ctr-electronics.com/release/")
 }
 
 val wpilibJni: Configuration by configurations.creating {
@@ -87,7 +88,7 @@ deploy.targets.register<RoboRIO>("roborio") {
 
     with (artifacts) {
         register<FRCJavaArtifact>("frcJava") {
-            setJarTask(tasks.jar)
+            setJarTask(tasks.shadowJar.get())
 
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
             jvmArgs.add("-XX:GCTimeRatio=5")
@@ -122,6 +123,12 @@ dependencies {
             add(config, dep)
         }
     }
+
+    val phoenix6Version = "26.1.1"
+
+    implementation("com.ctre.phoenix6:wpiapi-java:$phoenix6Version")
+    wpilibJni("com.ctre.phoenix6:api-cpp:$phoenix6Version")
+    wpilibJni("com.ctre.phoenix6:tools:$phoenix6Version")
 
     implementation(libs.jspecify)
     implementation(libs.fastutil)
@@ -172,33 +179,17 @@ tasks {
     }
 }
 
-//project.compileJava.dependsOn(spotlessApply)
-//spotless {
-//    java {
-//        target fileTree(".") {
-//            include "**/*.java"
-//            exclude "**/build/**", "**/build-*/**"
-//        }
-//        toggleOffOn()
-//        googleJavaFormat()
-//        removeUnusedImports()
-//        trimTrailingWhitespace()
-//        endWithNewline()
-//    }
-//    json {
-//        target fileTree(".") {
-//            include "**/*.json"
-//            exclude "**/build/**", "**/build-*/**"
-//        }
-//        gson().indentWithSpaces(2)
-//    }
-//    format "misc", {
-//        target fileTree(".") {
-//            include "**/*.md", "**/.gitignore"
-//            exclude "**/build/**", "**/build-*/**"
-//        }
-//        trimTrailingWhitespace()
-//        indentWithSpaces(2)
-//        endWithNewline()
-//    }
-//}
+spotless {
+    java {
+        target(fileTree(".") {
+            include("**/*.java")
+            exclude("**/build/**", "**/build-*/**")
+        })
+        
+        palantirJavaFormat()
+    }
+}
+
+tasks.compileJava {
+    dependsOn(tasks.spotlessApply)
+}

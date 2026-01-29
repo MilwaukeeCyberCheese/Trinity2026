@@ -19,8 +19,7 @@ public class SparkUtil {
         }
     }
 
-    public static void ifOk(
-            SparkBase spark, DoubleSupplier[] suppliers, Consumer<double[]> consumer) {
+    public static void ifOk(SparkBase spark, DoubleSupplier[] suppliers, Consumer<double[]> consumer) {
         double[] values = new double[suppliers.length];
         for (int i = 0; i < suppliers.length; i++) {
             values[i] = suppliers[i].getAsDouble();

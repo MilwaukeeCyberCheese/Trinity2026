@@ -10,10 +10,9 @@ import edu.wpi.first.math.numbers.N3;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import java.util.*;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
-
-import java.util.*;
 
 public interface VisionIO extends IO<VisionIO.VisionInputs> {
 
@@ -35,7 +34,8 @@ public interface VisionIO extends IO<VisionIO.VisionInputs> {
         public void fromLog(LogTable table) {
             this.connected = table.get("connected", this.connected);
             this.latestTargetObservation = table.get("latestTargetObservation", this.latestTargetObservation);
-            this.poseObservations = new ArrayList<>(Arrays.asList(table.get("poseObservations", this.poseObservations.toArray(PoseObservation[]::new))));
+            this.poseObservations = new ArrayList<>(Arrays.asList(
+                    table.get("poseObservations", this.poseObservations.toArray(PoseObservation[]::new))));
             this.tagIds = new IntOpenHashSet(IntList.of(table.get("tagIds", this.tagIds.toIntArray())));
         }
     }
@@ -48,8 +48,7 @@ public interface VisionIO extends IO<VisionIO.VisionInputs> {
             double ambiguity,
             int tagCount,
             double averageTagDistance,
-            PoseObservationType type
-    ) {
+            PoseObservationType type) {
         public boolean shouldRejectPose() {
             if (this.tagCount() == 0) return true;
 

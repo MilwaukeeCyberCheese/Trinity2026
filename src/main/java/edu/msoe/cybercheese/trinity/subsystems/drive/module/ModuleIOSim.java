@@ -24,14 +24,10 @@ public class ModuleIOSim implements ModuleIO {
 
     public ModuleIOSim() {
         // Create drive and turn sim models
-        driveSim =
-                new DCMotorSim(
-                        LinearSystemId.createDCMotorSystem(DRIVE_GEARBOX, 0.025, DRIVE_MOTOR_REDUCTION),
-                        DRIVE_GEARBOX);
-        turnSim =
-                new DCMotorSim(
-                        LinearSystemId.createDCMotorSystem(TURN_GEARBOX, 0.004, TURN_MOTOR_REDUCTION),
-                        TURN_GEARBOX);
+        driveSim = new DCMotorSim(
+                LinearSystemId.createDCMotorSystem(DRIVE_GEARBOX, 0.025, DRIVE_MOTOR_REDUCTION), DRIVE_GEARBOX);
+        turnSim = new DCMotorSim(
+                LinearSystemId.createDCMotorSystem(TURN_GEARBOX, 0.004, TURN_MOTOR_REDUCTION), TURN_GEARBOX);
 
         // Enable wrapping for turn PID
         turnController.enableContinuousInput(-Math.PI, Math.PI);
@@ -41,8 +37,7 @@ public class ModuleIOSim implements ModuleIO {
     public void updateInputs(ModuleInputs inputs) {
         // Run closed-loop control
         if (driveClosedLoop) {
-            driveAppliedVolts =
-                    driveFFVolts + driveController.calculate(driveSim.getAngularVelocityRadPerSec());
+            driveAppliedVolts = driveFFVolts + driveController.calculate(driveSim.getAngularVelocityRadPerSec());
         } else {
             driveController.reset();
         }

@@ -1,12 +1,11 @@
 package edu.msoe.cybercheese.trinity;
 
-import org.jspecify.annotations.Nullable;
-
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.jar.Manifest;
+import org.jspecify.annotations.Nullable;
 
 public final class BuildConstants {
     private static final @Nullable Manifest MANIFEST = readManifest();
