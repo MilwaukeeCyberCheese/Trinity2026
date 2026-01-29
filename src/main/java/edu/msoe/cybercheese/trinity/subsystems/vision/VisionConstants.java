@@ -14,7 +14,8 @@ public class VisionConstants {
 
     public static final List<CameraDefinition> CAMERA_DEFINITIONS = List.of(
             new CameraDefinition("FrontThrifty", new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0)), 1.0),
-            new CameraDefinition("BackThrifty", new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI)), 1.0));
+            new CameraDefinition(
+                    "BackThrifty", new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI)), 1.0));
 
     public static final double MAX_AMBIGUITY = 0.3;
     // Maximum absolute difference in height from ground
