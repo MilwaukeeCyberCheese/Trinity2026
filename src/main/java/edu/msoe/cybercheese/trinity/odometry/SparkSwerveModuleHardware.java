@@ -18,7 +18,8 @@ public class SparkSwerveModuleHardware implements OdometryCallback {
     public final DoubleList drivePositions = new DoubleArrayList();
     public final DoubleList turnPositions = new DoubleArrayList();
 
-    public SparkSwerveModuleHardware(SparkBase driveSpark, SparkBase turnSpark, RelativeEncoder driveEncoder, AbsoluteEncoder turnEncoder) {
+    public SparkSwerveModuleHardware(
+            SparkBase driveSpark, SparkBase turnSpark, RelativeEncoder driveEncoder, AbsoluteEncoder turnEncoder) {
         this.driveSpark = driveSpark;
         this.turnSpark = turnSpark;
         this.driveEncoder = driveEncoder;

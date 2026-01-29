@@ -1,8 +1,10 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
 import static edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants.*;
+import static edu.wpi.first.units.Units.*;
 
+import edu.msoe.cybercheese.trinity.Constants;
+import edu.msoe.cybercheese.trinity.Constants.Mode;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
@@ -27,9 +29,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.msoe.cybercheese.trinity.Constants;
-import edu.msoe.cybercheese.trinity.Constants.Mode;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -41,25 +40,18 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     private final GyroIO.GyroInputs gyroInputs = new GyroIO.GyroInputs();
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
     private final SysIdRoutine sysId;
-    private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+    private final Alert gyroDisconnectedAlert =
+            new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
     private double rawGyroRotation = 0.0;
     private final SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[] {
-            new SwerveModulePosition(),
-            new SwerveModulePosition(),
-            new SwerveModulePosition(),
-            new SwerveModulePosition()
+        new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()
     };
-    private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.kZero, lastModulePositions, Pose2d.kZero);
+    private final SwerveDrivePoseEstimator poseEstimator =
+            new SwerveDrivePoseEstimator(kinematics, Rotation2d.kZero, lastModulePositions, Pose2d.kZero);
 
-    public Drive(
-            GyroIO gyroIo,
-            ModuleIO flModuleIO,
-            ModuleIO frModuleIO,
-            ModuleIO blModuleIO,
-            ModuleIO brModuleIO
-    ) {
+    public Drive(GyroIO gyroIo, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
         this.gyroIo = gyroIo;
         this.modules[0] = new Module(flModuleIO, 0);
         this.modules[1] = new Module(frModuleIO, 1);
@@ -77,39 +69,30 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
         this.odometryCollector.start();
 
-//    AutoBuilder.configure(
-//        this::getPose,
-//        this::setPose,
-//        this::getChassisSpeeds,
-//        this::runVelocity,
-//        new PPHolonomicDriveController(
-//            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
-//        ppConfig,
-//        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-//        this);
-//    Pathfinding.setPathfinder(new LocalADStarAK());
-//    PathPlannerLogging.setLogActivePathCallback(
-//        (activePath) -> {
-//          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-//        });
-//    PathPlannerLogging.setLogTargetPoseCallback(
-//        (targetPose) -> {
-//          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-//        });
+        //    AutoBuilder.configure(
+        //        this::getPose,
+        //        this::setPose,
+        //        this::getChassisSpeeds,
+        //        this::runVelocity,
+        //        new PPHolonomicDriveController(
+        //            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+        //        ppConfig,
+        //        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        //        this);
+        //    Pathfinding.setPathfinder(new LocalADStarAK());
+        //    PathPlannerLogging.setLogActivePathCallback(
+        //        (activePath) -> {
+        //          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+        //        });
+        //    PathPlannerLogging.setLogTargetPoseCallback(
+        //        (targetPose) -> {
+        //          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        //        });
 
         sysId = new SysIdRoutine(
                 new SysIdRoutine.Config(
-                        null,
-                        null,
-                        null,
-                        (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())
-                ),
-                new SysIdRoutine.Mechanism(
-                        (voltage) -> runCharacterization(voltage.in(Volts)),
-                        null,
-                        this
-                )
-        );
+                        null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
     }
 
     @Override
@@ -141,20 +124,18 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         }
 
         // Update odometry
-        double[] sampleTimestamps =
-                modules[0].getOdometryTimestamps(); // All signals are sampled together
+        double[] sampleTimestamps = modules[0].getOdometryTimestamps(); // All signals are sampled together
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
             // Read wheel positions and deltas from each module
             SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
             SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
             for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
-                modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions().get(i);
-                moduleDeltas[moduleIndex] =
-                        new SwerveModulePosition(
-                                modulePositions[moduleIndex].distanceMeters
-                                        - lastModulePositions[moduleIndex].distanceMeters,
-                                modulePositions[moduleIndex].angle);
+                modulePositions[moduleIndex] =
+                        modules[moduleIndex].getOdometryPositions().get(i);
+                moduleDeltas[moduleIndex] = new SwerveModulePosition(
+                        modulePositions[moduleIndex].distanceMeters - lastModulePositions[moduleIndex].distanceMeters,
+                        modulePositions[moduleIndex].angle);
                 lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
             }
 
@@ -226,9 +207,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return run(() -> runCharacterization(0.0))
-                .withTimeout(1.0)
-                .andThen(sysId.quasistatic(direction));
+        return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.quasistatic(direction));
     }
 
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
@@ -291,10 +270,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     @Override
     public void addVisionMeasurement(
-            Pose2d visionRobotPoseMeters,
-            double timestampSeconds,
-            Matrix<N3, N1> visionMeasurementStdDevs
-    ) {
+            Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
         poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 

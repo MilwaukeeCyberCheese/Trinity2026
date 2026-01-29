@@ -3,13 +3,12 @@ package edu.msoe.cybercheese.trinity.odometry;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import org.jspecify.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import org.jspecify.annotations.Nullable;
 
 public final class OdometryCollector implements AutoCloseable {
 
@@ -67,5 +66,4 @@ public final class OdometryCollector implements AutoCloseable {
             this.unlock();
         }
     }
-
 }

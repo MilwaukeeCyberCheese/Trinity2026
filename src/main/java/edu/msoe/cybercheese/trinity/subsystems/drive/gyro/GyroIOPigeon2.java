@@ -33,7 +33,7 @@ public class GyroIOPigeon2 implements GyroIO {
         BaseStatusSignal.refreshAll(yaw, yawVelocity);
 
         inputs.connected = BaseStatusSignal.isAllGood(yaw, yawVelocity);
-        
+
         // rotations -> radians
         inputs.yawPosition = Units.rotationsToRadians(yaw.getValueAsDouble());
         // rotations/s -> radians/s

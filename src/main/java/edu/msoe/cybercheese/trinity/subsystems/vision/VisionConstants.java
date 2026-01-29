@@ -4,30 +4,17 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-
 import java.util.List;
 
 public class VisionConstants {
-    public record CameraDefinition(
-            String name,
-            Transform3d transform,
-            double stdDevFactor
-    ) {}
+    public record CameraDefinition(String name, Transform3d transform, double stdDevFactor) {}
 
-    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT =
+            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     public static final List<CameraDefinition> CAMERA_DEFINITIONS = List.of(
-            new CameraDefinition(
-                    "camera_0",
-                    new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0)),
-                    1.0
-            ),
-            new CameraDefinition(
-                    "camera_1",
-                    new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI)),
-                    1.0
-            )
-    );
+            new CameraDefinition("camera_0", new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0)), 1.0),
+            new CameraDefinition("camera_1", new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI)), 1.0));
 
     public static final double MAX_AMBIGUITY = 0.3;
     // Maximum absolute difference in height from ground

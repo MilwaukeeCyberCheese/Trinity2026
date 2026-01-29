@@ -7,10 +7,13 @@ public record Camera(
         VisionConstants.CameraDefinition definition,
         VisionIO io,
         VisionIO.VisionInputs inputs,
-        Alert disconnectedAlert
-) {
+        Alert disconnectedAlert) {
     public Camera(VisionConstants.CameraDefinition definition, VisionIO io) {
-        this(definition, io, new VisionIO.VisionInputs(), new Alert("Vision camera " + definition.name() + " is disconnected.", Alert.AlertType.kWarning));
+        this(
+                definition,
+                io,
+                new VisionIO.VisionInputs(),
+                new Alert("Vision camera " + definition.name() + " is disconnected.", Alert.AlertType.kWarning));
     }
 
     public void update() {

@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -57,26 +56,21 @@ public class Vision extends SubsystemBase {
                 this.consumer.addVisionMeasurement(
                         observation.pose().toPose2d(),
                         observation.timestamp(),
-                        observation.computeStandardDeviations().times(camera.definition().stdDevFactor())
-                );
+                        observation
+                                .computeStandardDeviations()
+                                .times(camera.definition().stdDevFactor()));
             }
 
             Logger.recordOutput(
-                    "Vision/Camera/" + camera.definition().name() + "/TagPoses",
-                    tagPoses.toArray(new Pose3d[0])
-            );
+                    "Vision/Camera/" + camera.definition().name() + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
             Logger.recordOutput(
-                    "Vision/Camera/" + camera.definition().name() + "/RobotPoses",
-                    robotPoses.toArray(new Pose3d[0])
-            );
+                    "Vision/Camera/" + camera.definition().name() + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
             Logger.recordOutput(
                     "Vision/Camera/" + camera.definition().name() + "/RobotPosesAccepted",
-                    robotPosesAccepted.toArray(new Pose3d[0])
-            );
+                    robotPosesAccepted.toArray(new Pose3d[0]));
             Logger.recordOutput(
                     "Vision/Camera/" + camera.definition().name() + "/RobotPosesRejected",
-                    robotPosesRejected.toArray(new Pose3d[0])
-            );
+                    robotPosesRejected.toArray(new Pose3d[0]));
             allTagPoses.addAll(tagPoses);
             allRobotPoses.addAll(robotPoses);
             allRobotPosesAccepted.addAll(robotPosesAccepted);
@@ -86,19 +80,13 @@ public class Vision extends SubsystemBase {
         // Log summary data
         Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
         Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
-        Logger.recordOutput(
-                "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
-        Logger.recordOutput(
-                "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+        Logger.recordOutput("Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
+        Logger.recordOutput("Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
     }
 
     @FunctionalInterface
     public interface VisionConsumer {
         void addVisionMeasurement(
-                Pose2d visionRobotPoseMeters,
-                double timestampSeconds,
-                Matrix<N3, N1> visionMeasurementStdDevs
-        );
+                Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs);
     }
-
 }

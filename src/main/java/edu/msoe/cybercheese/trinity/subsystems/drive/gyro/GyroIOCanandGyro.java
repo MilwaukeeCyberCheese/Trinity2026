@@ -19,7 +19,7 @@ public class GyroIOCanandGyro implements GyroIO {
         inputs.yawPosition = Units.rotationsToRadians(this.inner.getMultiturnYaw());
         inputs.yawVelocityRadPerSec = Units.rotationsToRadians(this.inner.getAngularVelocityYaw());
 
-        inputs.odometryYawTimestamps =  this.gyroHal.timestamps.toDoubleArray();
+        inputs.odometryYawTimestamps = this.gyroHal.timestamps.toDoubleArray();
         inputs.odometryYawPositions = this.gyroHal.rotations.toDoubleArray();
     }
 
