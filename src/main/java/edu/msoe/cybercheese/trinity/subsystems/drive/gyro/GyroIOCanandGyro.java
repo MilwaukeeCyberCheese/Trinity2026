@@ -4,7 +4,6 @@ import com.reduxrobotics.sensors.canandgyro.Canandgyro;
 import edu.msoe.cybercheese.trinity.odometry.CanandGyroHardware;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.jspecify.annotations.Nullable;
 

@@ -1,5 +1,7 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
+import com.ctre.phoenix6.CANBus;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -78,6 +80,8 @@ public class DriveConstants {
     public static final double WHEEL_COF = 1.2;
 
     public static final int CANANDGYRO_CAN_ID = -1;
+    public static final int PIGEON_CAN_ID = 60;
+    public static final CANBus GYRO_CAN_BUS = CANBus.roboRIO();
 
     public record ModuleDefinition(
             int driveCanId,
