@@ -23,3 +23,5 @@ Thumbs.db
 networktables.json
 simgui*.json
 *-window.json
+
+bin/
