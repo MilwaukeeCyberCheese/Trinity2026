@@ -1,10 +1,11 @@
 package edu.msoe.cybercheese.trinity;
 
+import com.reduxrobotics.canand.CanandEventLoop;
 import edu.msoe.cybercheese.trinity.commands.DriveCommands;
 import edu.msoe.cybercheese.trinity.subsystems.drive.*;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
-import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOPigeon2;
+import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOCanandGyro;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
@@ -28,6 +29,8 @@ public class RobotContainer {
     private final LoggedDashboardChooser<Command> autoChooser;
 
     public RobotContainer() {
+        CanandEventLoop.getInstance(); // starts management server for redux alchemist
+
         this.drive = new Drive(
                 this.createGyroIo(),
                 this.createModuleIo(DriveConstants.MODULE_DEFINITIONS[0]),
@@ -97,8 +100,8 @@ public class RobotContainer {
     }
 
     private GyroIO createGyroIo() {
-        // if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOCanandGyro();
-        if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOPigeon2();
+        if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOCanandGyro();
+        // if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOPigeon2();
 
         return inputs -> {};
     }

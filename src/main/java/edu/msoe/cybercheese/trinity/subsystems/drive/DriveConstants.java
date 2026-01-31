@@ -77,7 +77,7 @@ public class DriveConstants {
     public static final double ROBOT_MOI = 6.883;
     public static final double WHEEL_COF = 1.2;
 
-    public static final int CANANDGYRO_CAN_ID = -1;
+    public static final int CANANDGYRO_CAN_ID = 61;
     public static final int PIGEON_CAN_ID = 60;
     public static final CANBus GYRO_CAN_BUS = CANBus.roboRIO();
 
