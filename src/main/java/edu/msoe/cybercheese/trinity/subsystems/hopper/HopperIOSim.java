@@ -22,6 +22,7 @@ public class HopperIOSim implements HopperIO {
 
     @Override
     public void setVoltage(double volts) {
+        
         appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
         sim.setInputVoltage(appliedVolts);
     }
