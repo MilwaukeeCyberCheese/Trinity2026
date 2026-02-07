@@ -124,12 +124,6 @@ dependencies {
         }
     }
 
-    val phoenix6Version = "26.1.1"
-
-    implementation("com.ctre.phoenix6:wpiapi-java:$phoenix6Version")
-    wpilibJni("com.ctre.phoenix6:api-cpp:$phoenix6Version")
-    wpilibJni("com.ctre.phoenix6:tools:$phoenix6Version")
-
     implementation(libs.jspecify)
     implementation(libs.fastutil)
 
@@ -142,6 +136,10 @@ dependencies {
     wpilibJni(libs.revlib.driver)
     wpilibJni(libs.revlib.driver.backend)
     wpilibJni(libs.revlib.driver.backend.wpi)
+
+    implementation(libs.phoenix6)
+    wpilibJni(libs.phoenix6.native)
+    wpilibJni(libs.phoenix6.tools)
 
     implementation(libs.urcl)
     wpilibJni(libs.urcl.driver)
