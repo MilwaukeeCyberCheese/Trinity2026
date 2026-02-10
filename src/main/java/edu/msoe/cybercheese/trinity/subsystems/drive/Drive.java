@@ -1,8 +1,5 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
-import static edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants.*;
-import static edu.wpi.first.units.Units.*;
-
 import edu.msoe.cybercheese.trinity.Constants;
 import edu.msoe.cybercheese.trinity.Constants.Mode;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
@@ -23,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,6 +29,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.jspecify.annotations.Nullable;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -38,14 +39,16 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     private final OdometryCollector odometryCollector;
 
+    private final @Nullable SwerveDriveSimulation driveSimulation;
+
     private final GyroIO gyroIo;
     private final GyroIO.GyroInputs gyroInputs = new GyroIO.GyroInputs();
-    private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+    private final Module[] modules;
     private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert =
             new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
-    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.MODULE_TRANSLATIONS);
     private double rawGyroRotation = 0.0;
     private final SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[] {
         new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()
@@ -55,12 +58,15 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     private final Field2d field = new Field2d();
 
-    public Drive(GyroIO gyroIo, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
+    public Drive(
+            final @Nullable SwerveDriveSimulation driveSimulation, final GyroIO gyroIo, final ModuleIO[] moduleIos) {
+        this.driveSimulation = driveSimulation;
+
         this.gyroIo = gyroIo;
-        this.modules[0] = new Module(flModuleIO, 0);
-        this.modules[1] = new Module(frModuleIO, 1);
-        this.modules[2] = new Module(blModuleIO, 2);
-        this.modules[3] = new Module(brModuleIO, 3);
+        this.modules = new Module[moduleIos.length]; // FL, FR, BL, BR
+        for (int i = 0; i < moduleIos.length; i++) {
+            this.modules[i] = new Module(moduleIos[i], i);
+        }
 
         this.odometryCollector = new OdometryCollector();
 
@@ -70,6 +76,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         }
 
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
+
+        if (this.driveSimulation != null) {
+            SimulatedArena.getInstance().addDriveTrainSimulation(this.driveSimulation);
+        }
 
         this.odometryCollector.start();
 
@@ -96,7 +106,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         sysId = new SysIdRoutine(
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Units.Volts)), null, this));
 
         SmartDashboard.putData("Field", field);
     }
@@ -174,7 +184,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, MAX_SPEED);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.MAX_SPEED);
 
         // Log unoptimized setpoints
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -208,7 +218,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     public void stopWithX() {
         Rotation2d[] headings = new Rotation2d[4];
         for (int i = 0; i < 4; i++) {
-            headings[i] = MODULE_TRANSLATIONS[i].getAngle();
+            headings[i] = DriveConstants.MODULE_TRANSLATIONS[i].getAngle();
         }
         kinematics.resetHeadings(headings);
         stop();
@@ -263,6 +273,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     /** Returns the current odometry pose. */
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
+        if (this.driveSimulation != null) {
+            return this.driveSimulation.getSimulatedDriveTrainPose();
+        }
+
         return poseEstimator.getEstimatedPosition();
     }
 
@@ -284,11 +298,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     /** Returns the maximum linear speed in meters per sec. */
     public double getMaxLinearSpeedMetersPerSec() {
-        return MAX_SPEED;
+        return DriveConstants.MAX_SPEED;
     }
 
     /** Returns the maximum angular speed in radians per sec. */
     public double getMaxAngularSpeedRadPerSec() {
-        return MAX_SPEED / DRIVE_BASE_RADIUS;
+        return DriveConstants.MAX_SPEED / DriveConstants.DRIVE_BASE_RADIUS;
     }
 }

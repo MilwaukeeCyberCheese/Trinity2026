@@ -6,6 +6,7 @@ import edu.msoe.cybercheese.trinity.subsystems.drive.*;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOCanandGyro;
+import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
@@ -18,9 +19,18 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
+import org.jspecify.annotations.Nullable;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
+
+    private final @Nullable SimulatedArena simulatedArena;
+    private final @Nullable SwerveDriveSimulation driveSimulation;
+
     private final Drive drive;
     private final Vision vision;
 
@@ -31,16 +41,21 @@ public class RobotContainer {
     public RobotContainer() {
         CanandEventLoop.getInstance(); // starts management server for redux alchemist
 
-        this.drive = new Drive(
-                this.createGyroIo(),
-                this.createModuleIo(DriveConstants.MODULE_DEFINITIONS[0]),
-                this.createModuleIo(DriveConstants.MODULE_DEFINITIONS[1]),
-                this.createModuleIo(DriveConstants.MODULE_DEFINITIONS[2]),
-                this.createModuleIo(DriveConstants.MODULE_DEFINITIONS[3]));
+        this.simulatedArena = Constants.CURRENT_MODE == Constants.Mode.SIM ? new Arena2026Rebuilt() : null;
+        this.driveSimulation = this.simulatedArena != null
+                ? new SwerveDriveSimulation(null, new Pose2d(3, 3, Rotation2d.kZero))
+                : null;
+
+        final var moduleIos = new ModuleIO[DriveConstants.MODULE_DEFINITIONS.length];
+        for (int i = 0; i < DriveConstants.MODULE_DEFINITIONS.length; i++) {
+            moduleIos[i] = this.createModuleIo(
+                    DriveConstants.MODULE_DEFINITIONS[i], this.driveSimulation.getModules()[i]);
+        }
+        this.drive = new Drive(this.driveSimulation, this.createGyroIo(), moduleIos);
 
         final var cameras = new ArrayList<Camera>();
         for (final var cameraDef : VisionConstants.CAMERA_DEFINITIONS) {
-            cameras.add(new Camera(cameraDef, this.createVisionIo(cameraDef)));
+            cameras.add(new Camera(cameraDef, this.createVisionIo(cameraDef, this.drive)));
         }
         this.vision = new Vision(this.drive, cameras);
 
@@ -99,25 +114,27 @@ public class RobotContainer {
         return this.autoChooser.get();
     }
 
-    private GyroIO createGyroIo() {
-        if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOCanandGyro();
-        // if (Constants.CURRENT_MODE == Constants.Mode.REAL) return new GyroIOPigeon2();
-
-        return inputs -> {};
-    }
-
-    private ModuleIO createModuleIo(final DriveConstants.ModuleDefinition definition) {
+    private VisionIO createVisionIo(final VisionConstants.CameraDefinition definition, final Drive drive) {
         return switch (Constants.CURRENT_MODE) {
-            case REAL -> new ModuleIOSpark(definition);
-            case SIM -> new ModuleIOSim();
+            case REAL -> new VisionIOPhotonVision(definition.name(), definition.transform());
+            case SIM -> new VisionIOPhotonVisionSim(definition.name(), definition.transform(), drive::getPose);
             case REPLAY -> inputs -> {};
         };
     }
 
-    private VisionIO createVisionIo(final VisionConstants.CameraDefinition definition) {
+    private GyroIO createGyroIo() {
         return switch (Constants.CURRENT_MODE) {
-            case REAL -> new VisionIOPhotonVision(definition.name(), definition.transform());
-            case SIM -> new VisionIOPhotonVisionSim(definition.name(), definition.transform(), this.drive::getPose);
+            case REAL -> new GyroIOCanandGyro();
+            case SIM -> new GyroIOSim(this.driveSimulation.getGyroSimulation());
+            case REPLAY -> inputs -> {};
+        };
+    }
+
+    private ModuleIO createModuleIo(
+            final DriveConstants.ModuleDefinition definition, final @Nullable SwerveModuleSimulation moduleSimulation) {
+        return switch (Constants.CURRENT_MODE) {
+            case REAL -> new ModuleIOSpark(definition);
+            case SIM -> new ModuleIOSim(moduleSimulation);
             case REPLAY -> inputs -> {};
         };
     }

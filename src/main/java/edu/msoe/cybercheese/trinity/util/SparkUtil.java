@@ -2,10 +2,13 @@ package edu.msoe.cybercheese.trinity.util;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.ironmaple.simulation.SimulatedArena;
 
 public class SparkUtil {
     public static boolean sparkStickyFault = false;
@@ -40,5 +43,17 @@ public class SparkUtil {
                 sparkStickyFault = true;
             }
         }
+    }
+
+    // TODO: move elsewhere lol
+    public static double[] getSimulationOdometryTimeStamps() {
+        final double[] odometryTimeStamps = new double[SimulatedArena.getSimulationSubTicksIn1Period()];
+        for (int i = 0; i < odometryTimeStamps.length; i++) {
+            odometryTimeStamps[i] = Timer.getFPGATimestamp()
+                    - 0.02
+                    + i * SimulatedArena.getSimulationDt().in(Units.Seconds);
+        }
+
+        return odometryTimeStamps;
     }
 }

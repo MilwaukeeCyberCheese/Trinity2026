@@ -35,6 +35,7 @@ repositories {
     maven("https://maven.photonvision.org/repository/snapshots")
     maven("https://maven.reduxrobotics.com/")
     maven("https://maven.ctr-electronics.com/release/")
+    maven("https://shenzhen-robotics-alliance.github.io/maple-sim/vendordep/repos/releases")
 }
 
 val wpilibJni: Configuration by configurations.creating {
@@ -147,6 +148,9 @@ dependencies {
     implementation(libs.akit)
     annotationProcessor(libs.akit)
     wpilibJni(libs.akit.wpilibio)
+
+    implementation(libs.dyn4j)
+    implementation(libs.maplesim)
 
     implementation(libs.photonvision)
     implementation(libs.photonvision.targeting)

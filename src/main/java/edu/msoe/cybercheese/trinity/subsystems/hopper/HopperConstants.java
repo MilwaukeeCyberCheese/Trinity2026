@@ -8,5 +8,4 @@ public class HopperConstants {
     public static final double FORWARD_VOLTAGE = 6.0;
     public static final int HOPPER_MOTOR_ID = 10; // TODO: Set correct ID
     public static final DCMotor HOPPER_GEARBOX = DCMotor.getNeoVortex(1);
-
 }

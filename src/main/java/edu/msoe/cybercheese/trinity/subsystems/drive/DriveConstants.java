@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class DriveConstants {
 
@@ -83,5 +84,20 @@ public class DriveConstants {
 
     public static final double JOYSTICK_MULTIPLIER = 0.8;
 
-    public record ModuleDefinition(int driveCanId, int turnCanId, Rotation2d zeroRotation) {}
+    public record ModuleDefinition(int driveCanId, int turnCanId, Rotation2d zeroRotation) {
+
+        public SwerveModuleSimulationConfig simConfig() {
+            return new SwerveModuleSimulationConfig(
+                    DRIVE_GEARBOX,
+                    TURN_GEARBOX,
+                    DRIVE_MOTOR_REDUCTION,
+                    TURN_MOTOR_REDUCTION,
+                    null,
+                    null,
+                    edu.wpi.first.units.Units.Meters.of(WHEEL_RADIUS_METERS),
+                    null,
+                    WHEEL_COF
+            );
+        }
+    }
 }

@@ -15,14 +15,17 @@ akit-wpilibio = { group = "org.littletonrobotics.akit", name = "akit-wpilibio", 
 
 choreo = { group = "choreo", name = "ChoreoLib-java", version.ref = "choreo" }
 
+dyn4j = { group = "org.dyn4j", name = "dyn4j", version = "5.0.2" }
+
 fastutil = { group = "it.unimi.dsi", name = "fastutil", version = "8.5.18" }
 
 jspecify = { group = "org.jspecify", name = "jspecify", version = "1.0.0" }
 
+maplesim = { group = "org.ironmaple", name = "maplesim-java", version = "0.4.0-beta" }
+
 phoenix6 = { group = "com.ctre.phoenix6", name = "wpiapi-java", version.ref = "phoenix6" }
 phoenix6-native = { group = "com.ctre.phoenix6", name = "api-cpp", version.ref = "phoenix6" }
 phoenix6-tools = { group = "com.ctre.phoenix6", name = "tools", version.ref = "phoenix6" }
-
 
 photonvision = { group = "org.photonvision", name = "photonlib-java", version.ref = "photonvision" }
 photonvision-targeting = { group = "org.photonvision", name = "photontargeting-java", version.ref = "photonvision" }
