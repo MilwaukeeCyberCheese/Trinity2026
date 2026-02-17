@@ -4,7 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
-import edu.wpi.first.units.Units;
+import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.units.measure.Angle;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -35,7 +35,7 @@ public class Pigeon2Hardware implements OdometryCallback {
 
         if (success) {
             this.timestamps.add(fpgaTime);
-            this.rotations.add(this.yawSignal.getValue().in(Units.Radians));
+            this.rotations.add(this.yawSignal.getValue().in(UnitTypes.RADIANS));
         }
     }
 }

@@ -2,7 +2,6 @@ package edu.msoe.cybercheese.trinity.util;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
@@ -51,7 +50,7 @@ public class SparkUtil {
         for (int i = 0; i < odometryTimeStamps.length; i++) {
             odometryTimeStamps[i] = Timer.getFPGATimestamp()
                     - 0.02
-                    + i * SimulatedArena.getSimulationDt().in(Units.Seconds);
+                    + i * SimulatedArena.getSimulationDt().in(UnitTypes.SECONDS);
         }
 
         return odometryTimeStamps;

@@ -1,9 +1,7 @@
 package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
-import static edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterConstants.*;
-import static edu.wpi.first.units.Units.Volts;
-
 import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterIO.ShooterInputs;
+import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,7 +24,7 @@ public class Shooter extends SubsystemBase {
         this.sysId = new SysIdRoutine(
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("Shooter/SysIdState", state.toString())),
-                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(UnitTypes.VOLTS)), null, this));
     }
 
     @Override

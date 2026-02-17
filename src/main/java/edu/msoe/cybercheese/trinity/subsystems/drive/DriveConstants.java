@@ -1,10 +1,14 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
 import com.ctre.phoenix6.CANBus;
+import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import org.ironmaple.simulation.drivesims.GyroSimulation;
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class DriveConstants {
@@ -84,20 +88,25 @@ public class DriveConstants {
 
     public static final double JOYSTICK_MULTIPLIER = 0.8;
 
-    public record ModuleDefinition(int driveCanId, int turnCanId, Rotation2d zeroRotation) {
+    public static final SwerveModuleSimulationConfig SWERVE_MODULE_SIMULATION_CONFIG = new SwerveModuleSimulationConfig(
+            DRIVE_GEARBOX,
+            TURN_GEARBOX,
+            DRIVE_MOTOR_REDUCTION,
+            TURN_MOTOR_REDUCTION,
+            UnitTypes.VOLTS.of(0.1),
+            UnitTypes.VOLTS.of(0.1),
+            UnitTypes.METERS.of(WHEEL_RADIUS_METERS),
+            UnitTypes.KILOGRAM_SQUARE_METERS.of(0.02),
+            WHEEL_COF);
 
-        public SwerveModuleSimulationConfig simConfig() {
-            return new SwerveModuleSimulationConfig(
-                    DRIVE_GEARBOX,
-                    TURN_GEARBOX,
-                    DRIVE_MOTOR_REDUCTION,
-                    TURN_MOTOR_REDUCTION,
-                    null,
-                    null,
-                    edu.wpi.first.units.Units.Meters.of(WHEEL_RADIUS_METERS),
-                    null,
-                    WHEEL_COF
-            );
-        }
-    }
+    public static final DriveTrainSimulationConfig DRIVE_TRAIN_SIMULATION_CONFIG = new DriveTrainSimulationConfig(
+            UnitTypes.KILOGRAMS.of(ROBOT_MASS_KG),
+            UnitTypes.METERS.of(WHEEL_BASE + 0.1),
+            UnitTypes.METERS.of(TRACK_WIDTH + 0.1),
+            UnitTypes.METERS.of(WHEEL_BASE),
+            UnitTypes.METERS.of(WHEEL_BASE),
+            () -> new GyroSimulation(0.5, 0.02),
+            () -> new SwerveModuleSimulation(SWERVE_MODULE_SIMULATION_CONFIG));
+
+    public record ModuleDefinition(int driveCanId, int turnCanId, Rotation2d zeroRotation) {}
 }

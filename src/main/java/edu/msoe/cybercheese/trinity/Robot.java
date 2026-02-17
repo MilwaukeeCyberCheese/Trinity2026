@@ -104,5 +104,7 @@ public class Robot extends LoggedRobot {
     public void simulationInit() {}
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+        this.robotContainer.updateSimulation();
+    }
 }

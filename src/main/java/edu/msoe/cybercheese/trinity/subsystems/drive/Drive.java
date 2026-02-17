@@ -6,6 +6,7 @@ import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.vision.Vision;
+import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -20,7 +21,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -106,7 +106,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         sysId = new SysIdRoutine(
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Units.Volts)), null, this));
+                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(UnitTypes.VOLTS)), null, this));
 
         SmartDashboard.putData("Field", field);
     }

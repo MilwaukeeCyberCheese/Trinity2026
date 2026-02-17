@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
+import java.util.Objects;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.jspecify.annotations.Nullable;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -43,13 +45,15 @@ public class RobotContainer {
 
         this.simulatedArena = Constants.CURRENT_MODE == Constants.Mode.SIM ? new Arena2026Rebuilt() : null;
         this.driveSimulation = this.simulatedArena != null
-                ? new SwerveDriveSimulation(null, new Pose2d(3, 3, Rotation2d.kZero))
+                ? new SwerveDriveSimulation(
+                        DriveConstants.DRIVE_TRAIN_SIMULATION_CONFIG, new Pose2d(3, 3, Rotation2d.kZero))
                 : null;
 
         final var moduleIos = new ModuleIO[DriveConstants.MODULE_DEFINITIONS.length];
         for (int i = 0; i < DriveConstants.MODULE_DEFINITIONS.length; i++) {
             moduleIos[i] = this.createModuleIo(
-                    DriveConstants.MODULE_DEFINITIONS[i], this.driveSimulation.getModules()[i]);
+                    DriveConstants.MODULE_DEFINITIONS[i],
+                    Objects.requireNonNull(this.driveSimulation).getModules()[i]);
         }
         this.drive = new Drive(this.driveSimulation, this.createGyroIo(), moduleIos);
 
@@ -125,7 +129,8 @@ public class RobotContainer {
     private GyroIO createGyroIo() {
         return switch (Constants.CURRENT_MODE) {
             case REAL -> new GyroIOCanandGyro();
-            case SIM -> new GyroIOSim(this.driveSimulation.getGyroSimulation());
+            case SIM -> new GyroIOSim(
+                    Objects.requireNonNull(this.driveSimulation).getGyroSimulation());
             case REPLAY -> inputs -> {};
         };
     }
@@ -134,8 +139,19 @@ public class RobotContainer {
             final DriveConstants.ModuleDefinition definition, final @Nullable SwerveModuleSimulation moduleSimulation) {
         return switch (Constants.CURRENT_MODE) {
             case REAL -> new ModuleIOSpark(definition);
-            case SIM -> new ModuleIOSim(moduleSimulation);
+            case SIM -> new ModuleIOSim(Objects.requireNonNull(moduleSimulation));
             case REPLAY -> inputs -> {};
         };
+    }
+
+    public void updateSimulation() {
+        if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
+
+        SimulatedArena.getInstance().simulationPeriodic();
+        Logger.recordOutput("FieldSimulation/RobotPosition", this.driveSimulation.getSimulatedDriveTrainPose());
+        Logger.recordOutput(
+                "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+        Logger.recordOutput(
+                "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
     }
 }

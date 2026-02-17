@@ -7,7 +7,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.odometry.Pigeon2Hardware;
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
-import edu.wpi.first.units.Units;
+import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import org.jspecify.annotations.Nullable;
@@ -40,8 +40,8 @@ public class GyroIOPigeon2 implements GyroIO {
         BaseStatusSignal.refreshAll(yaw, yawVelocity);
 
         inputs.connected = BaseStatusSignal.isAllGood(yaw, yawVelocity);
-        inputs.yawPosition = yaw.getValue().in(Units.Radians);
-        inputs.yawVelocityRadPerSec = yawVelocity.getValue().in(Units.RadiansPerSecond);
+        inputs.yawPosition = yaw.getValue().in(UnitTypes.RADIANS);
+        inputs.yawVelocityRadPerSec = yawVelocity.getValue().in(UnitTypes.RADIANS_PER_SECOND);
         inputs.odometryYawTimestamps = gyroHal.timestamps.toDoubleArray();
         inputs.odometryYawPositions = gyroHal.rotations.toDoubleArray();
 

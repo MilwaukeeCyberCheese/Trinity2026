@@ -2,9 +2,9 @@ package edu.msoe.cybercheese.trinity.subsystems.drive.module;
 
 import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.msoe.cybercheese.trinity.util.SparkUtil;
+import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
 import java.util.Arrays;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
@@ -29,10 +29,10 @@ public class ModuleIOSim implements ModuleIO {
         this.moduleSimulation = moduleSimulation;
         this.driveMotor = this.moduleSimulation
                 .useGenericMotorControllerForDrive()
-                .withCurrentLimit(Units.Amps.of(DriveConstants.DRIVE_MOTOR_CURRENT_LIMIT));
+                .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.DRIVE_MOTOR_CURRENT_LIMIT));
         this.turnMotor = this.moduleSimulation
                 .useGenericControllerForSteer()
-                .withCurrentLimit(Units.Amps.of(DriveConstants.TURN_MOTOR_CURRENT_LIMIT));
+                .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.TURN_MOTOR_CURRENT_LIMIT));
 
         this.turnController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -42,7 +42,7 @@ public class ModuleIOSim implements ModuleIO {
         if (this.driveClosedLoop) {
             this.driveAppliedVolts = this.driveFFVolts
                     + this.driveController.calculate(
-                            this.moduleSimulation.getDriveWheelFinalSpeed().in(Units.RadiansPerSecond));
+                            this.moduleSimulation.getDriveWheelFinalSpeed().in(UnitTypes.RADIANS_PER_SECOND));
         } else {
             this.driveController.reset();
         }
@@ -55,28 +55,28 @@ public class ModuleIOSim implements ModuleIO {
         }
 
         // Update simulation state
-        this.driveMotor.requestVoltage(Units.Volts.of(this.driveAppliedVolts));
-        this.turnMotor.requestVoltage(Units.Volts.of(this.turnAppliedVolts));
+        this.driveMotor.requestVoltage(UnitTypes.VOLTS.of(this.driveAppliedVolts));
+        this.turnMotor.requestVoltage(UnitTypes.VOLTS.of(this.turnAppliedVolts));
 
         inputs.driveConnected = true;
         inputs.drivePosition =
-                this.moduleSimulation.getDriveWheelFinalPosition().in(Units.Radians);
-        inputs.driveVelocity = this.moduleSimulation.getDriveWheelFinalSpeed().in(Units.RadiansPerSecond);
+                this.moduleSimulation.getDriveWheelFinalPosition().in(UnitTypes.RADIANS);
+        inputs.driveVelocity = this.moduleSimulation.getDriveWheelFinalSpeed().in(UnitTypes.RADIANS_PER_SECOND);
         inputs.driveAppliedVolts = this.driveAppliedVolts;
         inputs.driveCurrentAmps =
-                Math.abs(this.moduleSimulation.getDriveMotorStatorCurrent().in(Units.Amps));
+                Math.abs(this.moduleSimulation.getDriveMotorStatorCurrent().in(UnitTypes.AMPS));
 
         inputs.turnConnected = true;
-        inputs.turnPosition = this.moduleSimulation.getSteerAbsoluteAngle().in(Units.Radians);
+        inputs.turnPosition = this.moduleSimulation.getSteerAbsoluteAngle().in(UnitTypes.RADIANS);
         inputs.turnVelocity =
-                this.moduleSimulation.getSteerAbsoluteEncoderSpeed().in(Units.RadiansPerSecond);
+                this.moduleSimulation.getSteerAbsoluteEncoderSpeed().in(UnitTypes.RADIANS_PER_SECOND);
         inputs.turnAppliedVolts = this.turnAppliedVolts;
         inputs.turnCurrentAmps =
-                Math.abs(this.moduleSimulation.getSteerMotorStatorCurrent().in(Units.Amps));
+                Math.abs(this.moduleSimulation.getSteerMotorStatorCurrent().in(UnitTypes.AMPS));
 
         inputs.odometryTimestamps = SparkUtil.getSimulationOdometryTimeStamps();
         inputs.odometryDrivePositions = Arrays.stream(this.moduleSimulation.getCachedDriveWheelFinalPositions())
-                .mapToDouble(a -> a.in(Units.Radians))
+                .mapToDouble(a -> a.in(UnitTypes.RADIANS))
                 .toArray();
         inputs.odometryTurnPositions = Arrays.stream(this.moduleSimulation.getCachedSteerAbsolutePositions())
                 .mapToDouble(Rotation2d::getRadians)
