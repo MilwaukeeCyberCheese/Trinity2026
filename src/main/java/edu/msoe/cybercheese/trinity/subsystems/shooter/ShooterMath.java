@@ -1,5 +1,10 @@
 package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
+import choreo.util.ChoreoAllianceFlipUtil;
+import edu.msoe.cybercheese.trinity.util.MathExtras;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -15,23 +20,32 @@ public class ShooterMath {
     private static final double SHOOTER_COS_THETA = Math.cos(SHOOTER_THETA);
     private static final double SHOOTER_SIN_THETA = Math.sin(SHOOTER_THETA);
 
-    private static final double OFFSET_X = 4.6256194;
-    private static final double OFFSET_Y = 4.0346376;
+    private static final double HUB_HEIGHT = 1.8288;
+    private static final Translation2d HUB_POS_BLUE = new Translation2d(4.6256194, 4.0346376);
+    private static final Translation2d HUB_POS_RED = ChoreoAllianceFlipUtil.flip(HUB_POS_BLUE);
+    private static final double HUB_RADIUS = 1.059942; // TODO: does this account for the octagonal shape?
+    private static final double HUB_RADIUS_SQUARED = HUB_RADIUS * HUB_RADIUS;
 
     public record SimulationResult(
         double v,
         double[] x,
         double[] y,
         double[] t
-    ) {
+    ) {}
 
+    public static @Nullable SimulationResult calculateTrajectoryFromRobot(final Pose2d robotPose) {
+        final var hubPos = MathExtras.isFlipped() ? HUB_POS_RED : HUB_POS_BLUE;
+        final var relativeHubPos = hubPos
+                .minus(robotPose.getTranslation())
+                .rotateBy(robotPose.getRotation().unaryMinus());
+
+        final var difference = Math.sqrt(HUB_RADIUS_SQUARED - (relativeHubPos.getY() * relativeHubPos.getY()));
+        final var targetDistance = relativeHubPos.getX() - (0.5 * difference);
+
+        return calculateTrajectory(targetDistance, HUB_HEIGHT);
     }
 
-    public static @Nullable SimulationResult calculateTrajectoryFromRobot() {
-
-    }
-
-    public static @Nullable SimulationResult calculateTrajectory(final double targetX, final double targetY) {
+    public static @Nullable SimulationResult calculateTrajectory(final double targetDistance, final double targetHeight) {
         final double dv = 0.1;
         final double maxVelocity = 50;
 
@@ -41,7 +55,7 @@ public class ShooterMath {
             final SimulationResult result = simulateMotion(v);
 
             for (int i = 0; i < result.x.length; i++) {
-                if (result.x[i] >= targetX && result.y[i] >= targetY) {
+                if (result.x[i] >= targetDistance && result.y[i] >= targetHeight) {
                     return result;
                 }
             }

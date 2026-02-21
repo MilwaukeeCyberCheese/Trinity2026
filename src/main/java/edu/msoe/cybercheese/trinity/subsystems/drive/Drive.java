@@ -7,6 +7,7 @@ import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.vision.Vision;
+import edu.msoe.cybercheese.trinity.util.MathExtras;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -207,15 +208,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
-    public static boolean isFlipped() {
-        return DriverStation.getAlliance().isPresent()
-                && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-    }
-
     public void runFieldRelativeVelocity(ChassisSpeeds speeds) {
         this.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
                 speeds,
-                isFlipped()
+                MathExtras.isFlipped()
                         ? this.getRotation().plus(new Rotation2d(Math.PI))
                         : this.getRotation()
         ));
