@@ -20,10 +20,10 @@ public class ShooterMath {
     private static final double SHOOTER_COS_THETA = Math.cos(SHOOTER_THETA);
     private static final double SHOOTER_SIN_THETA = Math.sin(SHOOTER_THETA);
 
-    private static final double HUB_HEIGHT = 1.8288;
+    private static final double HUB_HEIGHT = 1.8161;
     private static final Translation2d HUB_POS_BLUE = new Translation2d(4.6256194, 4.0346376);
     private static final Translation2d HUB_POS_RED = ChoreoAllianceFlipUtil.flip(HUB_POS_BLUE);
-    private static final double HUB_RADIUS = 1.059942; // TODO: does this account for the octagonal shape?
+    private static final double HUB_RADIUS = 1.052373;
     private static final double HUB_RADIUS_SQUARED = HUB_RADIUS * HUB_RADIUS;
 
     public record SimulationResult(
@@ -46,6 +46,7 @@ public class ShooterMath {
     }
 
     public static @Nullable SimulationResult calculateTrajectory(final double targetDistance, final double targetHeight) {
+        // TODO: handle the ranges better
         final double dv = 0.1;
         final double maxVelocity = 50;
 
