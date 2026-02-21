@@ -103,6 +103,14 @@ deploy.targets.register<RoboRIO>("roborio") {
             // jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
             // jvmArgs.add("-XX:+AlwaysPreTouch")
         }
+
+        register<FileTreeArtifact>("frcStaticFileDeploy") {
+            files = project.fileTree("src/main/deploy")
+            directory = "/home/lvuser/deploy"
+            // Change to true to delete files on roboRIO that no
+            // longer exist in deploy directory on roboRIO
+            deleteOldFiles = false
+        }
     }
 }
 

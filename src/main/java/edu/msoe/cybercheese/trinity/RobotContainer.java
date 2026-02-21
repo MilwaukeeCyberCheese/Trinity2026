@@ -1,5 +1,7 @@
 package edu.msoe.cybercheese.trinity;
 
+import choreo.Choreo;
+import choreo.auto.AutoFactory;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.msoe.cybercheese.trinity.commands.DriveCommands;
 import edu.msoe.cybercheese.trinity.subsystems.drive.*;
@@ -13,11 +15,16 @@ import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
 import edu.msoe.cybercheese.trinity.subsystems.vision.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
 import org.ironmaple.simulation.SimulatedArena;
@@ -39,6 +46,7 @@ public class RobotContainer {
     private final CommandXboxController controller = new CommandXboxController(0);
 
     private final LoggedDashboardChooser<Command> autoChooser;
+    private final AutoFactory autoFactory;
 
     public RobotContainer() {
         CanandEventLoop.getInstance(); // starts management server for redux alchemist
@@ -66,6 +74,18 @@ public class RobotContainer {
         this.autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
         if (Constants.ENABLE_SYSID) {
             this.setupSysIdAutoChooser();
+        }
+
+        this.autoFactory = new AutoFactory(
+                this.drive::getPose,
+                this.drive::setPose,
+                this.drive::followTrajectory,
+                true,
+                this.drive
+        );
+
+        for (final var trajName : Choreo.availableTrajectories()) {
+            this.autoChooser.addOption(trajName, this.autoFactory.trajectoryCmd(trajName));
         }
 
         this.configureButtonBindings();

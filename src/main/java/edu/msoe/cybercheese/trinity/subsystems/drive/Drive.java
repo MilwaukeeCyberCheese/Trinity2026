@@ -1,5 +1,6 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
+import choreo.trajectory.SwerveSample;
 import edu.msoe.cybercheese.trinity.Constants;
 import edu.msoe.cybercheese.trinity.Constants.Mode;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
@@ -11,6 +12,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,6 +58,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     private final SwerveDrivePoseEstimator poseEstimator =
             new SwerveDrivePoseEstimator(kinematics, Rotation2d.kZero, lastModulePositions, Pose2d.kZero);
 
+    private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
+    private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+
     private final Field2d field = new Field2d();
 
     public Drive(
@@ -74,6 +80,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         for (final var module : this.modules) {
             this.odometryCollector.addCallback(module.getIo().getOdometryCallback());
         }
+
+        this.headingController.enableContinuousInput(-Math.PI, Math.PI);
 
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
 
@@ -199,6 +207,20 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
+    public static boolean isFlipped() {
+        return DriverStation.getAlliance().isPresent()
+                && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+    }
+
+    public void runFieldRelativeVelocity(ChassisSpeeds speeds) {
+        this.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
+                speeds,
+                isFlipped()
+                        ? this.getRotation().plus(new Rotation2d(Math.PI))
+                        : this.getRotation()
+        ));
+    }
+
     /** Runs the drive in a straight line with the specified drive output. */
     public void runCharacterization(double output) {
         for (int i = 0; i < 4; i++) {
@@ -304,5 +326,20 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     /** Returns the maximum angular speed in radians per sec. */
     public double getMaxAngularSpeedRadPerSec() {
         return DriveConstants.MAX_SPEED / DriveConstants.DRIVE_BASE_RADIUS;
+    }
+
+    public void followTrajectory(SwerveSample sample) {
+        // Get the current pose of the robot
+        Pose2d pose = getPose();
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = new ChassisSpeeds(
+                sample.vx + xController.calculate(pose.getX(), sample.x),
+                sample.vy + yController.calculate(pose.getY(), sample.y),
+                sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+        );
+
+        // Apply the generated speeds
+        this.runFieldRelativeVelocity(speeds);
     }
 }
