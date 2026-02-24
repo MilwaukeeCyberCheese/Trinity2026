@@ -3,15 +3,16 @@ package edu.msoe.cybercheese.trinity.subsystems.shooter;
 import choreo.util.ChoreoAllianceFlipUtil;
 import edu.msoe.cybercheese.trinity.util.MathExtras;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-
 public class ShooterMath {
 
+    private static final double SIM_DT = 0.01;
+    private static final int SIM_STEPS = (int) (5.0 / SIM_DT) + 1;
+
     private static final double G = -9.81;
+    private static final double MASS = 0.22;
 
     private static final double SHOOTER_X = 0;
     private static final double SHOOTER_Y = 0.5;
@@ -26,100 +27,117 @@ public class ShooterMath {
     private static final double HUB_RADIUS = 1.052373;
     private static final double HUB_RADIUS_SQUARED = HUB_RADIUS * HUB_RADIUS;
 
-    public record SimulationResult(
-        double v,
-        double[] x,
-        double[] y,
-        double[] t
-    ) {}
+    public static Point getIntersection(Point p1 / a1, Point p2 / a2, Point p3 / b1, Point p4 / b2) {
+        // Calculate the denominator
+        double denominator = -1 * (ay1 - ay2) * (bx1 - bx2);
 
-    public static @Nullable SimulationResult calculateTrajectoryFromRobot(final Pose2d robotPose) {
-        final var hubPos = MathExtras.isFlipped() ? HUB_POS_RED : HUB_POS_BLUE;
-        final var relativeHubPos = hubPos
-                .minus(robotPose.getTranslation())
-                .rotateBy(robotPose.getRotation().unaryMinus());
+        // If the denominator is zero, the lines are parallel (or collinear)
+        // We use a small epsilon to account for floating-point inaccuracies
+        if (Math.abs(denominator) < 1e-10) {
+            return null;
+        }
 
-        final var difference = Math.sqrt(HUB_RADIUS_SQUARED - (relativeHubPos.getY() * relativeHubPos.getY()));
-        final var targetDistance = relativeHubPos.getX() - (0.5 * difference);
+        // Calculate the numerators
+        double term1 = (p1.x * p2.y - p1.y * p2.x);
+        double term2 = (p3.x - p4.x) * h;
 
-        return calculateTrajectory(targetDistance, HUB_HEIGHT);
+        double intersectX = (term1 * (p3.x - p4.x) - (p1.x - p2.x) * term2) / denominator;
+
+        return intersectX;
     }
 
-    public static @Nullable SimulationResult calculateTrajectory(final double targetDistance, final double targetHeight) {
+    public static Translation2d hubPos() {
+        return MathExtras.isFlipped() ? HUB_POS_RED : HUB_POS_BLUE;
+    }
+
+    public static double absoluteHubAngle(final Pose2d robotPose) {
+        return Math.atan2(hubPos().getY() - robotPose.getY(), hubPos().getX() - robotPose.getX());
+    }
+
+    public static Translation2d relativeHubPos(final Pose2d robotPose) {
+        return hubPos().minus(robotPose.getTranslation())
+                .rotateBy(robotPose.getRotation().unaryMinus());
+    }
+
+    public record SimulationResult(double attackAngle, double linearProgression) {}
+
+    public static @Nullable SimulationResult calculateTrajectoryFromRobot(final Pose2d robotPose) {
+        final var relativeHubPos = relativeHubPos(robotPose);
+
+        final var difference = Math.sqrt(HUB_RADIUS_SQUARED - (relativeHubPos.getY() * relativeHubPos.getY()));
+        final var minDistance = relativeHubPos.getX() - difference;
+        final var maxDistance = relativeHubPos.getX() + difference;
+
+        return calculateTrajectory(minDistance, maxDistance, HUB_HEIGHT);
+    }
+
+    public static @Nullable SimulationResult calculateTrajectory(
+            final double minDistance, final double maxDistance, final double targetHeight) {
         // TODO: handle the ranges better
-        final double dv = 0.1;
-        final double maxVelocity = 50;
 
-        double v = 1;
+        double minVelocity = 0;
+        double maxVelocity = 50;
 
-        while (v <= maxVelocity) {
-            final SimulationResult result = simulateMotion(v);
 
-            for (int i = 0; i < result.x.length; i++) {
-                if (result.x[i] >= targetDistance && result.y[i] >= targetHeight) {
-                    return result;
-                }
+        while (true) {
+            final double v = (minVelocity + maxVelocity) / 2;
+
+            final var simResult = simulateMotion(v, minDistance, maxDistance, targetHeight);
+
+            if (simResult == null) {
+                continue;
             }
 
-            v += dv;
+            if (simResult.linearProgression < 0) {
+                minVelocity = v;
+            } else if (simResult.linearProgression > 1) {
+                maxVelocity = v;
+            }
         }
 
         return null;
     }
 
-    public static SimulationResult simulateMotion(double v) {
-        final double m = 0.22;
+    public static @Nullable SimulationResult simulateMotion(
+            final double inputVelocity, final double minDistance, final double maxDistance, final double targetHeight) {
         final double rho = 1.225;
         final double Cd = 0.47;
         final double A = 0.0176;
 
-        final double dt = 0.01;
-        final int N = (int) (5.0 / dt) + 1;
+        double x = SHOOTER_X;
+        double y = SHOOTER_Y;
+        double vx = inputVelocity * SHOOTER_COS_THETA;
+        double vy = inputVelocity * SHOOTER_SIN_THETA;
 
-        double[] t = new double[N];
-        for (int i = 0; i < N; i++) {
-            t[i] = i * dt;
-        }
+        for (int i = 1; i < SIM_STEPS; i++) {
+            final double currentV = Math.hypot(vx, vy);
+            final double Fdx = -0.5 * rho * Cd * A * currentV * vx;
+            final double Fdy = -0.5 * rho * Cd * A * currentV * vy;
 
+            final double ax = Fdx / MASS;
+            final double ay = (Fdy / MASS) + G;
 
-        double[] x = new double[N];
-        double[] y = new double[N];
-        double[] vx = new double[N];
-        double[] vy = new double[N];
+            vx += ax * SIM_DT;
+            vy += ay * SIM_DT;
 
-        x[0] = SHOOTER_X;
-        y[0] = SHOOTER_Y;
-        vx[0] = v * SHOOTER_COS_THETA;
-        vy[0] = v * SHOOTER_SIN_THETA;
+            final var lastX = x;
+            final var lastY = y;
 
-        int actualSize = N;
+            final var dx = vx * SIM_DT;
+            final var dy = vy * SIM_DT;
 
-        for (int i = 1; i < N; i++) {
-            final double currentV = Math.hypot(vx[i - 1], vy[i - 1]);
-            final double Fdx = -0.5 * rho * Cd * A * currentV * vx[i - 1];
-            final double Fdy = -0.5 * rho * Cd * A * currentV * vy[i - 1];
+            x += dx;
+            y += dy;
 
-            final double ax = Fdx / m;
-            final double ay = (Fdy / m) + G;
+            if (lastY >= targetHeight && y < targetHeight) {
+                final var attackAngle = Math.atan2(dy, dx);
 
-            vx[i] = vx[i - 1] + ax * dt;
-            vy[i] = vy[i - 1] + ay * dt;
+                // TODO: dist
 
-            x[i] = x[i - 1] + vx[i] * dt;
-            y[i] = y[i - 1] + vy[i] * dt;
-
-            if (y[i] <= 0) {
-                actualSize = i + 1;
-                break;
+                return new SimulationResult(attackAngle, 0.0);
             }
         }
 
-        return new SimulationResult(
-                v,
-                Arrays.copyOf(x, actualSize),
-                Arrays.copyOf(y, actualSize),
-                Arrays.copyOf(t, actualSize)
-        );
+        return null;
     }
-
 }

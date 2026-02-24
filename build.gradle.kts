@@ -135,6 +135,7 @@ dependencies {
 
     implementation(libs.jspecify)
     implementation(libs.fastutil)
+    implementation(libs.gson)
 
     implementation(libs.wpilib.commands)
 

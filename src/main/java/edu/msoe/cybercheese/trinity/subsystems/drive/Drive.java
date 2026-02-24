@@ -211,10 +211,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     public void runFieldRelativeVelocity(ChassisSpeeds speeds) {
         this.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
                 speeds,
-                MathExtras.isFlipped()
-                        ? this.getRotation().plus(new Rotation2d(Math.PI))
-                        : this.getRotation()
-        ));
+                MathExtras.isFlipped() ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
     }
 
     /** Runs the drive in a straight line with the specified drive output. */
@@ -332,8 +329,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         ChassisSpeeds speeds = new ChassisSpeeds(
                 sample.vx + xController.calculate(pose.getX(), sample.x),
                 sample.vy + yController.calculate(pose.getY(), sample.y),
-                sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
-        );
+                sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
 
         // Apply the generated speeds
         this.runFieldRelativeVelocity(speeds);
