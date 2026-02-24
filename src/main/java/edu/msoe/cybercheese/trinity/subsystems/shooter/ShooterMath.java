@@ -27,25 +27,6 @@ public class ShooterMath {
     private static final double HUB_RADIUS = 1.052373;
     private static final double HUB_RADIUS_SQUARED = HUB_RADIUS * HUB_RADIUS;
 
-    public static Point getIntersection(Point p1 / a1, Point p2 / a2, Point p3 / b1, Point p4 / b2) {
-        // Calculate the denominator
-        double denominator = -1 * (ay1 - ay2) * (bx1 - bx2);
-
-        // If the denominator is zero, the lines are parallel (or collinear)
-        // We use a small epsilon to account for floating-point inaccuracies
-        if (Math.abs(denominator) < 1e-10) {
-            return null;
-        }
-
-        // Calculate the numerators
-        double term1 = (p1.x * p2.y - p1.y * p2.x);
-        double term2 = (p3.x - p4.x) * h;
-
-        double intersectX = (term1 * (p3.x - p4.x) - (p1.x - p2.x) * term2) / denominator;
-
-        return intersectX;
-    }
-
     public static Translation2d hubPos() {
         return MathExtras.isFlipped() ? HUB_POS_RED : HUB_POS_BLUE;
     }
