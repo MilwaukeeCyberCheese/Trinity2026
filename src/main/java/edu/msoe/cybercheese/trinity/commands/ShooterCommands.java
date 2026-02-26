@@ -6,33 +6,36 @@ import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterMath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
 import java.util.function.Supplier;
 
 public class ShooterCommands {
 
     public static Command runVelocity(final Shooter shooter, final double velocity) {
-        return Commands.run(() -> {
-            shooter.runVelocity(velocity);
-        }, shooter);
+        return Commands.run(
+                () -> {
+                    shooter.runVelocity(velocity);
+                },
+                shooter);
     }
 
     public static Command runTargetVelocity(final Shooter shooter, final Supplier<Pose2d> poseSupplier) {
-        return Commands.run(() -> {
-            final var velocity = ShooterMath.calculateTrajectoryFromRobot(poseSupplier.get());
+        return Commands.run(
+                () -> {
+                    final var velocity = ShooterMath.calculateTrajectoryFromRobot(poseSupplier.get());
 
-            // we use negative numbers to signal invalid states
-            if (velocity < 0) return;
+                    // we use negative numbers to signal invalid states
+                    if (velocity < 0) return;
 
-            shooter.runVelocity(velocity * ShooterConstants.VELOCITY_CONVERSION_FACTOR);
-        }, shooter);
+                    shooter.runVelocity(velocity * ShooterConstants.VELOCITY_CONVERSION_FACTOR);
+                },
+                shooter);
     }
 
-//    public static Command shootWhenAvailable(final Shooter shooter) {
-//        return Commands.run(() -> {
-//            if (Math.abs(shooter.isAtSpeed()) {
-//                // TODO: shoot
-//            }
-//        }, TODO);
-//    }
+    //    public static Command shootWhenAvailable(final Shooter shooter) {
+    //        return Commands.run(() -> {
+    //            if (Math.abs(shooter.isAtSpeed()) {
+    //                // TODO: shoot
+    //            }
+    //        }, TODO);
+    //    }
 }

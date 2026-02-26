@@ -59,7 +59,6 @@ public class ShooterMath {
         double minVelocity = 0;
         double maxVelocity = 50;
 
-
         while (Math.abs(maxVelocity - minVelocity) > 0.2) {
             final double v = (minVelocity + maxVelocity) / 2;
 
