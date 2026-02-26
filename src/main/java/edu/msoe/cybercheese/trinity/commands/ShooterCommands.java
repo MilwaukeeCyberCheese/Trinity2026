@@ -30,7 +30,7 @@ public class ShooterCommands {
 
 //    public static Command shootWhenAvailable(final Shooter shooter) {
 //        return Commands.run(() -> {
-//            if (Math.abs(shooter.targetVelocity()) >= 0.05 && shooter.isAtSpeed()) {
+//            if (Math.abs(shooter.isAtSpeed()) {
 //                // TODO: shoot
 //            }
 //        }, TODO);

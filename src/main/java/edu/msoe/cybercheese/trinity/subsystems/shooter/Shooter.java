@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
      * Checks if the shooter is at the target velocity within a tolerance.
      */
     public boolean isAtSpeed() {
-        return Math.abs(inputs.velocity - targetVelocity) < 5.0 && targetVelocity > 0.1;
+        return Math.abs(inputs.velocity - targetVelocity) < 5.0 && targetVelocity >= 0.1;
     }
 
     /**
