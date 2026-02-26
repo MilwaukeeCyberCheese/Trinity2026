@@ -24,5 +24,6 @@ public class ShooterConstants {
     public static final double SHOOTER_SIM_KS = 0.0;
     public static final double SHOOTER_SIM_KV = 0.0175;
 
-    public static final double WHEEL_RADIUS = 0;
+    public static final double WHEEL_RADIUS = Units.inchesToMeters(4);
+    public static final double VELOCITY_CONVERSION_FACTOR = 2 * Math.PI / WHEEL_RADIUS;
 }

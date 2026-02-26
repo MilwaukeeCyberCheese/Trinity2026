@@ -24,8 +24,7 @@ public class ShooterCommands {
             // we use negative numbers to signal invalid states
             if (velocity < 0) return;
 
-            // TODO: rads per sec for our linear velocities
-            shooter.runVelocity(velocity * ShooterConstants.WHEEL_RADIUS);
+            shooter.runVelocity(velocity * ShooterConstants.VELOCITY_CONVERSION_FACTOR);
         }, shooter);
     }
 
