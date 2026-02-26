@@ -23,4 +23,6 @@ public class ShooterConstants {
     public static final double SHOOTER_SIM_D = 0.0;
     public static final double SHOOTER_SIM_KS = 0.0;
     public static final double SHOOTER_SIM_KV = 0.0175;
+
+    public static final double WHEEL_RADIUS = 0;
 }

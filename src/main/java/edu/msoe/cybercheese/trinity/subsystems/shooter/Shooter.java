@@ -41,6 +41,10 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Shooter/AtSpeed", isAtSpeed());
     }
 
+    public double targetVelocity() {
+        return targetVelocity;
+    }
+
     /**
      * Runs the shooter at the desired velocity.
      *

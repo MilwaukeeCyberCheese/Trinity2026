@@ -110,6 +110,8 @@ public class RobotContainer {
                 () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
                 () -> -controller.getRightX() * DriveConstants.JOYSTICK_MULTIPLIER));
 
+        this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
+
         // Lock to 0 deg when A button is held
         this.controller
                 .a()
@@ -119,7 +121,7 @@ public class RobotContainer {
                         () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
 
-        this.controller.y().whileTrue(ShooterCommands.shootIfAvailable(this.shooter));
+        this.controller.y().whileTrue(ShooterCommands.runTargetVelocity(this.shooter, this.drive::getPose));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 

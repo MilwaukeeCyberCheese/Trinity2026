@@ -42,7 +42,7 @@ public class ShooterMath {
 
     public record SimulationResult(double attackAngle, double linearProgression) {}
 
-    public static @Nullable SimulationResult calculateTrajectoryFromRobot(final Pose2d robotPose) {
+    public static double calculateTrajectoryFromRobot(final Pose2d robotPose) {
         final var relativeHubPos = relativeHubPos(robotPose);
 
         final var difference = Math.sqrt(HUB_RADIUS_SQUARED - (relativeHubPos.getY() * relativeHubPos.getY()));
@@ -52,7 +52,7 @@ public class ShooterMath {
         return calculateTrajectory(minDistance, maxDistance, HUB_HEIGHT);
     }
 
-    public static @Nullable SimulationResult calculateTrajectory(
+    public static double calculateTrajectory(
             final double minDistance, final double maxDistance, final double targetHeight) {
         // TODO: handle the ranges better
 
@@ -60,23 +60,28 @@ public class ShooterMath {
         double maxVelocity = 50;
 
 
-        while (true) {
+        while (Math.abs(maxVelocity - minVelocity) > 0.2) {
             final double v = (minVelocity + maxVelocity) / 2;
 
             final var simResult = simulateMotion(v, minDistance, maxDistance, targetHeight);
 
             if (simResult == null) {
-                continue;
+                // TODO: fix this lol
+
+                // we sim 5 seconds, if we don't hit the ground we're probably doing something dumb
+                return Double.MIN_VALUE;
             }
 
-            if (simResult.linearProgression < 0) {
+            if (simResult.linearProgression < 0.1 || simResult.attackAngle > -0.2) {
                 minVelocity = v;
-            } else if (simResult.linearProgression > 1) {
+            } else if (simResult.linearProgression > 0.9 || simResult.attackAngle < -1.5) {
                 maxVelocity = v;
+            } else {
+                return v;
             }
         }
 
-        return null;
+        return Double.MIN_VALUE;
     }
 
     public static @Nullable SimulationResult simulateMotion(
@@ -111,11 +116,20 @@ public class ShooterMath {
             y += dy;
 
             if (lastY >= targetHeight && y < targetHeight) {
-                final var attackAngle = Math.atan2(dy, dx);
 
-                // TODO: dist
+                // I *could* properly compute the ray intersection but this is easy and dt=0.01 so this *should* be fine
+                final var hitX = x;
+                final var hitY = y;
 
-                return new SimulationResult(attackAngle, 0.0);
+                final var linearProgression = (hitX - minDistance) / (maxDistance - minDistance);
+
+                if (hitX >= minDistance && hitX <= maxDistance) {
+                    final var attackAngle = Math.atan2(dy, dx);
+
+                    return new SimulationResult(attackAngle, linearProgression);
+                } else {
+                    return new SimulationResult(0.0f, linearProgression);
+                }
             }
         }
 
