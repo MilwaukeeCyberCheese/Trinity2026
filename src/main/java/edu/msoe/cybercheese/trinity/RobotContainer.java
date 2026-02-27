@@ -71,7 +71,7 @@ public class RobotContainer {
         for (int i = 0; i < DriveConstants.MODULE_DEFINITIONS.length; i++) {
             moduleIos[i] = this.createModuleIo(
                     DriveConstants.MODULE_DEFINITIONS[i],
-                    Objects.requireNonNull(this.driveSimulation).getModules()[i]);
+                    this.driveSimulation == null ? null : this.driveSimulation.getModules()[i]);
         }
         this.drive = new Drive(this.driveSimulation, this.createGyroIo(), moduleIos);
 
