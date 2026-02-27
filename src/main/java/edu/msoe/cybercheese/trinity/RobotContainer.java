@@ -13,6 +13,11 @@ import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
+import edu.msoe.cybercheese.trinity.subsystems.hopper.*;
+import edu.msoe.cybercheese.trinity.subsystems.intake.Intake;
+import edu.msoe.cybercheese.trinity.subsystems.intake.IntakeCommands;
+import edu.msoe.cybercheese.trinity.subsystems.intake.IntakeIO;
+import edu.msoe.cybercheese.trinity.subsystems.intake.IntakeIOSpark;
 import edu.msoe.cybercheese.trinity.subsystems.shooter.*;
 import edu.msoe.cybercheese.trinity.subsystems.vision.*;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -40,6 +45,8 @@ public class RobotContainer {
     private final Drive drive;
     private final Vision vision;
     private final Shooter shooter;
+    private final Intake intake;
+    private final Hopper hopper;
 
     private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -70,6 +77,8 @@ public class RobotContainer {
         this.vision = new Vision(this.drive, cameras);
 
         this.shooter = new Shooter(this.createShooterIo());
+        this.intake = new Intake(this.createIntakeIo());
+        this.hopper = new Hopper(this.createHopperIo());
 
         this.autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
         if (Constants.ENABLE_SYSID) {
@@ -83,6 +92,9 @@ public class RobotContainer {
             System.out.println("Loading Trajectory: " + trajName);
             this.autoChooser.addOption(trajName, this.autoFactory.trajectoryCmd(trajName));
         }
+
+        this.intake.setDefaultCommand(IntakeCommands.runValues(this.intake, 0, 0));
+        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 3));
 
         this.configureButtonBindings();
     }
@@ -112,6 +124,7 @@ public class RobotContainer {
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
 
+
         // Lock to 0 deg when A button is held
         this.controller
                 .a()
@@ -120,6 +133,8 @@ public class RobotContainer {
                         () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
                         () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
+
+        this.controller.rightTrigger().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, 3));
 
         this.controller.y().whileTrue(ShooterCommands.runTargetVelocity(this.shooter, this.drive::getPose));
 
@@ -168,6 +183,22 @@ public class RobotContainer {
         return switch (Constants.CURRENT_MODE) {
             case REAL -> new ShooterIOSpark();
             case SIM -> new ShooterIOSim();
+            case REPLAY -> inputs -> {};
+        };
+    }
+
+    private IntakeIO createIntakeIo() {
+        if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
+            return new IntakeIOSpark();
+        }
+
+        return inputs -> {};
+    }
+
+    private HopperIO createHopperIo() {
+        return switch (Constants.CURRENT_MODE) {
+            case REAL -> new HopperIOSpark();
+            case SIM -> new HopperIOSim();
             case REPLAY -> inputs -> {};
         };
     }

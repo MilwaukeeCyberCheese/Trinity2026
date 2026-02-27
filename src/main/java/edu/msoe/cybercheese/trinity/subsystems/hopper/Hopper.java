@@ -1,24 +1,24 @@
 package edu.msoe.cybercheese.trinity.subsystems.hopper;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class Hopper extends SubsystemBase {
+
+    private final HopperIO.HopperInputs inputs = new HopperIO.HopperInputs();
     private final HopperIO io;
 
     public Hopper(HopperIO io) {
         this.io = io;
     }
 
-    public void setVoltage(double volts) {
-        io.setVoltage(volts);
+    @Override
+    public void periodic() {
+        this.io.updateInputs(this.inputs);
+        Logger.processInputs("Hopper", this.inputs);
     }
 
-    public Command runHopper(double volts) {
-        return this.run(() -> setVoltage(volts));
-    }
-
-    public Command stop() {
-        return this.runOnce(() -> setVoltage(0));
+    public void setVelocity(double velocity) {
+        this.io.setVelocity(velocity);
     }
 }

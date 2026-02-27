@@ -7,16 +7,16 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 public class HopperIOSim implements HopperIO {
     private final DCMotorSim sim = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                    HopperConstants.HOPPER_GEARBOX, HopperConstants.MOI_KG_M2, HopperConstants.GEAR_RATIO),
+                    HopperConstants.HOPPER_GEARBOX, HopperConstants.HOPPER_MOI, HopperConstants.HOPPER_GEARING),
             HopperConstants.HOPPER_GEARBOX);
 
     private double appliedVolts = 0.0;
 
     @Override
-    public void updateInputs(HopperIOInputs inputs) {
+    public void updateInputs(HopperInputs inputs) {
         sim.update(0.02);
         inputs.positionRad = sim.getAngularPositionRad();
-        inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
+        inputs.velocity = sim.getAngularVelocityRadPerSec();
         inputs.appliedVolts = appliedVolts;
         inputs.currentAmps = sim.getCurrentDrawAmps();
     }

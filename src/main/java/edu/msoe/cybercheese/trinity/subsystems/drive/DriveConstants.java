@@ -28,13 +28,13 @@ public class DriveConstants {
 
     public static final ModuleDefinition[] MODULE_DEFINITIONS = new ModuleDefinition[] {
         // fl
-        new ModuleDefinition(1, 2, Rotation2d.fromDegrees(-90)),
+        new ModuleDefinition(16, 17, Rotation2d.fromDegrees(-90)),
         // fr
-        new ModuleDefinition(11, 12, Rotation2d.fromDegrees(0)),
+        new ModuleDefinition(18, 19, Rotation2d.fromDegrees(0)),
         // bl
-        new ModuleDefinition(5, 6, Rotation2d.fromDegrees(180)),
+        new ModuleDefinition(20, 21, Rotation2d.fromDegrees(180)),
         // br
-        new ModuleDefinition(7, 8, Rotation2d.fromDegrees(90)),
+        new ModuleDefinition(22, 23, Rotation2d.fromDegrees(90)),
     };
 
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 50;
