@@ -15,10 +15,7 @@ public class HopperIOSim implements HopperIO {
     @Override
     public void updateInputs(HopperInputs inputs) {
         sim.update(0.02);
-        inputs.positionRad = sim.getAngularPositionRad();
         inputs.velocity = sim.getAngularVelocityRadPerSec();
-        inputs.appliedVolts = appliedVolts;
-        inputs.currentAmps = sim.getCurrentDrawAmps();
     }
 
     @Override

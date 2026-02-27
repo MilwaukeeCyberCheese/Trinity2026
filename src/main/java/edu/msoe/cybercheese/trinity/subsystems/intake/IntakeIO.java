@@ -24,10 +24,11 @@ public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
         }
     }
 
-
     default void setRollerOpenLoop(double output) {}
+
     default void setRollerVelocity(double velocityRadPerSec) {}
 
     default void setLowerOpenLoop(double output) {}
+
     default void setLowerPosition(double position) {}
 }

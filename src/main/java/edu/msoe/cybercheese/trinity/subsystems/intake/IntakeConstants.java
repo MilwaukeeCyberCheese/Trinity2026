@@ -4,8 +4,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class IntakeConstants {
-    
-    public static final int ROLLER_MOTOR_ID = 40;
+
+    public static final int ROLLER_MOTOR_ID = 33;
 
     public static final DCMotor ROLLER_GEARBOX = DCMotor.getNeoVortex(1);
     public static final double ROLLER_GEARING = 1.0;
@@ -25,7 +25,7 @@ public class IntakeConstants {
     public static final double ROLLER_SIM_KS = 0.0;
     public static final double ROLLER_SIM_KV = 0.0175;
 
-    public static final int LOWER_MOTOR_ID = 0;
+    public static final int LOWER_MOTOR_ID = 32;
 
     public static final int LOWER_MOTOR_CURRENT_LIMIT = 50;
     public static final double LOWER_MOTOR_REDUCTION = 1.0;

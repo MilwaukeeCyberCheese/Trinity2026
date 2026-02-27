@@ -4,7 +4,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
-    public static final int SHOOTER_MOTOR_ID = 40;
+    public static final int SHOOTER_MOTOR_ID = 35;
 
     public static final DCMotor SHOOTER_GEARBOX = DCMotor.getNeoVortex(1);
     public static final double SHOOTER_GEARING = 1.0;

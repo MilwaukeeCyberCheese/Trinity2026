@@ -8,7 +8,6 @@ public class Intake extends SubsystemBase {
     private final IntakeIO.IntakeInputs inputs = new IntakeIO.IntakeInputs();
     private final IntakeIO intakeIo;
 
-
     public Intake(IntakeIO intakeIo) {
         this.intakeIo = intakeIo;
     }

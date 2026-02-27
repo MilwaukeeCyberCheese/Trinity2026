@@ -6,9 +6,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class IntakeCommands {
 
     public static Command runValues(final Intake intake, double position, double velocity) {
-        return Commands.run(() -> {
-            intake.setLowerPosition(position);
-            intake.setRollerVelocity(velocity);
-        }, intake);
+        return Commands.run(
+                () -> {
+                    intake.setLowerPosition(position);
+                    intake.setRollerVelocity(velocity);
+                },
+                intake);
     }
 }
