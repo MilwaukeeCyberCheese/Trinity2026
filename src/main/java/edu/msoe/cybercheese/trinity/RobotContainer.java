@@ -144,6 +144,7 @@ public class RobotContainer {
         // TODO: henry needs to tune this
         this.controller.rightBumper().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, 5));
         this.controller.y().whileTrue(ShooterCommands.runTargetVelocity(this.shooter, this.drive::getPose));
+        this.controller.back().whileTrue(LoaderCommands.runVelocity(this.loader, 3));
         this.controller.leftBumper().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 3));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
