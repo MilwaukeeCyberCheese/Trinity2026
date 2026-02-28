@@ -7,15 +7,12 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.*;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.odometry.SparkSwerveModuleHardware;
@@ -46,7 +43,7 @@ public class ModuleIOSpark implements ModuleIO {
 
     public ModuleIOSpark(final ModuleDefinition moduleDef) {
         this.zeroRotation = moduleDef.zeroRotation();
-        this.driveSpark = new SparkMax(moduleDef.driveCanId(), MotorType.kBrushless);
+        this.driveSpark = new SparkFlex(moduleDef.driveCanId(), MotorType.kBrushless);
         this.turnSpark = new SparkMax(moduleDef.turnCanId(), MotorType.kBrushless);
         this.driveEncoder = driveSpark.getEncoder();
         this.turnEncoder = turnSpark.getAbsoluteEncoder();
@@ -56,7 +53,7 @@ public class ModuleIOSpark implements ModuleIO {
         this.turnController = turnSpark.getClosedLoopController();
 
         // Configure drive motor
-        var driveConfig = new SparkMaxConfig();
+        var driveConfig = new SparkFlexConfig();
         driveConfig
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
