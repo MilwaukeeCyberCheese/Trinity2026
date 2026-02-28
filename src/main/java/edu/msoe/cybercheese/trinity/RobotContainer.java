@@ -147,7 +147,7 @@ public class RobotContainer {
         this.controller
                 .back()
                 .whileTrue(Commands.parallel(
-                        LoaderCommands.runVelocity(this.loader, 50), ShooterCommands.runVelocity(this.shooter, -200)));
+                        LoaderCommands.runVelocity(this.loader, 50), ShooterCommands.runVelocity(this.shooter, -500)));
         this.controller.leftBumper().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 50));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));

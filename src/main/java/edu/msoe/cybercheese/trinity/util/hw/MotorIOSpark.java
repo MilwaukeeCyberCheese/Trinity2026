@@ -48,6 +48,8 @@ public class MotorIOSpark implements IO<MotorInputs> {
 //        this.
     }
 
+    pu
+
     @Override
     public void updateInputs(MotorInputs inputs) {
         ifOk(this.spark, this.absoluteEncoder::getPosition, (value) -> inputs.position = value);
