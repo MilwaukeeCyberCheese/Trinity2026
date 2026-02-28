@@ -13,7 +13,7 @@ import edu.msoe.cybercheese.trinity.replay.IO;
 import edu.wpi.first.math.filter.Debouncer;
 import java.util.function.DoubleSupplier;
 
-public class MotorIO implements IO<MotorInputs> {
+public class MotorIOSpark implements IO<MotorInputs> {
 
     private final MotorConfig config;
 
@@ -24,7 +24,7 @@ public class MotorIO implements IO<MotorInputs> {
 
     private final Debouncer connectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-    public MotorIO(final MotorConfig config) {
+    public MotorIOSpark(final MotorConfig config) {
         this.config = config;
         this.sparkConfig = config.sparkConfig();
         this.spark = config.isFlex()
@@ -42,6 +42,10 @@ public class MotorIO implements IO<MotorInputs> {
 
     public void periodic() {
         sparkStickyFault = false;
+    }
+
+    public void runOpenLoop(double volts) {
+//        this.
     }
 
     @Override
