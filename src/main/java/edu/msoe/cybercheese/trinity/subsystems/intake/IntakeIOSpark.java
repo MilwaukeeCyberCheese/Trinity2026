@@ -76,7 +76,7 @@ public class IntakeIOSpark implements IntakeIO {
 //                .positionWrappingEnabled(true)
 //                .positionWrappingInputRange(LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT)
                 .pid(LOWER_KP, 0.0, LOWER_KD);
-        lowerConfig.signals.absoluteEncoderPositionAlwaysOn(true).absoluteEncoderVelocityAlwaysOn(true);
+//        lowerConfig.signals.absoluteEncoderPositionAlwaysOn(true).absoluteEncoderVelocityAlwaysOn(true);
         tryUntilOk(
                 lowerSpark,
                 5,
