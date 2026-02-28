@@ -23,7 +23,11 @@ import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.Nullable;
 
 public class ModuleIOSpark implements ModuleIO {
+    private final ModuleDefinition moduleDef;
+
+
     private final Rotation2d zeroRotation;
+
 
     // Hardware objects
     private final SparkBase driveSpark;
@@ -42,6 +46,7 @@ public class ModuleIOSpark implements ModuleIO {
     private final Debouncer turnConnectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
     public ModuleIOSpark(final ModuleDefinition moduleDef) {
+        this.moduleDef = moduleDef;
         this.zeroRotation = moduleDef.zeroRotation();
         this.driveSpark = new SparkFlex(moduleDef.driveCanId(), MotorType.kBrushless);
         this.turnSpark = new SparkMax(moduleDef.turnCanId(), MotorType.kBrushless);
@@ -176,6 +181,9 @@ public class ModuleIOSpark implements ModuleIO {
         double setpoint =
                 MathUtil.inputModulus(rotation.plus(zeroRotation).getRadians(), TURN_PID_MIN_INPUT, TURN_PID_MAX_INPUT);
 
+        if (this.moduleDef.turnCanId() == 21) {
+            System.out.println("bl turn: " + setpoint);
+        }
         this.turnController.setSetpoint(setpoint, ControlType.kPosition);
     }
 }
