@@ -31,7 +31,7 @@ public class IntakeConstants {
     public static final double LOWER_MOTOR_REDUCTION = 27.0;
     public static final DCMotor LOWER_GEARBOX = DCMotor.getNeoVortex(1);
     // Rotations -> Radians
-    public static final double LOWER_ENCODER_POSITION_FACTOR = 2 * Math.PI;
+    public static final double LOWER_ENCODER_POSITION_FACTOR = 2 * Math.PI / LOWER_MOTOR_REDUCTION;
     // RPM -> Rad/Sec
     public static final double LOWER_ENCODER_VELOCITY_FACTOR = (2 * Math.PI) / 60.0;
 
