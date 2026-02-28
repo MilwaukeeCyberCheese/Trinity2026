@@ -101,6 +101,7 @@ public class IntakeIOSpark implements IntakeIO {
 
     @Override
     public void setRollerVelocity(double velocityRadPerSec) {
+        System.out.println("rv: " + velocityRadPerSec);
         // Calculate Feedforward
         double ffVolts = ROLLER_KS * Math.signum(velocityRadPerSec) + ROLLER_KV * velocityRadPerSec;
 
