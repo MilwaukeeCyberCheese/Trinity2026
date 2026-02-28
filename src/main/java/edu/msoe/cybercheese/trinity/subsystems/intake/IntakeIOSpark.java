@@ -71,6 +71,7 @@ public class IntakeIOSpark implements IntakeIO {
                 .averageDepth(2);
         lowerConfig
                 .closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 //                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
 //                .positionWrappingEnabled(true)
 //                .positionWrappingInputRange(LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT)
