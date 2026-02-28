@@ -155,8 +155,6 @@ public class RobotContainer {
                                         new Pose2d(this.drive.getPose().getTranslation(), Rotation2d.kZero)),
                                 this.drive)
                         .ignoringDisable(true));
-
-        this.controller.povDown().onTrue(Commands.runOnce(() -> this.drive.setPose(Pose2d.kZero), this.drive));
     }
 
     public Command getAutonomousCommand() {

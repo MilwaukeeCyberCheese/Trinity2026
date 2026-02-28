@@ -38,13 +38,13 @@ public class Motor {
 
     public void periodic() {
         sparkStickyFault = false;
-        ifOk(spark, encoder::getPosition, (value) -> inputs.position = value);
-        ifOk(spark, encoder::getVelocity, (value) -> inputs.velocity = value);
-        ifOk(
-                spark,
-                new DoubleSupplier[] {spark::getAppliedOutput, spark::getBusVoltage},
-                (values) -> inputs.appliedVolts = values[0] * values[1]);
-        ifOk(spark, spark::getOutputCurrent, (value) -> inputs.currentAmps = value);
-        inputs.connected = connectedDebounce.calculate(!sparkStickyFault);
+//        ifOk(spark, encoder::getPosition, (value) -> inputs.position = value);
+//        ifOk(spark, encoder::getVelocity, (value) -> inputs.velocity = value);
+//        ifOk(
+//                spark,
+//                new DoubleSupplier[] {spark::getAppliedOutput, spark::getBusVoltage},
+//                (values) -> inputs.appliedVolts = values[0] * values[1]);
+//        ifOk(spark, spark::getOutputCurrent, (value) -> inputs.currentAmps = value);
+//        inputs.connected = connectedDebounce.calculate(!sparkStickyFault);
     }
 }
