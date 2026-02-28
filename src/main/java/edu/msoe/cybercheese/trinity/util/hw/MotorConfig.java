@@ -44,7 +44,13 @@ public record MotorConfig(
                 .velocityConversionFactor(this.velocityFactor)
                 .uvwMeasurementPeriod(10)
                 .uvwAverageDepth(2);
-        driveConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(this.p, 0.0, this.d);
+        driveConfig
+                .closedLoop
+                .feedbackSensor(
+                        this.mode == ControlMode.POSITION
+                                ? FeedbackSensor.kAbsoluteEncoder
+                                : FeedbackSensor.kPrimaryEncoder)
+                .pid(this.p, 0.0, this.d);
         driveConfig
                 .signals
                 .primaryEncoderPositionAlwaysOn(true)

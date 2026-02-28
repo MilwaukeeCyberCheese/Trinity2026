@@ -10,7 +10,6 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.MathUtil;
 
 public class IntakeIOSpark implements IntakeIO {
 
@@ -64,19 +63,19 @@ public class IntakeIOSpark implements IntakeIO {
                 .idleMode(SparkBaseConfig.IdleMode.kBrake)
                 .smartCurrentLimit(LOWER_MOTOR_CURRENT_LIMIT)
                 .voltageCompensation(12.0);
-        lowerConfig
-                .absoluteEncoder
-                .positionConversionFactor(LOWER_ENCODER_POSITION_FACTOR)
-                .velocityConversionFactor(LOWER_ENCODER_VELOCITY_FACTOR)
-                .averageDepth(2);
+        rollerConfig
+                .encoder
+                .velocityConversionFactor(ROLLER_VELOCITY_FACTOR) // RPM to Rad/s usually
+                .uvwMeasurementPeriod(10)
+                .uvwAverageDepth(2);
         lowerConfig
                 .closedLoop
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-//                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-//                .positionWrappingEnabled(true)
-//                .positionWrappingInputRange(LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT)
-                .pid(LOWER_KP, 0.0, LOWER_KD);
-//        lowerConfig.signals.absoluteEncoderPositionAlwaysOn(true).absoluteEncoderVelocityAlwaysOn(true);
+                //                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+                //                .positionWrappingEnabled(true)
+                //                .positionWrappingInputRange(LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT)
+                .pid(LOWER_KP, 0.0, LOWER_KD)
+                .outputRange(-1, 1);
+        //        lowerConfig.signals.absoluteEncoderPositionAlwaysOn(true).absoluteEncoderVelocityAlwaysOn(true);
         tryUntilOk(
                 lowerSpark,
                 5,
@@ -133,7 +132,7 @@ public class IntakeIOSpark implements IntakeIO {
                 ffVolts,
                 SparkClosedLoopController.ArbFFUnits.kVoltage);
 
-//        double setpoint = MathUtil.inputModulus(position, LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT);
-//        this.lowerController.setSetpoint(setpoint, SparkBase.ControlType.kPosition);
+        //        double setpoint = MathUtil.inputModulus(position, LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT);
+        //        this.lowerController.setSetpoint(setpoint, SparkBase.ControlType.kPosition);
     }
 }
