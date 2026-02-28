@@ -71,9 +71,9 @@ public class IntakeIOSpark implements IntakeIO {
                 .averageDepth(2);
         lowerConfig
                 .closedLoop
-                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-                .positionWrappingEnabled(true)
-                .positionWrappingInputRange(LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT)
+//                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+//                .positionWrappingEnabled(true)
+//                .positionWrappingInputRange(LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT)
                 .pid(LOWER_KP, 0.0, LOWER_KD);
         lowerConfig.signals.absoluteEncoderPositionAlwaysOn(true).absoluteEncoderVelocityAlwaysOn(true);
         tryUntilOk(
@@ -101,7 +101,6 @@ public class IntakeIOSpark implements IntakeIO {
 
     @Override
     public void setRollerVelocity(double velocityRadPerSec) {
-        System.out.println("rv: " + velocityRadPerSec);
         // Calculate Feedforward
         double ffVolts = ROLLER_KS * Math.signum(velocityRadPerSec) + ROLLER_KV * velocityRadPerSec;
 
@@ -120,8 +119,20 @@ public class IntakeIOSpark implements IntakeIO {
     }
 
     @Override
-    public void setLowerPosition(double position) {
-        double setpoint = MathUtil.inputModulus(position, LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT);
-        this.lowerController.setSetpoint(setpoint, SparkBase.ControlType.kPosition);
+    public void setLowerPosition(double velocityRadPerSec) {
+
+        // Calculate Feedforward
+        double ffVolts = ROLLER_KS * Math.signum(velocityRadPerSec) + ROLLER_KV * velocityRadPerSec;
+
+        // Set Reference
+        lowerController.setSetpoint(
+                velocityRadPerSec,
+                SparkBase.ControlType.kVelocity,
+                ClosedLoopSlot.kSlot0,
+                ffVolts,
+                SparkClosedLoopController.ArbFFUnits.kVoltage);
+
+//        double setpoint = MathUtil.inputModulus(position, LOWER_PID_MIN_INPUT, LOWER_PID_MAX_INPUT);
+//        this.lowerController.setSetpoint(setpoint, SparkBase.ControlType.kPosition);
     }
 }

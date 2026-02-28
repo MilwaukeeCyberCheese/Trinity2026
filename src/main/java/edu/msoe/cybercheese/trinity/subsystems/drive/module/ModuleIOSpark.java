@@ -179,9 +179,6 @@ public class ModuleIOSpark implements ModuleIO {
         double setpoint =
                 MathUtil.inputModulus(rotation.plus(zeroRotation).getRadians(), TURN_PID_MIN_INPUT, TURN_PID_MAX_INPUT);
 
-        if (this.moduleDef.turnCanId() == 21) {
-            System.out.println("bl turn: " + setpoint);
-        }
         this.turnController.setSetpoint(setpoint, ControlType.kPosition);
     }
 }

@@ -8,7 +8,7 @@ public class IntakeCommands {
     public static Command runValues(final Intake intake, double position, double velocity) {
         return Commands.run(
                 () -> {
-                    intake.setLowerPosition(position);
+//                    intake.setLowerPosition(position);
                     intake.setRollerVelocity(velocity);
                 },
                 intake);

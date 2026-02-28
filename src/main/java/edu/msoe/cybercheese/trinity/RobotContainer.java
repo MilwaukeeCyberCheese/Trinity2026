@@ -150,8 +150,11 @@ public class RobotContainer {
                         LoaderCommands.runVelocity(this.loader, 500), ShooterCommands.runVelocity(this.shooter, -500)));
         this.controller.leftBumper().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 50));
 
+        this.controller.povUp().onTrue(Commands.run(() -> intake.setLowerPosition(3), intake));
+        this.controller.povDown().onTrue(Commands.run(() -> intake.setLowerPosition(-3), intake));
+
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
-        this.controller.povDown().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -500));
+        this.controller.povLeft().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -500));
 
         this.controller
                 .b()
