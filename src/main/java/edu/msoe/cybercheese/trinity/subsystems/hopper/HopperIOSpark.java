@@ -66,6 +66,8 @@ public class HopperIOSpark implements HopperIO {
         // Calculate Feedforward
         double ffVolts = ROLLER_KS * Math.signum(velocityRadPerSec) + ROLLER_KV * velocityRadPerSec;
 
+        System.out.println("hopper: " + velocityRadPerSec);
+
         // Set Reference
         hopperController.setSetpoint(
                 velocityRadPerSec,
