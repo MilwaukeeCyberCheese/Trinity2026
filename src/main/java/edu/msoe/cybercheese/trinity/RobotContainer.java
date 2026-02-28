@@ -142,7 +142,7 @@ public class RobotContainer {
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
 
         // TODO: henry needs to tune this
-        this.controller.rightBumper().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, 5));
+        this.controller.rightBumper().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, 200));
         this.controller.y().whileTrue(ShooterCommands.runTargetVelocity(this.shooter, this.drive::getPose));
         this.controller
                 .back()
