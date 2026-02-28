@@ -49,9 +49,6 @@ public class Module {
 
         this.io.setDriveVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_RADIUS_METERS);
         this.io.setTurnPosition(state.angle);
-
-
-        System.out.printf("sms: d%f, t%f\n", state.speedMetersPerSecond, state.angle.getDegrees());
     }
 
     public void runCharacterization(double output) {

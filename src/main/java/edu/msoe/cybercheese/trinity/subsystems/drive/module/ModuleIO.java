@@ -23,7 +23,7 @@ public interface ModuleIO extends IO<ModuleIO.ModuleInputs> {
         public double[] odometryTimestamps = new double[] {};
         public double[] odometryDrivePositions = new double[] {};
         public double[] odometryTurnPositions = new double[] {};
-
+hoppercon
         @Override
         public void toLog(LogTable table) {
             table.put("driveConnected", this.driveConnected);
