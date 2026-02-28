@@ -101,7 +101,7 @@ public class RobotContainer {
 
         // TODO: henry does tuning
         this.intake.setDefaultCommand(IntakeCommands.runValues(this.intake, 0, 0));
-        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, -50));
+        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
 
         this.configureButtonBindings();
@@ -151,6 +151,7 @@ public class RobotContainer {
         this.controller.leftBumper().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 50));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
+        this.controller.povDown().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -50));
 
         this.controller
                 .b()
