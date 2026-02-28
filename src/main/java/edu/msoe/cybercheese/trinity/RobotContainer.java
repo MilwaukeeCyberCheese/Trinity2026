@@ -101,7 +101,7 @@ public class RobotContainer {
 
         // TODO: henry does tuning
         this.intake.setDefaultCommand(IntakeCommands.runValues(this.intake, 0, 0));
-        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 3));
+        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 0.5));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
 
         this.configureButtonBindings();
