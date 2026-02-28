@@ -5,7 +5,7 @@ import edu.wpi.first.math.util.Units;
 
 public class IntakeConstants {
 
-    public static final int ROLLER_MOTOR_ID = 33;
+    public static final int ROLLER_MOTOR_ID = 34;
 
     public static final DCMotor ROLLER_GEARBOX = DCMotor.getNeoVortex(1);
     public static final double ROLLER_GEARING = 1.0;
