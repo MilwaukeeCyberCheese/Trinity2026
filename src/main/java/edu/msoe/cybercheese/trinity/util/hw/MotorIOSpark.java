@@ -45,10 +45,13 @@ public class MotorIOSpark implements IO<MotorInputs> {
     }
 
     public void runOpenLoop(double volts) {
-//        this.
+        //        this.
     }
 
-    pu
+    // TODO: doc that this is rads/sec
+    public void runVelocity(double velocity) {}
+
+    //    public
 
     @Override
     public void updateInputs(MotorInputs inputs) {
