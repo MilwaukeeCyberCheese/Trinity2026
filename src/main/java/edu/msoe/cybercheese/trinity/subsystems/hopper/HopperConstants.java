@@ -5,7 +5,7 @@ import edu.wpi.first.math.util.Units;
 
 public class HopperConstants {
 
-    public static final int HOPPER_MOTOR_ID = 36;
+    public static final int HOPPER_MOTOR_ID = 34;
 
     public static final DCMotor HOPPER_GEARBOX = DCMotor.getNeoVortex(1);
     public static final double HOPPER_GEARING = 1.0;
