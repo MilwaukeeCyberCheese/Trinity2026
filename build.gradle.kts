@@ -203,5 +203,5 @@ spotless {
 }
 
 tasks.compileJava {
-    dependsOn(tasks.spotlessApply)
+//    dependsOn(tasks.spotlessApply)
 }
