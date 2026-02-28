@@ -126,8 +126,8 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         this.drive.setDefaultCommand(DriveCommands.joystickDrive(
                 this.drive,
-                () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
-                () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
+                () -> controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
+                () -> controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
                 () -> -controller.getRightX() * DriveConstants.JOYSTICK_MULTIPLIER));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
@@ -137,8 +137,8 @@ public class RobotContainer {
                 .a()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
                         this.drive,
-                        () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
-                        () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
+                        () -> controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
+                        () -> controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
 
         // TODO: henry needs to tune this
