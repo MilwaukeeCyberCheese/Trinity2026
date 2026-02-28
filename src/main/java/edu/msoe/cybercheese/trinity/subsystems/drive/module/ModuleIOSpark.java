@@ -25,9 +25,7 @@ import org.jspecify.annotations.Nullable;
 public class ModuleIOSpark implements ModuleIO {
     private final ModuleDefinition moduleDef;
 
-
     private final Rotation2d zeroRotation;
-
 
     // Hardware objects
     private final SparkBase driveSpark;

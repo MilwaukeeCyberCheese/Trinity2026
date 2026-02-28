@@ -101,7 +101,7 @@ public class RobotContainer {
 
         // TODO: henry does tuning
         this.intake.setDefaultCommand(IntakeCommands.runValues(this.intake, 0, 0));
-        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 0.5));
+        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 5));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
 
         this.configureButtonBindings();
@@ -142,9 +142,9 @@ public class RobotContainer {
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
 
         // TODO: henry needs to tune this
-        this.controller.rightTrigger().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, 3));
+        this.controller.rightBumper().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, 5));
         this.controller.y().whileTrue(ShooterCommands.runTargetVelocity(this.shooter, this.drive::getPose));
-        this.controller.leftTrigger().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 3));
+        this.controller.leftBumper().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 3));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 

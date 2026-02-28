@@ -26,7 +26,9 @@ public class ShooterCommands {
                     // we use negative numbers to signal invalid states
                     if (velocity < 0) return;
 
-                    shooter.runVelocity(velocity * ShooterConstants.VELOCITY_CONVERSION_FACTOR * ShooterConstants.VELOCITY_ADJUSTMENT);
+                    shooter.runVelocity(velocity
+                            * ShooterConstants.VELOCITY_CONVERSION_FACTOR
+                            * ShooterConstants.VELOCITY_ADJUSTMENT);
                 },
                 shooter);
     }
