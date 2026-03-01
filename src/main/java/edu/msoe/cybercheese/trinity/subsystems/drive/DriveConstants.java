@@ -44,12 +44,12 @@ public class DriveConstants {
     public static final DCMotor DRIVE_GEARBOX = DCMotor.getNeoVortex(1);
 
     // Drive encoder configuration
+    // Rotor Rotations -> Wheel Radians
     public static final double DRIVE_ENCODER_POSITION_FACTOR =
-            2 * Math.PI / DRIVE_MOTOR_REDUCTION; // Rotor Rotations ->
-    // Wheel Radians
+            2 * Math.PI / DRIVE_MOTOR_REDUCTION;
+    // Rotor RPM -> Wheel Rad/Sec
     public static final double DRIVE_ENCODER_VELOCITY_FACTOR =
-            (2 * Math.PI) / 60.0 / DRIVE_MOTOR_REDUCTION; // Rotor RPM ->
-    // Wheel Rad/Sec
+            (2 * Math.PI) / 60.0 / DRIVE_MOTOR_REDUCTION;
 
     public static final double DRIVE_KP = 0.0;
     public static final double DRIVE_KD = 0.0;

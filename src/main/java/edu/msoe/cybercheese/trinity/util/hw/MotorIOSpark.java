@@ -27,7 +27,7 @@ public class MotorIOSpark implements IO<MotorInputs> {
     public MotorIOSpark(final MotorConfig config) {
         this.config = config;
         this.sparkConfig = config.sparkConfig();
-        this.spark = config.isFlex()
+        this.spark = config.kind() == MotorConfig.ControllerKind.FLEX
                 ? new SparkFlex(config.canId(), SparkLowLevel.MotorType.kBrushless)
                 : new SparkMax(config.canId(), SparkLowLevel.MotorType.kBrushless);
         this.absoluteEncoder = this.spark.getAbsoluteEncoder();
@@ -44,15 +44,14 @@ public class MotorIOSpark implements IO<MotorInputs> {
         sparkStickyFault = false;
     }
 
-    public void runOpenLoop(double volts) {
-        //        this.
-        //        this.controller.v
+    public void runOpenLoop(double output) {
+        this.spark.setVoltage(output);
     }
 
     // TODO: doc that this is rads/sec
     public void runVelocity(double velocity) {}
 
-    //    public
+    public void runPosition(double position) {}
 
     @Override
     public void updateInputs(MotorInputs inputs) {
