@@ -20,7 +20,7 @@ public class ModuleIOSim implements ModuleIO {
     private boolean turnClosedLoop = false;
     private final PIDController driveController;
     private final PIDController turnController =
-            new PIDController(DriveConstants.TURN_SIM_P, 0, DriveConstants.TURN_SIM_D);
+            new PIDController(DriveConstants.TURN_MOTOR_CONFIG.simP(), 0, DriveConstants.TURN_MOTOR_CONFIG.simD());
     private double driveFFVolts = 0.0;
     private double driveAppliedVolts = 0.0;
     private double turnAppliedVolts = 0.0;
@@ -32,7 +32,7 @@ public class ModuleIOSim implements ModuleIO {
                 .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.DRIVE_MOTOR_CONFIG.currentLimit()));
         this.turnMotor = this.moduleSimulation
                 .useGenericControllerForSteer()
-                .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.TURN_MOTOR_CURRENT_LIMIT));
+                .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.TURN_MOTOR_CONFIG.currentLimit()));
 
         this.driveController =
                 new PIDController(DriveConstants.DRIVE_MOTOR_CONFIG.p(), 0, DriveConstants.DRIVE_MOTOR_CONFIG.d());

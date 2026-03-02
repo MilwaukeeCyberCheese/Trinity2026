@@ -63,7 +63,7 @@ public class MotorIOSpark implements MotorIO {
         this.spark.setVoltage(output);
     }
 
-    // TODO: doc that this is rads/sec
+    @Override
     public void runVelocity(double velocity) {
         final var ff = this.config.kS() * Math.signum(velocity) + this.config.kV() * velocity;
 
@@ -75,6 +75,7 @@ public class MotorIOSpark implements MotorIO {
                 SparkClosedLoopController.ArbFFUnits.kVoltage);
     }
 
+    @Override
     public void runPosition(double position) {
         final var setpoint = MathUtil.inputModulus(position, 0, 2. * Math.PI);
 

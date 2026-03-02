@@ -40,23 +40,7 @@ public class DriveConstants {
 
     public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.5);
 
-    public static final boolean TURN_INVERTED = false;
-    public static final int TURN_MOTOR_CURRENT_LIMIT = 20;
-    public static final double TURN_MOTOR_REDUCTION = 9424.0 / 203.0;
-    public static final DCMotor TURN_GEARBOX = DCMotor.getNeo550(1);
-
-    public static final boolean TURN_ENCODER_INVERTED = true;
-    // Rotations -> Radians
-    public static final double TURN_ENCODER_POSITION_FACTOR = 2 * Math.PI;
-    // RPM -> Rad/Sec
-    public static final double TURN_ENCODER_VELOCITY_FACTOR = (2 * Math.PI) / 60.0;
-
-    public static final double TURN_KP = 2.0;
-    public static final double TURN_KD = 0.0;
-    public static final double TURN_SIM_P = 8.0;
-    public static final double TURN_SIM_D = 0.0;
-    public static final double TURN_PID_MIN_INPUT = 0; // Radians
-    public static final double TURN_PID_MAX_INPUT = 2 * Math.PI; // Radians
+    public static final double TURN_MOTOR_TEMP_SIM_REDUCTION = 9424.0 / 203.0;
 
     public static final double ROBOT_MASS_KG = 74.088;
     public static final double ROBOT_MOI = 6.883;
@@ -113,9 +97,9 @@ public class DriveConstants {
 
     public static final SwerveModuleSimulationConfig SWERVE_MODULE_SIMULATION_CONFIG = new SwerveModuleSimulationConfig(
             DRIVE_MOTOR_CONFIG.gearbox(),
-            TURN_GEARBOX,
+            TURN_MOTOR_CONFIG.gearbox(),
             DRIVE_MOTOR_CONFIG.gearing(),
-            TURN_MOTOR_REDUCTION,
+            TURN_MOTOR_TEMP_SIM_REDUCTION,
             UnitTypes.VOLTS.of(0.1),
             UnitTypes.VOLTS.of(0.1),
             UnitTypes.METERS.of(WHEEL_RADIUS_METERS),
