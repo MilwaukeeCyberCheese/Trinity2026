@@ -11,12 +11,7 @@ public interface ModuleIO extends IO<ModuleIO.ModuleInputs> {
     class ModuleInputs implements LoggableInputs {
 
         public MotorIO.MotorInputs drive = new MotorIO.MotorInputs();
-
-        public boolean turnConnected = false;
-        public double turnPosition = 0.0;
-        public double turnVelocity = 0.0;
-        public double turnAppliedVolts = 0.0;
-        public double turnCurrentAmps = 0.0;
+        public MotorIO.MotorInputs turn = new MotorIO.MotorInputs();
 
         public double[] odometryTimestamps = new double[] {};
         public double[] odometryDrivePositions = new double[] {};
@@ -25,12 +20,7 @@ public interface ModuleIO extends IO<ModuleIO.ModuleInputs> {
         @Override
         public void toLog(LogTable table) {
             table.put("drive", this.drive);
-
-            table.put("turnConnected", this.turnConnected);
-            table.put("turnPosition", this.turnPosition);
-            table.put("turnVelocity", this.turnVelocity);
-            table.put("turnAppliedVolts", this.turnAppliedVolts);
-            table.put("turnCurrentAmps", this.turnCurrentAmps);
+            table.put("turn", this.turn);
 
             table.put("odometryTimestamps", this.odometryTimestamps);
             table.put("odometryDrivePositions", this.odometryDrivePositions);
@@ -40,12 +30,7 @@ public interface ModuleIO extends IO<ModuleIO.ModuleInputs> {
         @Override
         public void fromLog(LogTable table) {
             this.drive = table.get("drive", new MotorIO.MotorInputs());
-
-            this.turnConnected = table.get("turnConnected", this.turnConnected);
-            this.turnPosition = table.get("turnPosition", this.turnPosition);
-            this.turnVelocity = table.get("turnVelocity", this.turnVelocity);
-            this.turnAppliedVolts = table.get("turnAppliedVolts", this.turnAppliedVolts);
-            this.turnCurrentAmps = table.get("turnCurrentAmps", this.turnCurrentAmps);
+            this.turn = table.get("turn", new MotorIO.MotorInputs());
 
             this.odometryTimestamps = table.get("odometryTimestamps", this.odometryTimestamps);
             this.odometryDrivePositions = table.get("odometryDrivePositions", this.odometryDrivePositions);

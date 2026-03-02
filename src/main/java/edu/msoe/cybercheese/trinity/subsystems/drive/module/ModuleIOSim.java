@@ -69,12 +69,12 @@ public class ModuleIOSim implements ModuleIO {
         inputs.drive.currentAmps =
                 Math.abs(this.moduleSimulation.getDriveMotorStatorCurrent().in(UnitTypes.AMPS));
 
-        inputs.turnConnected = true;
-        inputs.turnPosition = this.moduleSimulation.getSteerAbsoluteAngle().in(UnitTypes.RADIANS);
-        inputs.turnVelocity =
+        inputs.turn.connected = true;
+        inputs.turn.position = this.moduleSimulation.getSteerAbsoluteAngle().in(UnitTypes.RADIANS);
+        inputs.turn.velocity =
                 this.moduleSimulation.getSteerAbsoluteEncoderSpeed().in(UnitTypes.RADIANS_PER_SECOND);
-        inputs.turnAppliedVolts = this.turnAppliedVolts;
-        inputs.turnCurrentAmps =
+        inputs.turn.appliedVolts = this.turnAppliedVolts;
+        inputs.turn.currentAmps =
                 Math.abs(this.moduleSimulation.getSteerMotorStatorCurrent().in(UnitTypes.AMPS));
 
         inputs.odometryTimestamps = SparkUtil.getSimulationOdometryTimeStamps();

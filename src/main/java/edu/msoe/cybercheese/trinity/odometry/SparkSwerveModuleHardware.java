@@ -10,18 +10,15 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 public class SparkSwerveModuleHardware implements OdometryCallback {
 
     private final MotorIOSpark driveMotor;
-
-    private final SparkBase turnSpark;
-    private final AbsoluteEncoder turnEncoder;
+    private final MotorIOSpark turnMotor;
 
     public final DoubleList timestamps = new DoubleArrayList();
     public final DoubleList drivePositions = new DoubleArrayList();
     public final DoubleList turnPositions = new DoubleArrayList();
 
-    public SparkSwerveModuleHardware(MotorIOSpark driveMotor, SparkBase turnSpark, AbsoluteEncoder turnEncoder) {
+    public SparkSwerveModuleHardware(final MotorIOSpark driveMotor, final MotorIOSpark turnMotor) {
         this.driveMotor = driveMotor;
-        this.turnSpark = turnSpark;
-        this.turnEncoder = turnEncoder;
+        this.turnMotor = turnMotor;
     }
 
     @Override
@@ -40,8 +37,8 @@ public class SparkSwerveModuleHardware implements OdometryCallback {
             isValid = false;
         }
 
-        final var turnPosition = this.turnEncoder.getPosition();
-        if (this.turnSpark.getLastError() != REVLibError.kOk) {
+        final var turnPosition = this.turnMotor.absoluteEncoder().getPosition();
+        if (this.turnMotor.spark().getLastError() != REVLibError.kOk) {
             isValid = false;
         }
 

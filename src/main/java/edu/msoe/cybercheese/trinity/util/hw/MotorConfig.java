@@ -19,8 +19,6 @@ public record MotorConfig(
         int currentLimit,
         boolean brakeOnIdle,
         boolean positionWrapping,
-        double positionFactor,
-        double velocityFactor,
         double moi,
         double p,
         double d,

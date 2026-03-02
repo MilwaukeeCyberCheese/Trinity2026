@@ -80,8 +80,6 @@ public class DriveConstants {
             50,
             true,
             false,
-            0,
-            0,
             -1,
             0,
             0,
@@ -91,6 +89,27 @@ public class DriveConstants {
             0,
             0,
             0.0789);
+
+    public static final MotorConfig TURN_MOTOR_CONFIG = new MotorConfig(
+            MotorConfig.ControllerKind.MAX,
+            MotorConfig.ControlMode.POSITION,
+            ODOMETRY_FREQUENCY,
+            false,
+            true,
+            DCMotor.getNeo550(1),
+            1., // TODO
+            20,
+            true,
+            true,
+            -1,
+            2.,
+            0,
+            -1,
+            -1,
+            8.,
+            0,
+            -1,
+            -1);
 
     public static final SwerveModuleSimulationConfig SWERVE_MODULE_SIMULATION_CONFIG = new SwerveModuleSimulationConfig(
             DRIVE_MOTOR_CONFIG.gearbox(),
