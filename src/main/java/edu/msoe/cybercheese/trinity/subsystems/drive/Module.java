@@ -28,10 +28,10 @@ public class Module {
     }
 
     public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Drive/Module/" + index, inputs);
+        this.io.updateInputs(this.inputs);
+        Logger.processInputs("Drive/Module/" + this.index, this.inputs);
 
-        this.driveDisconnectedAlert.set(!this.inputs.driveConnected);
+        this.driveDisconnectedAlert.set(!this.inputs.drive.connected);
         this.turnDisconnectedAlert.set(!this.inputs.turnConnected);
 
         int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
@@ -62,7 +62,7 @@ public class Module {
     }
 
     public ModuleIO getIo() {
-        return io;
+        return this.io;
     }
 
     public Rotation2d getAngle() {
@@ -70,11 +70,11 @@ public class Module {
     }
 
     public double getPositionMeters() {
-        return this.inputs.drivePosition * DriveConstants.WHEEL_RADIUS_METERS;
+        return this.inputs.drive.position * DriveConstants.WHEEL_RADIUS_METERS;
     }
 
     public double getVelocityMetersPerSec() {
-        return inputs.driveVelocity * DriveConstants.WHEEL_RADIUS_METERS;
+        return inputs.drive.velocity * DriveConstants.WHEEL_RADIUS_METERS;
     }
 
     public SwerveModulePosition getPosition() {
@@ -94,10 +94,10 @@ public class Module {
     }
 
     public double getWheelRadiusCharacterizationPosition() {
-        return this.inputs.drivePosition;
+        return this.inputs.drive.position;
     }
 
     public double getFFCharacterizationVelocity() {
-        return this.inputs.driveVelocity;
+        return this.inputs.drive.position;
     }
 }

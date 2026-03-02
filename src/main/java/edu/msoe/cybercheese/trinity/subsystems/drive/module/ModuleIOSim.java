@@ -18,9 +18,9 @@ public class ModuleIOSim implements ModuleIO {
 
     private boolean driveClosedLoop = false;
     private boolean turnClosedLoop = false;
-    private PIDController driveController =
-            new PIDController(DriveConstants.DRIVE_SIM_P, 0, DriveConstants.DRIVE_SIM_D);
-    private PIDController turnController = new PIDController(DriveConstants.TURN_SIM_P, 0, DriveConstants.TURN_SIM_D);
+    private final PIDController driveController;
+    private final PIDController turnController =
+            new PIDController(DriveConstants.TURN_SIM_P, 0, DriveConstants.TURN_SIM_D);
     private double driveFFVolts = 0.0;
     private double driveAppliedVolts = 0.0;
     private double turnAppliedVolts = 0.0;
@@ -29,10 +29,13 @@ public class ModuleIOSim implements ModuleIO {
         this.moduleSimulation = moduleSimulation;
         this.driveMotor = this.moduleSimulation
                 .useGenericMotorControllerForDrive()
-                .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.DRIVE_MOTOR_CURRENT_LIMIT));
+                .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.DRIVE_MOTOR_CONFIG.currentLimit()));
         this.turnMotor = this.moduleSimulation
                 .useGenericControllerForSteer()
                 .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.TURN_MOTOR_CURRENT_LIMIT));
+
+        this.driveController =
+                new PIDController(DriveConstants.DRIVE_MOTOR_CONFIG.p(), 0, DriveConstants.DRIVE_MOTOR_CONFIG.d());
 
         this.turnController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -58,12 +61,12 @@ public class ModuleIOSim implements ModuleIO {
         this.driveMotor.requestVoltage(UnitTypes.VOLTS.of(this.driveAppliedVolts));
         this.turnMotor.requestVoltage(UnitTypes.VOLTS.of(this.turnAppliedVolts));
 
-        inputs.driveConnected = true;
-        inputs.drivePosition =
+        inputs.drive.connected = true;
+        inputs.drive.position =
                 this.moduleSimulation.getDriveWheelFinalPosition().in(UnitTypes.RADIANS);
-        inputs.driveVelocity = this.moduleSimulation.getDriveWheelFinalSpeed().in(UnitTypes.RADIANS_PER_SECOND);
-        inputs.driveAppliedVolts = this.driveAppliedVolts;
-        inputs.driveCurrentAmps =
+        inputs.drive.velocity = this.moduleSimulation.getDriveWheelFinalSpeed().in(UnitTypes.RADIANS_PER_SECOND);
+        inputs.drive.appliedVolts = this.driveAppliedVolts;
+        inputs.drive.currentAmps =
                 Math.abs(this.moduleSimulation.getDriveMotorStatorCurrent().in(UnitTypes.AMPS));
 
         inputs.turnConnected = true;
@@ -98,8 +101,8 @@ public class ModuleIOSim implements ModuleIO {
     @Override
     public void setDriveVelocity(double velocityRadPerSec) {
         driveClosedLoop = true;
-        driveFFVolts = DriveConstants.DRIVE_SIM_KS * Math.signum(velocityRadPerSec)
-                + DriveConstants.DRIVE_SIM_KV * velocityRadPerSec;
+        driveFFVolts = DriveConstants.DRIVE_MOTOR_CONFIG.simKS() * Math.signum(velocityRadPerSec)
+                + DriveConstants.DRIVE_MOTOR_CONFIG.simKV() * velocityRadPerSec;
         driveController.setSetpoint(velocityRadPerSec);
     }
 

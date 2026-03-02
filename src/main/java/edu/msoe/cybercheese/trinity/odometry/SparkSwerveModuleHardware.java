@@ -2,27 +2,25 @@ package edu.msoe.cybercheese.trinity.odometry;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.REVLibError;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
 public class SparkSwerveModuleHardware implements OdometryCallback {
 
-    private final SparkBase driveSpark;
+    private final MotorIOSpark driveMotor;
+
     private final SparkBase turnSpark;
-    private final RelativeEncoder driveEncoder;
     private final AbsoluteEncoder turnEncoder;
 
     public final DoubleList timestamps = new DoubleArrayList();
     public final DoubleList drivePositions = new DoubleArrayList();
     public final DoubleList turnPositions = new DoubleArrayList();
 
-    public SparkSwerveModuleHardware(
-            SparkBase driveSpark, SparkBase turnSpark, RelativeEncoder driveEncoder, AbsoluteEncoder turnEncoder) {
-        this.driveSpark = driveSpark;
+    public SparkSwerveModuleHardware(MotorIOSpark driveMotor, SparkBase turnSpark, AbsoluteEncoder turnEncoder) {
+        this.driveMotor = driveMotor;
         this.turnSpark = turnSpark;
-        this.driveEncoder = driveEncoder;
         this.turnEncoder = turnEncoder;
     }
 
@@ -37,8 +35,8 @@ public class SparkSwerveModuleHardware implements OdometryCallback {
     public void collectOdometry(double fpgaTime) {
         var isValid = true;
 
-        final var drivePosition = this.driveEncoder.getPosition();
-        if (this.driveSpark.getLastError() != REVLibError.kOk) {
+        final var drivePosition = this.driveMotor.encoder().getPosition();
+        if (this.driveMotor.spark().getLastError() != REVLibError.kOk) {
             isValid = false;
         }
 

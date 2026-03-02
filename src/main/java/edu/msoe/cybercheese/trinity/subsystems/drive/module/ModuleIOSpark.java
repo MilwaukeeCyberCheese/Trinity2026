@@ -5,17 +5,15 @@ import static edu.msoe.cybercheese.trinity.util.SparkUtil.*;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.odometry.SparkSwerveModuleHardware;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,62 +25,32 @@ public class ModuleIOSpark implements ModuleIO {
 
     private final Rotation2d zeroRotation;
 
+    private final MotorIOSpark driveMotor;
     // Hardware objects
-    private final SparkBase driveSpark;
     private final SparkBase turnSpark;
-    private final RelativeEncoder driveEncoder;
     private final AbsoluteEncoder turnEncoder;
 
     private final SparkSwerveModuleHardware odometryHal;
 
     // Closed loop controllers
-    private final SparkClosedLoopController driveController;
     private final SparkClosedLoopController turnController;
 
     // Connection debouncers
-    private final Debouncer driveConnectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
     private final Debouncer turnConnectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
     public ModuleIOSpark(final ModuleDefinition moduleDef) {
         this.moduleDef = moduleDef;
         this.zeroRotation = moduleDef.zeroRotation();
-        this.driveSpark = new SparkFlex(moduleDef.driveCanId(), MotorType.kBrushless);
+
+        this.driveMotor = new MotorIOSpark(moduleDef.driveCanId(), DRIVE_MOTOR_CONFIG);
+
         this.turnSpark = new SparkMax(moduleDef.turnCanId(), MotorType.kBrushless);
-        this.driveEncoder = driveSpark.getEncoder();
         this.turnEncoder = turnSpark.getAbsoluteEncoder();
-        this.odometryHal =
-                new SparkSwerveModuleHardware(this.driveSpark, this.turnSpark, this.driveEncoder, this.turnEncoder);
-        this.driveController = driveSpark.getClosedLoopController();
+        this.odometryHal = new SparkSwerveModuleHardware(this.driveMotor, this.turnSpark, this.turnEncoder);
         this.turnController = turnSpark.getClosedLoopController();
 
         // Configure drive motor
-        var driveConfig = new SparkFlexConfig();
-        driveConfig
-                .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
-                .voltageCompensation(12.0);
-        driveConfig
-                .encoder
-                .positionConversionFactor(DRIVE_ENCODER_POSITION_FACTOR)
-                .velocityConversionFactor(DRIVE_ENCODER_VELOCITY_FACTOR)
-                .uvwMeasurementPeriod(10)
-                .uvwAverageDepth(2);
-        driveConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(DRIVE_KP, 0.0, DRIVE_KD);
-        driveConfig
-                .signals
-                .primaryEncoderPositionAlwaysOn(true)
-                .primaryEncoderPositionPeriodMs((int) (1000.0 / ODOMETRY_FREQUENCY))
-                .primaryEncoderVelocityAlwaysOn(true)
-                .primaryEncoderVelocityPeriodMs(20)
-                .appliedOutputPeriodMs(20)
-                .busVoltagePeriodMs(20)
-                .outputCurrentPeriodMs(20);
-        tryUntilOk(
-                driveSpark,
-                5,
-                () -> driveSpark.configure(
-                        driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-        tryUntilOk(driveSpark, 5, () -> driveEncoder.setPosition(0.0));
+        tryUntilOk(this.driveMotor.spark(), 5, () -> this.driveMotor.encoder().setPosition(0.0));
 
         // Configure turn motor
         var turnConfig = new SparkMaxConfig();
@@ -121,15 +89,7 @@ public class ModuleIOSpark implements ModuleIO {
     @Override
     public void updateInputs(ModuleInputs inputs) {
         // Update drive inputs
-        sparkStickyFault = false;
-        ifOk(driveSpark, driveEncoder::getPosition, (value) -> inputs.drivePosition = value);
-        ifOk(driveSpark, driveEncoder::getVelocity, (value) -> inputs.driveVelocity = value);
-        ifOk(
-                driveSpark,
-                new DoubleSupplier[] {driveSpark::getAppliedOutput, driveSpark::getBusVoltage},
-                (values) -> inputs.driveAppliedVolts = values[0] * values[1]);
-        ifOk(driveSpark, driveSpark::getOutputCurrent, (value) -> inputs.driveCurrentAmps = value);
-        inputs.driveConnected = driveConnectedDebounce.calculate(!sparkStickyFault);
+        this.driveMotor.updateInputs(inputs.drive);
 
         // Update turn inputs
         sparkStickyFault = false;
@@ -159,7 +119,7 @@ public class ModuleIOSpark implements ModuleIO {
 
     @Override
     public void setDriveOpenLoop(double output) {
-        driveSpark.setVoltage(output);
+        this.driveMotor.runOpenLoop(output);
     }
 
     @Override
@@ -169,9 +129,7 @@ public class ModuleIOSpark implements ModuleIO {
 
     @Override
     public void setDriveVelocity(double velocityRadPerSec) {
-        double ffVolts = DRIVE_KS * Math.signum(velocityRadPerSec) + DRIVE_KV * velocityRadPerSec;
-        this.driveController.setSetpoint(
-                velocityRadPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts, ArbFFUnits.kVoltage);
+        this.driveMotor.runVelocity(velocityRadPerSec);
     }
 
     @Override

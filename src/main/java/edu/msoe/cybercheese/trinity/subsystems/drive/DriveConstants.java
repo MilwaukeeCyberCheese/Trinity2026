@@ -2,6 +2,7 @@ package edu.msoe.cybercheese.trinity.subsystems.drive;
 
 import com.ctre.phoenix6.CANBus;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
+import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -37,28 +38,7 @@ public class DriveConstants {
         new ModuleDefinition(22, 23, Rotation2d.fromDegrees(0)),
     };
 
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 50;
     public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.5);
-    // MAXSwerve with 14 pinion teeth and 22 spur teeth
-    public static final double DRIVE_MOTOR_REDUCTION = (45.0 * 22.0) / (14.0 * 15.0);
-    public static final DCMotor DRIVE_GEARBOX = DCMotor.getNeoVortex(1);
-
-    // Drive encoder configuration
-    // Rotor Rotations -> Wheel Radians
-    public static final double DRIVE_ENCODER_POSITION_FACTOR =
-            2 * Math.PI / DRIVE_MOTOR_REDUCTION;
-    // Rotor RPM -> Wheel Rad/Sec
-    public static final double DRIVE_ENCODER_VELOCITY_FACTOR =
-            (2 * Math.PI) / 60.0 / DRIVE_MOTOR_REDUCTION;
-
-    public static final double DRIVE_KP = 0.0;
-    public static final double DRIVE_KD = 0.0;
-    public static final double DRIVE_KS = 0.0;
-    public static final double DRIVE_KV = 0.1;
-    public static final double DRIVE_SIM_P = 0.05;
-    public static final double DRIVE_SIM_D = 0.0;
-    public static final double DRIVE_SIM_KS = 0.0;
-    public static final double DRIVE_SIM_KV = 0.0789;
 
     public static final boolean TURN_INVERTED = false;
     public static final int TURN_MOTOR_CURRENT_LIMIT = 20;
@@ -88,10 +68,34 @@ public class DriveConstants {
 
     public static final double JOYSTICK_MULTIPLIER = 0.8;
 
+    public static final MotorConfig DRIVE_MOTOR_CONFIG = new MotorConfig(
+            MotorConfig.ControllerKind.FLEX,
+            MotorConfig.ControlMode.VELOCITY,
+            ODOMETRY_FREQUENCY,
+            false,
+            false,
+            DCMotor.getNeoVortex(1),
+            // MAXSwerve with 14 pinion teeth and 22 spur teeth
+            (45.0 * 22.0) / (14.0 * 15.0),
+            50,
+            true,
+            false,
+            0,
+            0,
+            -1,
+            0,
+            0,
+            0,
+            0.1,
+            0.05,
+            0,
+            0,
+            0.0789);
+
     public static final SwerveModuleSimulationConfig SWERVE_MODULE_SIMULATION_CONFIG = new SwerveModuleSimulationConfig(
-            DRIVE_GEARBOX,
+            DRIVE_MOTOR_CONFIG.gearbox(),
             TURN_GEARBOX,
-            DRIVE_MOTOR_REDUCTION,
+            DRIVE_MOTOR_CONFIG.gearing(),
             TURN_MOTOR_REDUCTION,
             UnitTypes.VOLTS.of(0.1),
             UnitTypes.VOLTS.of(0.1),
