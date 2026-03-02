@@ -1,5 +1,6 @@
 package edu.msoe.cybercheese.trinity.subsystems.hopper;
 
+import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
@@ -20,8 +21,25 @@ public class HopperConstants {
     public static final double HOPPER_KP = 0.001;
     public static final double HOPPER_KD = 0.0;
 
-    public static final double HOPPER_SIM_P = 0.5;
-    public static final double HOPPER_SIM_D = 0.0;
-    public static final double HOPPER_SIM_KS = 0.0;
-    public static final double HOPPER_SIM_KV = 0.0175;
+    public static final MotorConfig HOPPER_MOTOR_CONFIG = new MotorConfig(
+            MotorConfig.ControllerKind.MAX,
+            MotorConfig.ControlMode.VELOCITY,
+            MotorConfig.DEFAULT_SAMPLE_FREQUENCY,
+            false,
+            false,
+            DCMotor.getNeoVortex(1),
+            1.,
+            50,
+            false,
+            false,
+            0.002,
+            0.001,
+            0,
+            0.15,
+            0.019,
+            0.5,
+            0,
+            0,
+            0.0175
+    );
 }

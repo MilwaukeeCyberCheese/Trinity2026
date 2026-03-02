@@ -24,6 +24,7 @@ import edu.msoe.cybercheese.trinity.subsystems.loader.LoaderIO;
 import edu.msoe.cybercheese.trinity.subsystems.loader.LoaderIOSpark;
 import edu.msoe.cybercheese.trinity.subsystems.shooter.*;
 import edu.msoe.cybercheese.trinity.subsystems.vision.*;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -211,9 +212,9 @@ public class RobotContainer {
         return inputs -> {};
     }
 
-    private HopperIO createHopperIo() {
+    private MotorIOSpark createHopperIo() {
         return switch (Constants.CURRENT_MODE) {
-            case REAL -> new HopperIOSpark();
+            case REAL -> new MotorIOSpark(HopperConstants.HOPPER_MOTOR_ID, HopperConstants.HOPPER_MOTOR_CONFIG);
             case SIM -> new HopperIOSim();
             case REPLAY -> inputs -> {};
         };

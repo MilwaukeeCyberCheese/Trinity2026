@@ -33,6 +33,10 @@ public interface MotorIO extends IO<MotorIO.MotorInputs> {
         }
     }
 
+    default void stop() {
+        this.runOpenLoop(0);
+    }
+
     void runOpenLoop(double output);
 
     // TODO: doc that this is post gearbox rads/sec

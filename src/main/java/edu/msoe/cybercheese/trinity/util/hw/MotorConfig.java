@@ -29,6 +29,8 @@ public record MotorConfig(
         double simKS,
         double simKV) {
 
+    public static final double DEFAULT_SAMPLE_FREQUENCY = 50.0;
+
     private static final double POSITION_FACTOR = 2. * Math.PI;
     private static final double VELOCITY_FACTOR = 2. * Math.PI / 60.;
 

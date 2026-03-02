@@ -1,15 +1,16 @@
 package edu.msoe.cybercheese.trinity.subsystems.hopper;
 
+import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Hopper extends SubsystemBase {
 
-    private final HopperIO.HopperInputs inputs = new HopperIO.HopperInputs();
-    private final HopperIO io;
+    private final MotorIO.MotorInputs inputs = new MotorIO.MotorInputs();
+    private final MotorIO io;
 
-    public Hopper(HopperIO io) {
+    public Hopper(final MotorIO io) {
         this.io = io;
     }
 
@@ -19,11 +20,11 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", this.inputs);
 
         if (DriverStation.isDisabled()) {
-            this.io.setVoltage(0);
+            this.io.stop();
         }
     }
 
     public void setVelocity(double velocity) {
-        this.io.setVelocity(velocity);
+        this.io.runVelocity(velocity);
     }
 }
