@@ -32,7 +32,7 @@ public class Module {
         Logger.processInputs("Drive/Module/" + this.index, this.inputs);
 
         this.driveDisconnectedAlert.set(!this.inputs.drive.connected);
-        this.turnDisconnectedAlert.set(!this.inputs.turnConnected);
+        this.turnDisconnectedAlert.set(!this.inputs.turn.connected);
 
         int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
         this.odometryPositions.clear();
@@ -45,7 +45,7 @@ public class Module {
 
     public void runSetpoint(SwerveModuleState state) {
         state.optimize(getAngle());
-        state.cosineScale(Rotation2d.fromRadians(this.inputs.turnPosition));
+        state.cosineScale(Rotation2d.fromRadians(this.inputs.turn.position));
 
         this.io.setDriveVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_RADIUS_METERS);
         this.io.setTurnPosition(state.angle);
@@ -66,7 +66,7 @@ public class Module {
     }
 
     public Rotation2d getAngle() {
-        return Rotation2d.fromRadians(this.inputs.turnPosition);
+        return Rotation2d.fromRadians(this.inputs.turn.position);
     }
 
     public double getPositionMeters() {
