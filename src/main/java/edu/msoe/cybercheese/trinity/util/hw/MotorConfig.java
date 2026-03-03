@@ -96,4 +96,112 @@ public record MotorConfig(
         POSITION,
         VELOCITY,
     }
+
+    private MotorConfig(final Builder builder) {
+        this(
+                builder.kind,
+                builder.mode,
+                builder.sampleFrequency,
+                builder.inverted,
+                builder.encoderInverted,
+                builder.gearbox,
+                builder.gearing,
+                builder.currentLimit,
+                builder.brakeOnIdle,
+                builder.positionWrapping,
+                builder.moi,
+                builder.pid,
+                builder.feedForward);
+    }
+
+    public static Builder builder(final ControllerKind kind, final ControlMode mode, final DCMotor gearbox) {
+        return new Builder(kind, mode, gearbox);
+    }
+
+    public static Builder vortexBuilder(final ControllerKind kind, final ControlMode mode) {
+        return new Builder(kind, mode, DCMotor.getNeoVortex(1))
+                .currentLimit(50)
+                .moi(0.002)
+                .feedForward(new FFConstants(0.15, 0.019));
+    }
+
+    public static class Builder {
+        private final ControllerKind kind;
+        private final ControlMode mode;
+        private final DCMotor gearbox;
+
+        private double sampleFrequency = DEFAULT_SAMPLE_FREQUENCY;
+        private boolean inverted = false;
+        private boolean encoderInverted = false;
+        private double gearing = 1.0;
+        private int currentLimit = 50;
+        private boolean brakeOnIdle = true;
+        private boolean positionWrapping = false;
+        private double moi = 0.002;
+        private PIDConstants pid = new PIDConstants(0.001, 0, 0);
+        private FFConstants feedForward = FFConstants.INVALID;
+
+        private Builder(final ControllerKind kind, final ControlMode mode, final DCMotor gearbox) {
+            this.kind = kind;
+            this.mode = mode;
+            this.gearbox = gearbox;
+
+            this.positionWrapping = mode == ControlMode.POSITION;
+            this.brakeOnIdle = mode == ControlMode.POSITION;
+        }
+
+        public Builder sampleFrequency(double sampleFrequency) {
+            this.sampleFrequency = sampleFrequency;
+            return this;
+        }
+
+        public Builder inverted(boolean inverted) {
+            this.inverted = inverted;
+            return this;
+        }
+
+        public Builder encoderInverted(boolean encoderInverted) {
+            this.encoderInverted = encoderInverted;
+            return this;
+        }
+
+        public Builder gearing(double gearing) {
+            this.gearing = gearing;
+            return this;
+        }
+
+        public Builder currentLimit(int currentLimit) {
+            this.currentLimit = currentLimit;
+            return this;
+        }
+
+        public Builder brakeOnIdle(boolean brakeOnIdle) {
+            this.brakeOnIdle = brakeOnIdle;
+            return this;
+        }
+
+        public Builder positionWrapping(boolean positionWrapping) {
+            this.positionWrapping = positionWrapping;
+            return this;
+        }
+
+        public Builder moi(double moi) {
+            this.moi = moi;
+            return this;
+        }
+
+        public Builder pid(PIDConstants pid) {
+            this.pid = pid;
+            return this;
+        }
+
+        public Builder feedForward(FFConstants feedForward) {
+            this.feedForward = feedForward;
+            return this;
+        }
+
+        public MotorConfig build() {
+            return new MotorConfig(this);
+        }
+    }
 }

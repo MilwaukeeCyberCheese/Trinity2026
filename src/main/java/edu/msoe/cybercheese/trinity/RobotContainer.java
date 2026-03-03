@@ -152,6 +152,7 @@ public class RobotContainer {
         this.controller.povDown().onTrue(Commands.run(() -> intake.setLowerPosition(-3), intake));
 
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
+        // TODO: reversible
         this.controller.povLeft().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -500));
 
         this.controller

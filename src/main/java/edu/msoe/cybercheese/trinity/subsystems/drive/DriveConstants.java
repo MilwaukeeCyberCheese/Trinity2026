@@ -54,36 +54,21 @@ public class DriveConstants {
 
     public static final double JOYSTICK_MULTIPLIER = 0.8;
 
-    public static final MotorConfig DRIVE_MOTOR_CONFIG = new MotorConfig(
-            MotorConfig.ControllerKind.FLEX,
-            MotorConfig.ControlMode.VELOCITY,
-            ODOMETRY_FREQUENCY,
-            false,
-            false,
-            DCMotor.getNeoVortex(1),
-            // MAXSwerve with 14 pinion teeth and 22 spur teeth
-            (45.0 * 22.0) / (14.0 * 15.0),
-            50,
-            true,
-            false,
-            -1,
-            new PIDConstants(0, 0, 0),
-            new FFConstants(0, 0.1));
+    public static final MotorConfig DRIVE_MOTOR_CONFIG = MotorConfig.vortexBuilder(
+                    MotorConfig.ControllerKind.FLEX, MotorConfig.ControlMode.VELOCITY)
+            .sampleFrequency(ODOMETRY_FREQUENCY)
+            .brakeOnIdle(true)
+            .gearing((45.0 * 22.0) / (14.0 * 15.0))
+            .feedForward(new FFConstants(0, 0.1))
+            .build();
 
-    public static final MotorConfig TURN_MOTOR_CONFIG = new MotorConfig(
-            MotorConfig.ControllerKind.MAX,
-            MotorConfig.ControlMode.POSITION,
-            ODOMETRY_FREQUENCY,
-            false,
-            true,
-            DCMotor.getNeo550(1),
-            1., // TODO
-            20,
-            true,
-            true,
-            -1,
-            new PIDConstants(2, 0, 0),
-            FFConstants.INVALID);
+    public static final MotorConfig TURN_MOTOR_CONFIG = MotorConfig.builder(
+                    MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.POSITION, DCMotor.getNeo550(1))
+            .sampleFrequency(ODOMETRY_FREQUENCY)
+            .encoderInverted(true)
+            .currentLimit(20)
+            .pid(new PIDConstants(2, 0, 0))
+            .build();
 
     public static final SwerveModuleSimulationConfig SWERVE_MODULE_SIMULATION_CONFIG = new SwerveModuleSimulationConfig(
             DRIVE_MOTOR_CONFIG.gearbox(),

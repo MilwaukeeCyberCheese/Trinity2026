@@ -1,6 +1,5 @@
 package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
-import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterIO.ShooterInputs;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
 import edu.wpi.first.wpilibj.DriverStation;
