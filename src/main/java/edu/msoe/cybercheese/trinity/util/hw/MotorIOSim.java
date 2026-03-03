@@ -19,7 +19,7 @@ public class MotorIOSim extends MotorIOSpark {
 
     @Override
     public void updateInputs(MotorInputs inputs) {
-//        this.sim.update(0.02);
+        //        this.sim.update(0.02);
 
         super.updateInputs(inputs);
     }

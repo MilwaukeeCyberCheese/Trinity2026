@@ -19,8 +19,7 @@ public class ModuleIOSim implements ModuleIO {
     private boolean driveClosedLoop = false;
     private boolean turnClosedLoop = false;
     private final PIDController driveController;
-    private final PIDController turnController =
-            new PIDController(DriveConstants.TURN_MOTOR_CONFIG.simP(), 0, DriveConstants.TURN_MOTOR_CONFIG.simD());
+    private final PIDController turnController = new PIDController(8, 0, 0); // TODO
     private double driveFFVolts = 0.0;
     private double driveAppliedVolts = 0.0;
     private double turnAppliedVolts = 0.0;
@@ -34,8 +33,7 @@ public class ModuleIOSim implements ModuleIO {
                 .useGenericControllerForSteer()
                 .withCurrentLimit(UnitTypes.AMPS.of(DriveConstants.TURN_MOTOR_CONFIG.currentLimit()));
 
-        this.driveController =
-                new PIDController(DriveConstants.DRIVE_MOTOR_CONFIG.p(), 0, DriveConstants.DRIVE_MOTOR_CONFIG.d());
+        this.driveController = new PIDController(0.05, 0, 0); // TODO
 
         this.turnController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -101,8 +99,7 @@ public class ModuleIOSim implements ModuleIO {
     @Override
     public void setDriveVelocity(double velocityRadPerSec) {
         driveClosedLoop = true;
-        driveFFVolts = DriveConstants.DRIVE_MOTOR_CONFIG.simKS() * Math.signum(velocityRadPerSec)
-                + DriveConstants.DRIVE_MOTOR_CONFIG.simKV() * velocityRadPerSec;
+        driveFFVolts = 0 * Math.signum(velocityRadPerSec) + 0.0789 * velocityRadPerSec; // TODO
         driveController.setSetpoint(velocityRadPerSec);
     }
 
