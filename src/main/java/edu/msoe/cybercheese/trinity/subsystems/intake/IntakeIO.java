@@ -1,6 +1,7 @@
 package edu.msoe.cybercheese.trinity.subsystems.intake;
 
 import edu.msoe.cybercheese.trinity.replay.IO;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -8,19 +9,19 @@ public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 
     class IntakeInputs implements LoggableInputs {
 
-        double rollerVelocity;
-        double lowerPosition;
+        MotorIO.MotorInputs roller = new MotorIO.MotorInputs();
+        MotorIO.MotorInputs lower = new MotorIO.MotorInputs();
 
         @Override
         public void toLog(LogTable table) {
-            table.put("rollerVelocity", this.rollerVelocity);
-            table.put("lowerPosition", this.lowerPosition);
+            table.put("roller", this.roller);
+            table.put("lower", this.lower);
         }
 
         @Override
         public void fromLog(LogTable table) {
-            this.rollerVelocity = table.get("rollerVelocity", 0);
-            this.lowerPosition = table.get("lowerPosition", 0);
+            this.roller = table.get("roller", new MotorIO.MotorInputs());
+            this.lower = table.get("lower", new MotorIO.MotorInputs());
         }
     }
 

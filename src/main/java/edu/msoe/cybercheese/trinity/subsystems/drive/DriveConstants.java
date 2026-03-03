@@ -1,6 +1,8 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
 import com.ctre.phoenix6.CANBus;
+import edu.msoe.cybercheese.trinity.util.FFConstants;
+import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -65,14 +67,8 @@ public class DriveConstants {
             true,
             false,
             -1,
-            0,
-            0,
-            0,
-            0.1,
-            0.05,
-            0,
-            0,
-            0.0789);
+            new PIDConstants(0, 0, 0),
+            new FFConstants(0, 0.1));
 
     public static final MotorConfig TURN_MOTOR_CONFIG = new MotorConfig(
             MotorConfig.ControllerKind.MAX,
@@ -86,14 +82,8 @@ public class DriveConstants {
             true,
             true,
             -1,
-            2.,
-            0,
-            -1,
-            -1,
-            8.,
-            0,
-            -1,
-            -1);
+            new PIDConstants(2, 0, 0),
+            FFConstants.INVALID);
 
     public static final SwerveModuleSimulationConfig SWERVE_MODULE_SIMULATION_CONFIG = new SwerveModuleSimulationConfig(
             DRIVE_MOTOR_CONFIG.gearbox(),

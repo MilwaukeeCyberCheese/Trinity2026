@@ -4,6 +4,8 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.msoe.cybercheese.trinity.util.FFConstants;
+import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -20,16 +22,12 @@ public record MotorConfig(
         boolean brakeOnIdle,
         boolean positionWrapping,
         double moi,
-        double p,
-        double d,
-        double kS,
-        double kV,
-        double simP,
-        double simD,
-        double simKS,
-        double simKV) {
+        PIDConstants pid,
+        FFConstants feedForward) {
 
     public static final double DEFAULT_SAMPLE_FREQUENCY = 50.0;
+
+    public static final int VORTEX_CURRENT_LIMIT = 50;
 
     private static final double POSITION_FACTOR = 2. * Math.PI;
     private static final double VELOCITY_FACTOR = 2. * Math.PI / 60.;
@@ -38,8 +36,8 @@ public record MotorConfig(
         final var config = this.kind == ControllerKind.FLEX ? new SparkFlexConfig() : new SparkMaxConfig();
 
         // TODO: inversion?
-        config
-                .inverted(this.inverted).idleMode(this.brakeOnIdle ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast)
+        config.inverted(this.inverted)
+                .idleMode(this.brakeOnIdle ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast)
                 .smartCurrentLimit(this.currentLimit)
                 .voltageCompensation(12.0);
 
@@ -48,7 +46,8 @@ public record MotorConfig(
                         this.mode == ControlMode.POSITION
                                 ? FeedbackSensor.kAbsoluteEncoder
                                 : FeedbackSensor.kPrimaryEncoder)
-                .pid(this.p, 0.0, this.d);
+                .pid(this.pid.p(), this.pid.i(), this.pid.d())
+                .outputRange(-1, 1);
 
         if (this.positionWrapping) {
             config.closedLoop.positionWrappingEnabled(true).positionWrappingInputRange(0, 2. * Math.PI);

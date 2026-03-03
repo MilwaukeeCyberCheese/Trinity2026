@@ -14,7 +14,7 @@ public class LoaderCommands {
         return Commands.run(
                 () -> {
                     if (shooter.isAtSpeed()) {
-                        loader.runVelocity(velocity);
+                        loader.runVelocity(velocity / LoaderConstants.WHEEL_RADIUS);
                     }
                 },
                 loader);

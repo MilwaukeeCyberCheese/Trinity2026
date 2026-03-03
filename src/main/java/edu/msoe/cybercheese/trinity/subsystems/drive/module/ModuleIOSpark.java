@@ -3,21 +3,11 @@ package edu.msoe.cybercheese.trinity.subsystems.drive.module;
 import static edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants.*;
 import static edu.msoe.cybercheese.trinity.util.SparkUtil.*;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
 import com.revrobotics.spark.*;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.odometry.SparkSwerveModuleHardware;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
-import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.Nullable;
 
 public class ModuleIOSpark implements ModuleIO {

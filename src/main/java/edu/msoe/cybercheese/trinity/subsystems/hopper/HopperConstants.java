@@ -1,5 +1,7 @@
 package edu.msoe.cybercheese.trinity.subsystems.hopper;
 
+import edu.msoe.cybercheese.trinity.util.FFConstants;
+import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -33,13 +35,6 @@ public class HopperConstants {
             false,
             false,
             0.002,
-            0.001,
-            0,
-            0.15,
-            0.019,
-            0.5,
-            0,
-            0,
-            0.0175
-    );
+            new PIDConstants(0.001, 0, 0),
+            new FFConstants(0.15, 0.019));
 }

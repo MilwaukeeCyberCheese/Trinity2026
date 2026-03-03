@@ -1,8 +1,6 @@
 package edu.msoe.cybercheese.trinity.odometry;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.REVLibError;
-import com.revrobotics.spark.SparkBase;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;

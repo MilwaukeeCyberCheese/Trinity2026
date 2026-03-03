@@ -16,15 +16,15 @@ import java.util.function.DoubleSupplier;
 
 public class MotorIOSpark implements MotorIO {
 
-    private final MotorConfig config;
+    protected final MotorConfig config;
 
-    private final SparkBaseConfig sparkConfig;
-    private final SparkBase spark;
-    private final RelativeEncoder encoder;
-    private final AbsoluteEncoder absoluteEncoder;
-    private final SparkClosedLoopController controller;
+    protected final SparkBaseConfig sparkConfig;
+    protected final SparkBase spark;
+    protected final RelativeEncoder encoder;
+    protected final AbsoluteEncoder absoluteEncoder;
+    protected final SparkClosedLoopController controller;
 
-    private final Debouncer connectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+    protected final Debouncer connectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
     public MotorIOSpark(final int canId, final MotorConfig config) {
         this.config = config;
@@ -65,7 +65,8 @@ public class MotorIOSpark implements MotorIO {
 
     @Override
     public void runVelocity(double velocity) {
-        final var ff = this.config.kS() * Math.signum(velocity) + this.config.kV() * velocity;
+        final var ff = this.config.feedForward().ks() * Math.signum(velocity)
+                + this.config.feedForward().kv() * velocity;
 
         this.controller.setSetpoint(
                 velocity,

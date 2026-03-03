@@ -14,16 +14,13 @@ import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
 import edu.msoe.cybercheese.trinity.subsystems.hopper.*;
-import edu.msoe.cybercheese.trinity.subsystems.intake.Intake;
-import edu.msoe.cybercheese.trinity.subsystems.intake.IntakeCommands;
-import edu.msoe.cybercheese.trinity.subsystems.intake.IntakeIO;
-import edu.msoe.cybercheese.trinity.subsystems.intake.IntakeIOSpark;
-import edu.msoe.cybercheese.trinity.subsystems.loader.Loader;
-import edu.msoe.cybercheese.trinity.subsystems.loader.LoaderCommands;
-import edu.msoe.cybercheese.trinity.subsystems.loader.LoaderIO;
-import edu.msoe.cybercheese.trinity.subsystems.loader.LoaderIOSpark;
+import edu.msoe.cybercheese.trinity.subsystems.intake.*;
+import edu.msoe.cybercheese.trinity.subsystems.loader.*;
 import edu.msoe.cybercheese.trinity.subsystems.shooter.*;
 import edu.msoe.cybercheese.trinity.subsystems.vision.*;
+import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIOSim;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -187,6 +184,14 @@ public class RobotContainer {
         };
     }
 
+    private MotorIO createMotorIo(final int canId, final MotorConfig config) {
+        return switch (Constants.CURRENT_MODE) {
+            case REAL -> new MotorIOSpark(canId, config);
+            case SIM -> new MotorIOSim(config);
+            case REPLAY -> inputs -> {};
+        };
+    }
+
     private ModuleIO createModuleIo(
             final DriveConstants.ModuleDefinition definition, final @Nullable SwerveModuleSimulation moduleSimulation) {
         return switch (Constants.CURRENT_MODE) {
@@ -206,26 +211,20 @@ public class RobotContainer {
 
     private IntakeIO createIntakeIo() {
         if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
-            return new IntakeIOSpark();
+            return new IntakeIOImpl(
+                    this.createMotorIo(IntakeConstants.ROLLER_MOTOR_ID, IntakeConstants.ROLLER_MOTOR_CONFIG),
+                    this.createMotorIo(IntakeConstants.LOWER_MOTOR_ID, IntakeConstants.LOWER_MOTOR_CONFIG));
         }
 
         return inputs -> {};
     }
 
-    private MotorIOSpark createHopperIo() {
-        return switch (Constants.CURRENT_MODE) {
-            case REAL -> new MotorIOSpark(HopperConstants.HOPPER_MOTOR_ID, HopperConstants.HOPPER_MOTOR_CONFIG);
-            case SIM -> new HopperIOSim();
-            case REPLAY -> inputs -> {};
-        };
+    private MotorIO createHopperIo() {
+        return this.createMotorIo(HopperConstants.HOPPER_MOTOR_ID, HopperConstants.HOPPER_MOTOR_CONFIG);
     }
 
-    private LoaderIO createLoaderIo() {
-        if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
-            return new LoaderIOSpark();
-        }
-
-        return inputs -> {};
+    private MotorIO createLoaderIo() {
+        return this.createMotorIo(LoaderConstants.LOADER_MOTOR_ID, LoaderConstants.LOADER_MOTOR_CONFIG);
     }
 
     public void updateSimulation() {
