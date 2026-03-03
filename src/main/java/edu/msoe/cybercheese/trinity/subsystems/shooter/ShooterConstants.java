@@ -1,31 +1,29 @@
 package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
+import edu.msoe.cybercheese.trinity.util.FFConstants;
+import edu.msoe.cybercheese.trinity.util.PIDConstants;
+import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
-    public static final int SHOOTER_MOTOR_ID = 35;
-
-    public static final DCMotor SHOOTER_GEARBOX = DCMotor.getNeoVortex(1);
-    public static final double SHOOTER_GEARING = 1.0;
-
-    public static final double SHOOTER_MOI = 0.002;
-
-    public static final int SHOOTER_CURRENT_LIMIT = 50;
-    public static final double SHOOTER_VELOCITY_FACTOR = Units.rotationsPerMinuteToRadiansPerSecond(1.0);
-
-    public static final double SHOOTER_KS = 0.15;
-    public static final double SHOOTER_KV = 0.019;
-    public static final double SHOOTER_KP = 0.001;
-    public static final double SHOOTER_KD = 0.0;
-
-    public static final double SHOOTER_SIM_P = 0.5;
-    public static final double SHOOTER_SIM_D = 0.0;
-    public static final double SHOOTER_SIM_KS = 0.0;
-    public static final double SHOOTER_SIM_KV = 0.0175;
 
     public static final double WHEEL_RADIUS = Units.inchesToMeters(4);
-    public static final double VELOCITY_CONVERSION_FACTOR = 2.0 * Math.PI / WHEEL_RADIUS;
-    // TODO: henry, multiply by some weird constant
     public static final double VELOCITY_ADJUSTMENT = 1.0;
+
+    public static final int SHOOTER_MOTOR_ID = 35;
+    public static final MotorConfig SHOOTER_MOTOR_CONFIG = new MotorConfig(
+            MotorConfig.ControllerKind.MAX,
+            MotorConfig.ControlMode.VELOCITY,
+            MotorConfig.DEFAULT_SAMPLE_FREQUENCY,
+            false,
+            false,
+            DCMotor.getNeoVortex(1),
+            1.,
+            MotorConfig.VORTEX_CURRENT_LIMIT,
+            false,
+            false,
+            0.002,
+            new PIDConstants(0.001, 0, 0),
+            new FFConstants(0.15, 0.019));
 }

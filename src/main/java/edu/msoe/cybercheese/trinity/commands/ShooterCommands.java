@@ -27,7 +27,7 @@ public class ShooterCommands {
                     if (velocity < 0) return;
 
                     shooter.runVelocity(velocity
-                            * ShooterConstants.VELOCITY_CONVERSION_FACTOR
+                            * ShooterConstants.WHEEL_RADIUS
                             * ShooterConstants.VELOCITY_ADJUSTMENT);
                 },
                 shooter);

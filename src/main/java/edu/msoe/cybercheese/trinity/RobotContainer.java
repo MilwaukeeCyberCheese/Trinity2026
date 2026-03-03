@@ -201,12 +201,8 @@ public class RobotContainer {
         };
     }
 
-    private ShooterIO createShooterIo() {
-        return switch (Constants.CURRENT_MODE) {
-            case REAL -> new ShooterIOSpark();
-            case SIM -> new ShooterIOSim();
-            case REPLAY -> inputs -> {};
-        };
+    private MotorIO createShooterIo() {
+        return this.createMotorIo(ShooterConstants.SHOOTER_MOTOR_ID, ShooterConstants.SHOOTER_MOTOR_CONFIG);
     }
 
     private IntakeIO createIntakeIo() {

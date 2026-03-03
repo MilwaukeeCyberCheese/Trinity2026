@@ -2,6 +2,7 @@ package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
 import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterIO.ShooterInputs;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
+import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -11,13 +12,14 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
 
-    private final ShooterIO io;
-    private final ShooterInputs inputs = new ShooterInputs();
+    private final MotorIO.MotorInputs inputs = new MotorIO.MotorInputs();
+    private final MotorIO io;
+
     private final SysIdRoutine sysId;
 
     private double targetVelocity = 0.0;
 
-    public Shooter(ShooterIO io) {
+    public Shooter(MotorIO io) {
         this.io = io;
 
         // Configure SysId for the Shooter
@@ -52,20 +54,20 @@ public class Shooter extends SubsystemBase {
      */
     public void runVelocity(double velocityRadPerSec) {
         this.targetVelocity = velocityRadPerSec;
-        this.io.setShooterVelocity(velocityRadPerSec);
+        this.io.runVelocity(velocityRadPerSec);
     }
 
     /** Runs the shooter with the specified voltage output. */
     public void runCharacterization(double volts) {
         // Characterization runs open loop
         this.targetVelocity = 0.0;
-        this.io.setShooterOpenLoop(volts);
+        this.io.runOpenLoop(volts);
     }
 
     /** Stops the shooter. */
     public void stop() {
         this.targetVelocity = 0.0;
-        this.io.setShooterOpenLoop(0.0);
+        this.io.runOpenLoop(0.0);
     }
 
     /**
