@@ -66,7 +66,7 @@ public class MotorIOSpark implements MotorIO {
     @Override
     public void runVelocity(double velocity) {
         final var ff = this.config.feedForward().ks() * Math.signum(velocity)
-                + this.config.feedForward().kv() * velocity;
+                + this.config.feedForward().kv() * (velocity / this.config.gearing());
 
         this.controller.setSetpoint(
                 velocity,
