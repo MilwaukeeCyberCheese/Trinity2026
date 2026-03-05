@@ -165,8 +165,6 @@ public class RobotContainer {
                         ShooterCommands.runDefaultedVelocity(
                                 this.shooter, this.drive::getPose, 5, this.controller.rightBumper()),
                         LoaderCommands.shootWhenReady(this.loader, this.shooter, 50)));
-
-        // TODO: reverse hopper
     }
 
     private double alterControllerInput(double input) {
