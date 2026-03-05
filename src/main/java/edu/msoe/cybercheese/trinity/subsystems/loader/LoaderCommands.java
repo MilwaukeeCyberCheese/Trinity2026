@@ -13,7 +13,7 @@ public class LoaderCommands {
     public static Command shootWhenReady(final Loader loader, final Shooter shooter, double velocity) {
         return Commands.run(
                 () -> {
-                    if (shooter.isAtSpeed()) {
+                    if (shooter.isTargetLocked() && shooter.isAtSpeed()) {
                         loader.runVelocity(velocity / LoaderConstants.WHEEL_RADIUS);
                     }
                 },

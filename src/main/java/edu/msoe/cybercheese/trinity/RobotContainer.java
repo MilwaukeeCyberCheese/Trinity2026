@@ -15,6 +15,9 @@ import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSim;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIOSpark;
 import edu.msoe.cybercheese.trinity.subsystems.hopper.*;
 import edu.msoe.cybercheese.trinity.subsystems.intake.*;
+import edu.msoe.cybercheese.trinity.subsystems.intakeroller.IntakeRoller;
+import edu.msoe.cybercheese.trinity.subsystems.intakeroller.IntakeRollerCommands;
+import edu.msoe.cybercheese.trinity.subsystems.intakeroller.IntakeRollerConstants;
 import edu.msoe.cybercheese.trinity.subsystems.loader.*;
 import edu.msoe.cybercheese.trinity.subsystems.shooter.*;
 import edu.msoe.cybercheese.trinity.subsystems.vision.*;
@@ -48,6 +51,7 @@ public class RobotContainer {
     private final Vision vision;
     private final Shooter shooter;
     private final Intake intake;
+    private final IntakeRoller intakeRoller;
     private final Hopper hopper;
     private final Loader loader;
 
@@ -81,6 +85,7 @@ public class RobotContainer {
 
         this.shooter = new Shooter(this.createShooterIo());
         this.intake = new Intake(this.createIntakeIo());
+        this.intakeRoller = new IntakeRoller(this.createIntakeRollerIo());
         this.hopper = new Hopper(this.createHopperIo());
         this.loader = new Loader(this.createLoaderIo());
 
@@ -96,11 +101,6 @@ public class RobotContainer {
             System.out.println("Loading Trajectory: " + trajName);
             this.autoChooser.addOption(trajName, this.autoFactory.trajectoryCmd(trajName));
         }
-
-        // TODO: henry does tuning
-        this.intake.setDefaultCommand(IntakeCommands.runValues(this.intake, 0, 0));
-        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 0));
-        this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
 
         this.configureButtonBindings();
     }
@@ -121,47 +121,50 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-        // Default command, normal field-relative drive
-        this.drive.setDefaultCommand(DriveCommands.joystickDrive(
-                this.drive,
-                () -> controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
-                () -> controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
-                () -> -controller.getRightX() * DriveConstants.JOYSTICK_MULTIPLIER));
-
-        this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
-
-        // Lock to 0 deg when A button is held
-        this.controller
-                .a()
-                .whileTrue(DriveCommands.joystickDriveAtAngle(
-                        this.drive,
-                        () -> controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
-                        () -> controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
-                        () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
-
-        // TODO: henry needs to tune this
-        this.controller.rightBumper().toggleOnTrue(IntakeCommands.runValues(this.intake, 1.5, -1000));
-        this.controller.y().whileTrue(ShooterCommands.runTargetVelocity(this.shooter, this.drive::getPose));
         this.controller
                 .back()
-                .whileTrue(Commands.parallel(
-                        LoaderCommands.runVelocity(this.loader, 500), ShooterCommands.runVelocity(this.shooter, -500)));
-        this.controller.leftBumper().whileTrue(LoaderCommands.shootWhenReady(this.loader, this.shooter, 50));
-
-        this.controller.povUp().onTrue(Commands.run(() -> intake.setLowerPosition(3), intake));
-        this.controller.povDown().onTrue(Commands.run(() -> intake.setLowerPosition(-3), intake));
-
-        this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
-        // TODO: reversible
-        this.controller.povLeft().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -500));
-
-        this.controller
-                .b()
                 .onTrue(Commands.runOnce(
                                 () -> this.drive.setPose(
                                         new Pose2d(this.drive.getPose().getTranslation(), Rotation2d.kZero)),
                                 this.drive)
                         .ignoringDisable(true));
+
+        // TODO: slow on lb
+        this.drive.setDefaultCommand(DriveCommands.joystickDrive(
+                this.drive,
+                () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
+                () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
+                () -> -controller.getRightX() * DriveConstants.JOYSTICK_MULTIPLIER));
+        this.controller
+                .rightBumper()
+                .whileTrue(DriveCommands.joystickDriveAtAngle(
+                        this.drive,
+                        () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
+                        () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
+                        () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
+        this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
+
+        // TODO: henry needs to tune this
+        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 0));
+        this.controller.povLeft().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -500));
+
+        this.intake.setDefaultCommand(IntakeCommands.runPosition(this.intake, 0));
+        this.controller.b().toggleOnTrue(IntakeCommands.runPosition(this.intake, 1.5));
+
+        this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
+        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -30));
+
+        this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
+        this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
+
+        this.controller
+                .rightTrigger()
+                .whileTrue(Commands.parallel(
+                        ShooterCommands.runDefaultedVelocity(
+                                this.shooter, this.drive::getPose, 5, this.controller.rightBumper()),
+                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 50)));
+
+        // TODO: reverse hopper
     }
 
     public Command getAutonomousCommand() {
@@ -206,14 +209,12 @@ public class RobotContainer {
         return this.createMotorIo(ShooterConstants.SHOOTER_MOTOR_ID, ShooterConstants.SHOOTER_MOTOR_CONFIG);
     }
 
-    private IntakeIO createIntakeIo() {
-        if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
-            return new IntakeIOImpl(
-                    this.createMotorIo(IntakeConstants.ROLLER_MOTOR_ID, IntakeConstants.ROLLER_MOTOR_CONFIG),
-                    this.createMotorIo(IntakeConstants.LOWER_MOTOR_ID, IntakeConstants.LOWER_MOTOR_CONFIG));
-        }
+    private MotorIO createIntakeIo() {
+        return this.createMotorIo(IntakeConstants.LOWER_MOTOR_ID, IntakeConstants.LOWER_MOTOR_CONFIG);
+    }
 
-        return inputs -> {};
+    private MotorIO createIntakeRollerIo() {
+        return this.createMotorIo(IntakeRollerConstants.ROLLER_MOTOR_ID, IntakeRollerConstants.ROLLER_MOTOR_CONFIG);
     }
 
     private MotorIO createHopperIo() {

@@ -5,12 +5,6 @@ import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 
 public class IntakeConstants {
 
-    public static final int ROLLER_MOTOR_ID = 33;
-    public static final MotorConfig ROLLER_MOTOR_CONFIG = MotorConfig.vortexBuilder(
-                    MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.VELOCITY)
-            .gearing(21. / 50.)
-            .build();
-
     public static final int LOWER_MOTOR_ID = 32;
     public static final MotorConfig LOWER_MOTOR_CONFIG = MotorConfig.vortexBuilder(
                     MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.POSITION)

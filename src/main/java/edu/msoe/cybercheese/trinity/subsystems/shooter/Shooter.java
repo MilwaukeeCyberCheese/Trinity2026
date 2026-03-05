@@ -2,6 +2,7 @@ package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,6 +17,7 @@ public class Shooter extends SubsystemBase {
 
     private final SysIdRoutine sysId;
 
+    private boolean targetLocked = false;
     private double targetVelocity = 0.0;
 
     public Shooter(MotorIO io) {
@@ -42,6 +44,14 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Shooter/AtSpeed", isAtSpeed());
     }
 
+    public boolean isTargetLocked() {
+        return this.targetLocked;
+    }
+
+    public void setTargetLocked(boolean flag) {
+        this.targetLocked = flag;
+    }
+
     public double targetVelocity() {
         return targetVelocity;
     }
@@ -54,6 +64,21 @@ public class Shooter extends SubsystemBase {
     public void runVelocity(double velocityRadPerSec) {
         this.targetVelocity = velocityRadPerSec;
         this.io.runVelocity(velocityRadPerSec);
+    }
+
+    public void runLinearVelocity(double velocity) {
+        this.runVelocity(velocity * ShooterConstants.WHEEL_RADIUS);
+    }
+
+    public void runAiming(Pose2d pose) {
+        final var velocity = ShooterMath.calculateTrajectoryFromRobot(pose);
+
+        this.setTargetLocked(velocity >= 0);
+
+        // we use negative numbers to signal invalid states
+        if (velocity < 0) return;
+
+        this.runLinearVelocity(velocity * ShooterConstants.VELOCITY_ADJUSTMENT);
     }
 
     /** Runs the shooter with the specified voltage output. */

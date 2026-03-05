@@ -1,11 +1,10 @@
 package edu.msoe.cybercheese.trinity.commands;
 
 import edu.msoe.cybercheese.trinity.subsystems.shooter.Shooter;
-import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterConstants;
-import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterMath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class ShooterCommands {
@@ -19,15 +18,22 @@ public class ShooterCommands {
     }
 
     public static Command runTargetVelocity(final Shooter shooter, final Supplier<Pose2d> poseSupplier) {
+        return Commands.run(() -> shooter.runAiming(poseSupplier.get()), shooter);
+    }
+
+    public static Command runDefaultedVelocity(
+            final Shooter shooter,
+            final Supplier<Pose2d> poseSupplier,
+            final double defaultVelocity,
+            final BooleanSupplier shouldAim) {
         return Commands.run(
                 () -> {
-                    final var velocity = ShooterMath.calculateTrajectoryFromRobot(poseSupplier.get());
-
-                    // we use negative numbers to signal invalid states
-                    if (velocity < 0) return;
-
-                    shooter.runVelocity(
-                            velocity * ShooterConstants.WHEEL_RADIUS * ShooterConstants.VELOCITY_ADJUSTMENT);
+                    if (shouldAim.getAsBoolean()) {
+                        shooter.runAiming(poseSupplier.get());
+                    } else {
+                        shooter.setTargetLocked(true);
+                        shooter.runVelocity(5);
+                    }
                 },
                 shooter);
     }
