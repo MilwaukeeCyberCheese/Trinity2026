@@ -53,6 +53,7 @@ public class DriveConstants {
     public static final CANBus GYRO_CAN_BUS = CANBus.roboRIO();
 
     public static final double JOYSTICK_MULTIPLIER = 0.8;
+    public static final double SLOW_MULTIPLIER = 0.3;
 
     public static final MotorConfig DRIVE_MOTOR_CONFIG = MotorConfig.vortexBuilder(
                     MotorConfig.ControllerKind.FLEX, MotorConfig.ControlMode.VELOCITY)

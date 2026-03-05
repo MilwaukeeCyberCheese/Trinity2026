@@ -129,24 +129,26 @@ public class RobotContainer {
                                 this.drive)
                         .ignoringDisable(true));
 
-        // TODO: slow on lb
         this.drive.setDefaultCommand(DriveCommands.joystickDrive(
                 this.drive,
-                () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
-                () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
-                () -> -controller.getRightX() * DriveConstants.JOYSTICK_MULTIPLIER));
+                () -> this.alterControllerInput(controller.getLeftY()),
+                () -> this.alterControllerInput(controller.getLeftX()),
+                () -> this.alterControllerInput(controller.getRightX())));
         this.controller
                 .rightBumper()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
                         this.drive,
-                        () -> -controller.getLeftY() * DriveConstants.JOYSTICK_MULTIPLIER,
-                        () -> -controller.getLeftX() * DriveConstants.JOYSTICK_MULTIPLIER,
+                        () -> this.alterControllerInput(controller.getLeftY()),
+                        () -> this.alterControllerInput(controller.getLeftX()),
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose()))));
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         // TODO: henry needs to tune this
-        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, 0));
-        this.controller.povLeft().toggleOnTrue(HopperCommands.runVelocity(this.hopper, -500));
+        this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
+        this.controller
+                .povLeft()
+                .toggleOnTrue(HopperCommands.runVelocity(
+                        this.hopper, () -> this.controller.a().getAsBoolean() ? 50 : -50));
 
         this.intake.setDefaultCommand(IntakeCommands.runPosition(this.intake, 0));
         this.controller.b().toggleOnTrue(IntakeCommands.runPosition(this.intake, 1.5));
@@ -165,6 +167,15 @@ public class RobotContainer {
                         LoaderCommands.shootWhenReady(this.loader, this.shooter, 50)));
 
         // TODO: reverse hopper
+    }
+
+    private double alterControllerInput(double input) {
+        double scaled = -input * DriveConstants.JOYSTICK_MULTIPLIER;
+        if (this.controller.leftBumper().getAsBoolean()) {
+            scaled *= DriveConstants.SLOW_MULTIPLIER;
+        }
+
+        return scaled;
     }
 
     public Command getAutonomousCommand() {
