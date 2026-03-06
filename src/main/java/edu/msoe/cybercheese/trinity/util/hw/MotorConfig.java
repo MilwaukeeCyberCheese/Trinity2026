@@ -9,6 +9,9 @@ import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 public record MotorConfig(
         ControllerKind kind,
@@ -18,6 +21,7 @@ public record MotorConfig(
         boolean encoderInverted,
         DCMotor gearbox,
         double gearing,
+        @Nullable Double encoderGearing,
         int currentLimit,
         boolean brakeOnIdle,
         boolean positionWrapping,
@@ -35,7 +39,6 @@ public record MotorConfig(
     public SparkBaseConfig sparkConfig() {
         final var config = this.kind == ControllerKind.FLEX ? new SparkFlexConfig() : new SparkMaxConfig();
 
-        // TODO: inversion?
         config.inverted(this.inverted)
                 .idleMode(this.brakeOnIdle ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast)
                 .smartCurrentLimit(this.currentLimit)
@@ -60,8 +63,8 @@ public record MotorConfig(
                     .primaryEncoderVelocityAlwaysOn(true)
                     .primaryEncoderVelocityPeriodMs(20);
             config.encoder
-                    .positionConversionFactor(POSITION_FACTOR / this.gearing)
-                    .velocityConversionFactor(VELOCITY_FACTOR / this.gearing)
+                    .positionConversionFactor(POSITION_FACTOR / this.effectiveEncoderGearing())
+                    .velocityConversionFactor(VELOCITY_FACTOR / this.effectiveEncoderGearing())
                     .uvwMeasurementPeriod(10)
                     .uvwAverageDepth(2);
         } else {
@@ -71,8 +74,8 @@ public record MotorConfig(
                     .absoluteEncoderVelocityAlwaysOn(true)
                     .absoluteEncoderVelocityPeriodMs(20);
             config.absoluteEncoder
-                    .positionConversionFactor(POSITION_FACTOR / this.gearing)
-                    .velocityConversionFactor(VELOCITY_FACTOR / this.gearing)
+                    .positionConversionFactor(POSITION_FACTOR / this.effectiveEncoderGearing())
+                    .velocityConversionFactor(VELOCITY_FACTOR / this.effectiveEncoderGearing())
                     .averageDepth(2);
         }
 
@@ -83,6 +86,11 @@ public record MotorConfig(
 
     public DCMotorSim buildSim() {
         return new DCMotorSim(LinearSystemId.createDCMotorSystem(this.gearbox, this.moi, this.gearing), this.gearbox);
+    }
+
+    private double effectiveEncoderGearing() {
+        return Objects.requireNonNullElse(this.encoderGearing, this.gearing);
+
     }
 
     public enum ControllerKind {
@@ -104,6 +112,7 @@ public record MotorConfig(
                 builder.encoderInverted,
                 builder.gearbox,
                 builder.gearing,
+                builder.encoderGearing,
                 builder.currentLimit,
                 builder.brakeOnIdle,
                 builder.positionWrapping,
@@ -132,6 +141,7 @@ public record MotorConfig(
         private boolean inverted = false;
         private boolean encoderInverted = false;
         private double gearing = 1.0;
+        private @Nullable Double encoderGearing;
         private int currentLimit = 50;
         private boolean brakeOnIdle = true;
         private boolean positionWrapping = false;
@@ -165,6 +175,11 @@ public record MotorConfig(
 
         public Builder gearing(double gearing) {
             this.gearing = gearing;
+            return this;
+        }
+
+        public Builder encoderGearing(@Nullable Double encoderGearing) {
+            this.encoderGearing = encoderGearing;
             return this;
         }
 

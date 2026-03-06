@@ -9,6 +9,7 @@ public class IntakeConstants {
     public static final MotorConfig LOWER_MOTOR_CONFIG = MotorConfig.vortexBuilder(
                     MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.POSITION)
             .gearing(27. * (50. / 18.))
+            .encoderGearing(0.)
             .pid(new PIDConstants(2, 0, 0))
             .build();
 }
