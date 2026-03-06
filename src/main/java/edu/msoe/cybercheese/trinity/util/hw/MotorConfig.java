@@ -60,8 +60,7 @@ public record MotorConfig(
                     .primaryEncoderVelocityAlwaysOn(true)
                     .primaryEncoderVelocityPeriodMs(20);
             config.encoder
-//                    .inverted(this.encoderInverted)
-//                    .positionConversionFactor(POSITION_FACTOR / this.gearing)
+                    .positionConversionFactor(POSITION_FACTOR / this.gearing)
                     .velocityConversionFactor(VELOCITY_FACTOR / this.gearing)
                     .uvwMeasurementPeriod(10)
                     .uvwAverageDepth(2);
@@ -72,7 +71,6 @@ public record MotorConfig(
                     .absoluteEncoderVelocityAlwaysOn(true)
                     .absoluteEncoderVelocityPeriodMs(20);
             config.absoluteEncoder
-                    .inverted(this.encoderInverted)
                     .positionConversionFactor(POSITION_FACTOR / this.gearing)
                     .velocityConversionFactor(VELOCITY_FACTOR / this.gearing)
                     .averageDepth(2);
