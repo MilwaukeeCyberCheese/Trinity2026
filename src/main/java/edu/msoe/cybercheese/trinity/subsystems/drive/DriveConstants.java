@@ -52,7 +52,7 @@ public class DriveConstants {
     public static final int PIGEON_CAN_ID = 60;
     public static final CANBus GYRO_CAN_BUS = CANBus.roboRIO();
 
-    public static final double JOYSTICK_MULTIPLIER = 3.5;
+    public static final double JOYSTICK_MULTIPLIER = 8.75;
     public static final double SLOW_MULTIPLIER = 0.5;
 
     public static final MotorConfig DRIVE_MOTOR_CONFIG = MotorConfig.vortexBuilder(
