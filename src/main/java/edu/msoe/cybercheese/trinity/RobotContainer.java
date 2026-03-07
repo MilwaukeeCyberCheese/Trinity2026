@@ -134,7 +134,7 @@ public class RobotContainer {
                 this.drive,
                 () -> this.alterControllerInput(controller.getLeftY()),
                 () -> this.alterControllerInput(controller.getLeftX()),
-                () -> this.alterControllerInput(controller.getRightX())));
+                () -> -this.alterControllerInput(controller.getRightX())));
         this.controller
                 .rightBumper()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
@@ -150,6 +150,7 @@ public class RobotContainer {
                 .povLeft()
                 .toggleOnTrue(HopperCommands.runVelocity(
                         this.hopper, () -> this.controller.a().getAsBoolean() ? 2700 : -2700));
+        this.controller.povDown().whileTrue(HopperCommands.runVelocity(this.hopper, () -> 2700));
 
         this.intake.setDefaultCommand(IntakeCommands.runPosition(this.intake, 0));
         this.controller.b().toggleOnTrue(IntakeCommands.runPosition(this.intake, 3.94));
