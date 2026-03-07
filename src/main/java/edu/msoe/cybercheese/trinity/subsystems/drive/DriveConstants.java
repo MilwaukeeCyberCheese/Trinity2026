@@ -66,6 +66,7 @@ public class DriveConstants {
     public static final MotorConfig TURN_MOTOR_CONFIG = MotorConfig.builder(
                     MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.POSITION, DCMotor.getNeo550(1))
             .sampleFrequency(ODOMETRY_FREQUENCY)
+            .positionWrapping(true)
             .encoderInverted(true)
             .currentLimit(20)
             .pid(new PIDConstants(2, 0, 0))
