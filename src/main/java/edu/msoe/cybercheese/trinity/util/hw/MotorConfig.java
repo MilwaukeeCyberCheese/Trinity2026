@@ -74,6 +74,7 @@ public record MotorConfig(
                     .absoluteEncoderVelocityAlwaysOn(true)
                     .absoluteEncoderVelocityPeriodMs(20);
             config.absoluteEncoder
+                    .inverted(this.encoderInverted)
                     .positionConversionFactor(POSITION_FACTOR / this.effectiveEncoderGearing())
                     .velocityConversionFactor(VELOCITY_FACTOR / this.effectiveEncoderGearing())
                     .averageDepth(2);
