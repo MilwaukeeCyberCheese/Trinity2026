@@ -32,7 +32,7 @@ public class ShooterCommands {
                         shooter.runAiming(poseSupplier.get());
                     } else {
                         shooter.setTargetLocked(true);
-                        shooter.runVelocity(5);
+                        shooter.runVelocity(50);
                     }
                 },
                 shooter);

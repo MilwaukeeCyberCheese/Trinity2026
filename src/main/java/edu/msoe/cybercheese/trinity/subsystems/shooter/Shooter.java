@@ -62,6 +62,8 @@ public class Shooter extends SubsystemBase {
      * @param velocityRadPerSec Velocity in radians/sec
      */
     public void runVelocity(double velocityRadPerSec) {
+        velocityRadPerSec *= -1; // TODO: invert properly
+
         this.targetVelocity = velocityRadPerSec;
         this.io.runVelocity(velocityRadPerSec);
     }
@@ -98,7 +100,7 @@ public class Shooter extends SubsystemBase {
      * Checks if the shooter is at the target velocity within a tolerance.
      */
     public boolean isAtSpeed() {
-        return Math.abs(inputs.velocity - targetVelocity) < 5.0 && targetVelocity >= 0.1;
+        return Math.abs(inputs.velocity - targetVelocity) < 5.0 && Math.abs(targetVelocity) >= 0.1;
     }
 
     /**

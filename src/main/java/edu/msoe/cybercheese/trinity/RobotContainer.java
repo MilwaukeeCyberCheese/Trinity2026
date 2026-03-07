@@ -148,13 +148,13 @@ public class RobotContainer {
         this.controller
                 .povLeft()
                 .toggleOnTrue(HopperCommands.runVelocity(
-                        this.hopper, () -> this.controller.a().getAsBoolean() ? 50 : -50));
+                        this.hopper, () -> this.controller.a().getAsBoolean() ? 100 : -100));
 
         this.intake.setDefaultCommand(IntakeCommands.runPosition(this.intake, 0));
         this.controller.b().toggleOnTrue(IntakeCommands.runPosition(this.intake, 3.94));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
-        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -30));
+        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -60));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
