@@ -30,6 +30,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
@@ -148,28 +149,30 @@ public class RobotContainer {
         this.controller
                 .povLeft()
                 .toggleOnTrue(HopperCommands.runVelocity(
-                        this.hopper, () -> this.controller.a().getAsBoolean() ? 300 : -300));
+                        this.hopper, () -> this.controller.a().getAsBoolean() ? 2700 : -2700));
 
         this.intake.setDefaultCommand(IntakeCommands.runPosition(this.intake, 0));
         this.controller.b().toggleOnTrue(IntakeCommands.runPosition(this.intake, 3.94));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
-        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -180));
+        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -650_000));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
+
+        this.controller.povRight().toggleOnTrue(ShooterCommands.runVelocity(this.shooter, 35));
 
         this.controller
                 .rightTrigger()
                 .whileTrue(Commands.parallel(
                         ShooterCommands.runDefaultedVelocity(
-                                this.shooter, this.drive::getPose, 5, this.controller.rightBumper()),
-                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 50)));
+                                this.shooter, this.drive::getPose, 430, this.controller.rightBumper()), // this works, don't touch!
+                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 80)));
     }
 
     private double alterControllerInput(double input) {
         double scaled = -input * DriveConstants.JOYSTICK_MULTIPLIER;
-        if (!this.controller.leftBumper().getAsBoolean()) {
+        if (this.controller.leftBumper().getAsBoolean()) {
             scaled *= DriveConstants.SLOW_MULTIPLIER;
         }
 
