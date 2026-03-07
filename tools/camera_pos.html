@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Camera Offsets Preview</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f3eb;
+      --fg: #111;
+      --muted: #555;
+      --card: #fffdf7;
+      --border: #d6d0c0;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(circle at 20% 20%, #fff9e5 0%, var(--bg) 45%, #ece7d8 100%);
+      color: var(--fg);
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.161.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "https://unpkg.com/three@0.161.0/examples/jsm/controls/OrbitControls.js";
+
+    const inchesToMeters = (inches) => inches * 0.0254;
+
+    const cameras = [
+      { name: "FrontThrifty", x: inchesToMeters(10.0), y: inchesToMeters(-11.0), z: inchesToMeters(17.0), roll: 0, pitch: 0, yaw: 0, color: 0xd9480f },
+      { name: "BackThrifty", x: inchesToMeters(-11.5), y: inchesToMeters(-5.5), z: inchesToMeters(16.0), roll: 0, pitch: 0, yaw: Math.PI, color: 0x1c7ed6 },
+    ];
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf3efdf);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 30);
+    camera.position.set(1.5, -1.2, 1.1);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0, 0.25);
+    controls.update();
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+    sun.position.set(2, -1, 3);
+    scene.add(sun);
+
+    const grid = new THREE.GridHelper(4, 40, 0x8f8f8f, 0xc8c2b3);
+    grid.rotation.x = Math.PI / 2;
+    scene.add(grid);
+
+    const axes = new THREE.AxesHelper(0.6);
+    scene.add(axes);
+
+    const robotBox = new THREE.Mesh(
+      new THREE.BoxGeometry(inchesToMeters(28), inchesToMeters(28), 0.05),
+      new THREE.MeshStandardMaterial({ color: 0xb9c8c7, transparent: true, opacity: 0.45 })
+    );
+    robotBox.position.set(0, 0, 0.025);
+    scene.add(robotBox);
+
+    const markerGeometry = new THREE.SphereGeometry(0.03, 24, 24);
+    const drawLabel = (text, color) => {
+      const fontSize = 56;
+      const padX = 18;
+      const padY = 12;
+      const tmpCanvas = document.createElement("canvas");
+      const tmpCtx = tmpCanvas.getContext("2d");
+      tmpCtx.font = `600 ${fontSize}px IBM Plex Sans, sans-serif`;
+      const textWidth = Math.ceil(tmpCtx.measureText(text).width);
+
+      const labelCanvas = document.createElement("canvas");
+      labelCanvas.width = textWidth + padX * 2;
+      labelCanvas.height = fontSize + padY * 2;
+      const labelCtx = labelCanvas.getContext("2d");
+      labelCtx.clearRect(0, 0, labelCanvas.width, labelCanvas.height);
+      labelCtx.font = `600 ${fontSize}px IBM Plex Sans, sans-serif`;
+      labelCtx.textBaseline = "top";
+      labelCtx.fillStyle = color;
+      labelCtx.fillText(text, padX, padY);
+
+      const tex = new THREE.CanvasTexture(labelCanvas);
+      tex.needsUpdate = true;
+      const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
+      const sprite = new THREE.Sprite(mat);
+      const baseHeight = 0.06;
+      const aspect = labelCanvas.width / labelCanvas.height;
+      sprite.scale.set(baseHeight * aspect, baseHeight, 1);
+      return sprite;
+    };
+
+    for (const c of cameras) {
+      const euler = new THREE.Euler(c.roll, c.pitch, c.yaw, "XYZ");
+      const forward = new THREE.Vector3(1, 0, 0).applyEuler(euler).normalize();
+
+      const marker = new THREE.Mesh(
+        markerGeometry,
+        new THREE.MeshStandardMaterial({ color: c.color })
+      );
+      marker.position.set(c.x, c.y, c.z);
+      scene.add(marker);
+
+      const forwardArrow = new THREE.ArrowHelper(
+        forward,
+        new THREE.Vector3(c.x, c.y, c.z),
+        0.22,
+        c.color,
+        0.05,
+        0.03
+      );
+      scene.add(forwardArrow);
+
+    //   const inches = `(${(c.x / 0.0254).toFixed(1)}", ${(c.y / 0.0254).toFixed(1)}", ${(c.z / 0.0254).toFixed(1)}")`;
+    //   const label = drawLabel(`${c.name} ${inches}`, "#111");
+    //   label.position.set(c.x, c.y, c.z + 0.09);
+    //   scene.add(label);
+
+      const fwdLabel = drawLabel(`${c.name}`, "#222");
+      fwdLabel.position.set(c.x + forward.x * 0.26, c.y + forward.y * 0.26, c.z + forward.z * 0.26 + 0.03);
+      scene.add(fwdLabel);
+    }
+
+    const robotForward = new THREE.Vector3(1, 0, 0);
+    const robotForwardArrow = new THREE.ArrowHelper(
+      robotForward,
+      new THREE.Vector3(0, 0, 0),
+      0.45,
+      0x000000,
+      0.09,
+      0.05
+    );
+    scene.add(robotForwardArrow);
+    // const robotForwardLabel = drawLabel("Robot forward (+X)", "#111");
+    // robotForwardLabel.position.set(0.32, 0, 0.06);
+    // scene.add(robotForwardLabel);
+
+    // const originLabel = drawLabel("Robot Origin (0,0,0)", "#111");
+    // originLabel.position.set(0, 0, 0.09);
+    // scene.add(originLabel);
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const animate = () => {
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    };
+    animate();
+  </script>
+</body>
+</html>

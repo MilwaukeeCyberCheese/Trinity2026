@@ -20,7 +20,7 @@ public class VisionConstants {
                             Units.inchesToMeters(10.0),
                             Units.inchesToMeters(-11.0),
                             Units.inchesToMeters(17.0),
-                            new Rotation3d(0.0, -0.4, 0.0)),
+                            new Rotation3d()),
                     1.0),
             new CameraDefinition(
                     "BackThrifty",
@@ -28,7 +28,7 @@ public class VisionConstants {
                             Units.inchesToMeters(-11.5),
                             Units.inchesToMeters(-5.5),
                             Units.inchesToMeters(16.0),
-                            new Rotation3d(0.0, -0.4, Math.PI)),
+                            new Rotation3d(0.0, 0.0, Math.PI)),
                     1.0));
 
     public static final double MAX_AMBIGUITY = 0.3;

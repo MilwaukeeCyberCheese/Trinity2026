@@ -25,3 +25,5 @@ simgui*.json
 *-window.json
 
 bin/
+
+*.wpilog
