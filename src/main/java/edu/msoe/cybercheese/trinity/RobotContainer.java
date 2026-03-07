@@ -168,6 +168,12 @@ public class RobotContainer {
                         ShooterCommands.runDefaultedVelocity(
                                 this.shooter, this.drive::getPose, 430, this.controller.rightBumper()), // this works, don't touch!
                         LoaderCommands.shootWhenReady(this.loader, this.shooter, 80)));
+
+        this.controller
+                .y()
+                .whileTrue(Commands.parallel(
+                        ShooterCommands.runMaxPower(this.shooter),
+                        LoaderCommands.runVelocity(this.loader, 80 / LoaderConstants.WHEEL_RADIUS)));
     }
 
     private double alterControllerInput(double input) {

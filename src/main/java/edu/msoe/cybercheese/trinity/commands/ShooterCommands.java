@@ -21,6 +21,10 @@ public class ShooterCommands {
         return Commands.run(() -> shooter.runAiming(poseSupplier.get()), shooter);
     }
 
+    public static Command runMaxPower(final Shooter shooter) {
+        return Commands.run(() -> shooter.runCharacterization(12.0), shooter);
+    }
+
     public static Command runDefaultedVelocity(
             final Shooter shooter,
             final Supplier<Pose2d> poseSupplier,
