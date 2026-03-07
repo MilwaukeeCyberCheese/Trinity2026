@@ -6,6 +6,7 @@ import static edu.msoe.cybercheese.trinity.util.SparkUtil.*;
 import com.revrobotics.spark.*;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCallback;
 import edu.msoe.cybercheese.trinity.odometry.SparkSwerveModuleHardware;
+import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants.ModuleDefinition;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.jspecify.annotations.Nullable;
@@ -36,6 +37,7 @@ public class ModuleIOSpark implements ModuleIO {
     public void updateInputs(ModuleInputs inputs) {
         this.driveMotor.updateInputs(inputs.drive);
         this.turnMotor.updateInputs(inputs.turn);
+        inputs.turn.position -= zeroRotation.getRadians();
 
         inputs.odometryTimestamps = this.odometryHal.timestamps.toDoubleArray();
         inputs.odometryDrivePositions = this.odometryHal.drivePositions.toDoubleArray();

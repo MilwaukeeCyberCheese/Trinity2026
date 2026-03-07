@@ -1,8 +1,6 @@
 package edu.msoe.cybercheese.trinity.util.hw;
 
 import static edu.msoe.cybercheese.trinity.util.SparkUtil.*;
-import static edu.msoe.cybercheese.trinity.util.SparkUtil.ifOk;
-import static edu.msoe.cybercheese.trinity.util.SparkUtil.sparkStickyFault;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
@@ -86,9 +84,13 @@ public class MotorIOSpark implements MotorIO {
     @Override
     public void updateInputs(MotorIO.MotorInputs inputs) {
         sparkStickyFault = false;
-
-        ifOk(this.spark, this.absoluteEncoder::getPosition, (value) -> inputs.position = value);
-        ifOk(this.spark, this.absoluteEncoder::getVelocity, (value) -> inputs.velocity = value);
+        if (this.config.mode() == MotorConfig.ControlMode.VELOCITY) {
+            ifOk(this.spark, this.encoder::getPosition, (value) -> inputs.position = value);
+            ifOk(this.spark, this.encoder::getVelocity, (value) -> inputs.velocity = value);
+        } else {
+            ifOk(this.spark, this.absoluteEncoder::getPosition, (value) -> inputs.position = value);
+            ifOk(this.spark, this.absoluteEncoder::getVelocity, (value) -> inputs.velocity = value);
+        }
         ifOk(
                 this.spark,
                 new DoubleSupplier[] {this.spark::getAppliedOutput, this.spark::getBusVoltage},

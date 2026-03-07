@@ -31,13 +31,13 @@ public class DriveConstants {
 
     public static final ModuleDefinition[] MODULE_DEFINITIONS = new ModuleDefinition[] {
         // fl
-        new ModuleDefinition(16, 17, Rotation2d.fromDegrees(180)),
+        new ModuleDefinition(16, 17, Rotation2d.fromDegrees(270)),
         // fr
         new ModuleDefinition(18, 19, Rotation2d.fromDegrees(180)),
         // bl
         new ModuleDefinition(20, 21, Rotation2d.fromDegrees(180)),
         // br
-        new ModuleDefinition(22, 23, Rotation2d.fromDegrees(0)),
+        new ModuleDefinition(22, 23, Rotation2d.fromDegrees(270)),
     };
 
     public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.5);
