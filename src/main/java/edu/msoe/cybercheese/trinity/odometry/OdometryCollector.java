@@ -54,13 +54,13 @@ public final class OdometryCollector implements AutoCloseable {
     }
 
     private void readData() {
-        final var fpgaTime = RobotController.getFPGATime();
+        final var fpgaTimeSeconds = RobotController.getFPGATime() * 1e-6;
 
         this.lock();
         try {
             for (final var cb : this.callbacks) {
                 cb.clearFrame();
-                cb.collectOdometry(fpgaTime);
+                cb.collectOdometry(fpgaTimeSeconds);
             }
         } finally {
             this.unlock();
