@@ -52,15 +52,17 @@ public class DriveConstants {
     public static final int PIGEON_CAN_ID = 60;
     public static final CANBus GYRO_CAN_BUS = CANBus.roboRIO();
 
-    public static final double JOYSTICK_MULTIPLIER = 8.75;
-    public static final double SLOW_MULTIPLIER = 0.5;
+    public static final double JOYSTICK_MULTIPLIER = 5.0;
+    public static final double SLOW_MULTIPLIER = 1.0;
+    public static final double CONTROLLER_INPUT_DEADBAND = 0.1;
 
     public static final MotorConfig DRIVE_MOTOR_CONFIG = MotorConfig.vortexBuilder(
                     MotorConfig.ControllerKind.FLEX, MotorConfig.ControlMode.VELOCITY)
             .sampleFrequency(ODOMETRY_FREQUENCY)
             .brakeOnIdle(true)
             .gearing((45.0 * 22.0) / (14.0 * 15.0))
-            .feedForward(new FFConstants(0, 0.1))
+            .pid(new PIDConstants(0.01, 0, 0))
+            .feedForward(new FFConstants(0, 0.25 ))
             .build();
 
     public static final MotorConfig TURN_MOTOR_CONFIG = MotorConfig.builder(

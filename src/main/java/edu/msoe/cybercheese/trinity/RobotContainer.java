@@ -25,6 +25,7 @@ import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSim;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -178,7 +179,8 @@ public class RobotContainer {
     }
 
     private double alterControllerInput(double input) {
-        double scaled = -input * DriveConstants.JOYSTICK_MULTIPLIER;
+        final var deadbandedInput = MathUtil.applyDeadband(input, DriveConstants.CONTROLLER_INPUT_DEADBAND);
+        double scaled = -deadbandedInput * DriveConstants.JOYSTICK_MULTIPLIER;
         if (this.controller.leftBumper().getAsBoolean()) {
             scaled *= DriveConstants.SLOW_MULTIPLIER;
         }
