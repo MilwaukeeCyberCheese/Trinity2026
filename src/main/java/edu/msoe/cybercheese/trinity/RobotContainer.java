@@ -27,6 +27,7 @@ import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -111,6 +112,19 @@ public class RobotContainer {
                         ShooterCommands.runVelocity(this.shooter, 430), // this works, don't touch!
                         LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
                         HopperCommands.runVelocity(this.hopper, () -> -2700)));
+        this.autoChooser.addOption(
+                "Backwards Then Shoot",
+                Commands.sequence(
+                        Commands.run(
+                                        () -> this.drive.runVelocity(new ChassisSpeeds(1.0, 0.0, 0.0)),
+                                        this.drive)
+                                .withTimeout(0.25),
+                        Commands.runOnce(this.drive::stop, this.drive),
+                        Commands.parallel(
+                                ShooterCommands.runDefaultedVelocity(
+                                        this.shooter, this.drive::getPose, 430, () -> false),
+                                LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
+                                HopperCommands.runVelocity(this.hopper, () -> -2700))));
 
         for (final var trajName : Choreo.availableTrajectories()) {
             System.out.println("Loading Trajectory: " + trajName);
