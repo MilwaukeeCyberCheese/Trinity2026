@@ -6,7 +6,6 @@ import com.reduxrobotics.canand.CanandEventLoop;
 import edu.msoe.cybercheese.trinity.commands.DriveCommands;
 import edu.msoe.cybercheese.trinity.commands.ShooterCommands;
 import edu.msoe.cybercheese.trinity.subsystems.drive.*;
-import edu.msoe.cybercheese.trinity.subsystems.drive.DriveConstants;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOCanandGyro;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIOSim;
@@ -115,7 +114,7 @@ public class RobotContainer {
 
         for (final var trajName : Choreo.availableTrajectories()) {
             System.out.println("Loading Trajectory: " + trajName);
-            this.autoChooser.addOption(trajName, this.autoFactory.trajectoryCmd(trajName));
+            this.autoChooser.addOption(trajName, Commands.sequence(this.autoFactory.resetOdometry(trajName), this.autoFactory.trajectoryCmd(trajName)));
         }
 
         this.configureButtonBindings();
