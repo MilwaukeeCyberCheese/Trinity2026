@@ -103,7 +103,7 @@ public class RobotContainer {
                                 this.shooter,
                                 430), // this works, don't touch!
                         LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
-                HopperCommands.runVelocity(this.hopper, () -> -300)
+                HopperCommands.runVelocity(this.hopper, () -> -2700)
         ));
 
         for (final var trajName : Choreo.availableTrajectories()) {
