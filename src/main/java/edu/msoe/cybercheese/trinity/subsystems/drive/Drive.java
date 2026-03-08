@@ -308,7 +308,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     @Override
     public void addVisionMeasurement(
             Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
-        poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+        final var gyroHeadingVisionPose =
+                new Pose2d(visionRobotPoseMeters.getTranslation(), Rotation2d.fromRadians(this.rawGyroRotation));
+        poseEstimator.addVisionMeasurement(gyroHeadingVisionPose, timestampSeconds, visionMeasurementStdDevs);
     }
 
     /** Returns the maximum linear speed in meters per sec. */

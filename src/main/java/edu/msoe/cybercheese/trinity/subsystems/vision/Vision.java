@@ -1,5 +1,6 @@
 package edu.msoe.cybercheese.trinity.subsystems.vision;
 
+import edu.msoe.cybercheese.trinity.Constants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -53,12 +54,14 @@ public class Vision extends SubsystemBase {
                 }
                 robotPosesAccepted.add(observation.pose());
 
-                this.consumer.addVisionMeasurement(
-                        observation.pose().toPose2d(),
-                        observation.timestamp(),
-                        observation
-                                .computeStandardDeviations()
-                                .times(camera.definition().stdDevFactor()));
+                if (Constants.ENABLE_VISION_POSE_FUSION) {
+                    this.consumer.addVisionMeasurement(
+                            observation.pose().toPose2d(),
+                            observation.timestamp(),
+                            observation
+                                    .computeStandardDeviations()
+                                    .times(camera.definition().stdDevFactor()));
+                }
             }
 
             Logger.recordOutput(
