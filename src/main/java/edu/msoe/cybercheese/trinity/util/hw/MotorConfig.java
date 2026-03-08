@@ -9,9 +9,8 @@ import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 public record MotorConfig(
         ControllerKind kind,
@@ -92,7 +91,6 @@ public record MotorConfig(
 
     private double effectiveEncoderGearing() {
         return Objects.requireNonNullElse(this.encoderGearing, this.gearing);
-
     }
 
     public enum ControllerKind {

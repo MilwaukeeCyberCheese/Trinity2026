@@ -31,7 +31,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
@@ -170,14 +169,16 @@ public class RobotContainer {
                 .rightTrigger()
                 .whileTrue(Commands.parallel(
                         ShooterCommands.runDefaultedVelocity(
-                                this.shooter, this.drive::getPose, 430, this.controller.rightBumper()), // this works, don't touch!
+                                this.shooter,
+                                this.drive::getPose,
+                                430,
+                                this.controller.rightBumper()), // this works, don't touch!
                         LoaderCommands.shootWhenReady(this.loader, this.shooter, 80)));
 
         this.controller
                 .y()
                 .whileTrue(Commands.parallel(
-                        ShooterCommands.hailMary(this.shooter),
-                        LoaderCommands.runVelocity(this.loader, 80)));
+                        ShooterCommands.hailMary(this.shooter), LoaderCommands.runVelocity(this.loader, 80)));
     }
 
     private double alterControllerInput(double input) {

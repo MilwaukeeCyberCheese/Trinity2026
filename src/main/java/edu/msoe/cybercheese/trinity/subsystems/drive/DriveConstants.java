@@ -62,7 +62,7 @@ public class DriveConstants {
             .brakeOnIdle(true)
             .gearing((45.0 * 22.0) / (14.0 * 15.0))
             .pid(new PIDConstants(0.01, 0, 0))
-            .feedForward(new FFConstants(0, 0.25 ))
+            .feedForward(new FFConstants(0, 0.25))
             .build();
 
     public static final MotorConfig TURN_MOTOR_CONFIG = MotorConfig.builder(
