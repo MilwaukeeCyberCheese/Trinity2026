@@ -96,7 +96,7 @@ public class RobotContainer {
         }
 
         this.autoFactory = new AutoFactory(
-                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, true, this.drive);
+                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, false, this.drive);
 
         this.autoFactory.bind(
                 "shoot",
