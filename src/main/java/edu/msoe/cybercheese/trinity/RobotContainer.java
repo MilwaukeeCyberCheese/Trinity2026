@@ -98,6 +98,14 @@ public class RobotContainer {
         this.autoFactory = new AutoFactory(
                 this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, true, this.drive);
 
+        this.autoFactory.bind("shoot", Commands.parallel(
+                        ShooterCommands.runVelocity(
+                                this.shooter,
+                                430), // this works, don't touch!
+                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
+                HopperCommands.runVelocity(this.hopper, () -> -300)
+        ));
+
         for (final var trajName : Choreo.availableTrajectories()) {
             System.out.println("Loading Trajectory: " + trajName);
             this.autoChooser.addOption(trajName, this.autoFactory.trajectoryCmd(trajName));
