@@ -10,6 +10,6 @@ public class IntakeConstants {
                     MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.POSITION)
             .gearing(27. * (50. / 22.))
             .encoderGearing(1.)
-            .pid(new PIDConstants(2, 0, 0))
+            .pid(new PIDConstants(0.01, 0, 0))
             .build();
 }
