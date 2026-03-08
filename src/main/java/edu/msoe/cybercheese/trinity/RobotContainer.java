@@ -45,6 +45,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
 
+    private static final double INTAKE_STOWED_POSITION = 0;
+    private static final double INTAKE_DEPLOYED_POSITION = -2.315;
+    private static final double INTAKE_MID_POSITION = (INTAKE_STOWED_POSITION + INTAKE_DEPLOYED_POSITION) / 2.0;
+    private static final double[] INTAKE_POSITIONS =
+            {INTAKE_STOWED_POSITION, INTAKE_MID_POSITION, INTAKE_DEPLOYED_POSITION};
+
     private final @Nullable SimulatedArena simulatedArena;
     private final @Nullable SwerveDriveSimulation driveSimulation;
 
@@ -55,6 +61,8 @@ public class RobotContainer {
     private final IntakeRoller intakeRoller;
     private final Hopper hopper;
     private final Loader loader;
+
+    private int intakePositionIndex = 0;
 
     private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -161,8 +169,10 @@ public class RobotContainer {
                         this.hopper, () -> this.controller.a().getAsBoolean() ? 2700 : -2700));
         this.controller.povDown().whileTrue(HopperCommands.runVelocity(this.hopper, () -> 2700));
 
-        this.intake.setDefaultCommand(IntakeCommands.runPosition(this.intake, 0));
-        this.controller.b().toggleOnTrue(IntakeCommands.runPosition(this.intake, -2.315));
+        this.intake.setDefaultCommand(Commands.run(
+                () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
+        this.controller.b().onTrue(Commands.runOnce(() ->
+                this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
         this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -650_000));
