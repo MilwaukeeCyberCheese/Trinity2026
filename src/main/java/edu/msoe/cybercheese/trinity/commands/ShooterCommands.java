@@ -21,8 +21,8 @@ public class ShooterCommands {
         return Commands.run(() -> shooter.runAiming(poseSupplier.get()), shooter);
     }
 
-    public static Command runMaxPower(final Shooter shooter) {
-        return Commands.run(() -> shooter.runCharacterization(12.0), shooter);
+    public static Command hailMary(final Shooter shooter) {
+        return Commands.run(() -> shooter.runCharacterization(-13.5), shooter); // will this brownout? maybe! yolo!
     }
 
     public static Command runDefaultedVelocity(

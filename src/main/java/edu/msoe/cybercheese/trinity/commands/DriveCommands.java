@@ -53,7 +53,11 @@ public class DriveCommands {
      * Field relative drive command using two joysticks (controlling linear and angular velocities).
      */
     public static Command joystickDrive(
-            Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
+            Drive drive,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            DoubleSupplier omegaSupplier,
+            boolean disableAllianceFlip) {
         return Commands.run(
                 () -> {
                     // Get linear velocity
@@ -71,7 +75,7 @@ public class DriveCommands {
                             linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                             linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                             omega * drive.getMaxAngularSpeedRadPerSec());
-                    drive.runFieldRelativeVelocity(speeds);
+                    drive.runFieldRelativeVelocity(speeds, disableAllianceFlip);
                 },
                 drive);
     }
@@ -82,7 +86,11 @@ public class DriveCommands {
      * absolute rotation with a joystick.
      */
     public static Command joystickDriveAtAngle(
-            Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
+            Drive drive,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            Supplier<Rotation2d> rotationSupplier,
+            boolean disableAllianceFlip) {
 
         // Create PID controller
         ProfiledPIDController angleController = new ProfiledPIDController(
@@ -106,7 +114,7 @@ public class DriveCommands {
                                     linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                                     linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                                     omega);
-                            drive.runFieldRelativeVelocity(speeds);
+                            drive.runFieldRelativeVelocity(speeds, disableAllianceFlip);
                         },
                         drive)
 

@@ -209,9 +209,15 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     }
 
     public void runFieldRelativeVelocity(ChassisSpeeds speeds) {
+        this.runFieldRelativeVelocity(speeds, false);
+    }
+
+    public void runFieldRelativeVelocity(ChassisSpeeds speeds, boolean disableAllianceFlip) {
         this.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
                 speeds,
-                MathExtras.isFlipped() ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+                !disableAllianceFlip && MathExtras.isFlipped()
+                        ? this.getRotation().plus(new Rotation2d(Math.PI))
+                        : this.getRotation()));
     }
 
     /** Runs the drive in a straight line with the specified drive output. */
