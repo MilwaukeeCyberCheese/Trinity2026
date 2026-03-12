@@ -48,8 +48,9 @@ public class RobotContainer {
     private static final double INTAKE_STOWED_POSITION = 0;
     private static final double INTAKE_DEPLOYED_POSITION = -2.315;
     private static final double INTAKE_MID_POSITION = (INTAKE_STOWED_POSITION + INTAKE_DEPLOYED_POSITION) / 2.0;
-    private static final double[] INTAKE_POSITIONS =
-            {INTAKE_STOWED_POSITION, INTAKE_MID_POSITION, INTAKE_DEPLOYED_POSITION};
+    private static final double[] INTAKE_POSITIONS = {
+        INTAKE_STOWED_POSITION, INTAKE_MID_POSITION, INTAKE_DEPLOYED_POSITION
+    };
 
     private final @Nullable SimulatedArena simulatedArena;
     private final @Nullable SwerveDriveSimulation driveSimulation;
@@ -115,9 +116,7 @@ public class RobotContainer {
         this.autoChooser.addOption(
                 "Backwards Then Shoot",
                 Commands.sequence(
-                        Commands.run(
-                                        () -> this.drive.runVelocity(new ChassisSpeeds(1.0, 0.0, 0.0)),
-                                        this.drive)
+                        Commands.run(() -> this.drive.runVelocity(new ChassisSpeeds(1.0, 0.0, 0.0)), this.drive)
                                 .withTimeout(0.25),
                         Commands.runOnce(this.drive::stop, this.drive),
                         Commands.parallel(
@@ -128,7 +127,10 @@ public class RobotContainer {
 
         for (final var trajName : Choreo.availableTrajectories()) {
             System.out.println("Loading Trajectory: " + trajName);
-            this.autoChooser.addOption(trajName, Commands.sequence(this.autoFactory.resetOdometry(trajName), this.autoFactory.trajectoryCmd(trajName)));
+            this.autoChooser.addOption(
+                    trajName,
+                    Commands.sequence(
+                            this.autoFactory.resetOdometry(trajName), this.autoFactory.trajectoryCmd(trajName)));
         }
 
         this.configureButtonBindings();
@@ -184,8 +186,10 @@ public class RobotContainer {
 
         this.intake.setDefaultCommand(Commands.run(
                 () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
-        this.controller.b().onTrue(Commands.runOnce(() ->
-                this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
+        this.controller
+                .b()
+                .onTrue(Commands.runOnce(
+                        () -> this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
         this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -650_000));
