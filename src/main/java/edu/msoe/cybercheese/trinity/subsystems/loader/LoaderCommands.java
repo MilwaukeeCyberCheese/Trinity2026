@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class LoaderCommands {
 
     public static Command runVelocity(final Loader loader, double velocity) {
-        return Commands.run(() -> loader.runVelocity(velocity), loader);
+        return Commands.run(() -> loader.runVelocity(velocity / LoaderConstants.WHEEL_RADIUS), loader);
     }
 
     public static Command shootWhenReady(final Loader loader, final Shooter shooter, double velocity) {

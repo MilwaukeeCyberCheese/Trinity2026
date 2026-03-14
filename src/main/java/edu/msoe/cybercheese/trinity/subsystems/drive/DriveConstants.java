@@ -33,7 +33,7 @@ public class DriveConstants {
         // fl
         new ModuleDefinition(16, 17, Rotation2d.fromDegrees(270)),
         // fr
-        new ModuleDefinition(18, 19, Rotation2d.fromDegrees(180)),
+        new ModuleDefinition(18, 19, Rotation2d.fromDegrees(0)),
         // bl
         new ModuleDefinition(20, 21, Rotation2d.fromDegrees(180)),
         // br
