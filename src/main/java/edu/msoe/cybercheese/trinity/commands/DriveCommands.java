@@ -24,10 +24,13 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
-    private static final double ANGLE_KP = 6.0;
-    private static final double ANGLE_KD = 0.4;
-    private static final double ANGLE_MAX_VELOCITY = 8.0;
-    private static final double ANGLE_MAX_ACCELERATION = 20.0;
+    private static final double ANGLE_KP = 5.0;
+    private static final double ANGLE_KD = 0.0;
+    private static final double ANGLE_MAX_VELOCITY = 12.0;
+    private static final double ANGLE_MAX_ACCELERATION = 36.0;
+    private static final double ANGLE_SETPOINT_DEADBAND_RADIANS = Units.degreesToRadians(1.0);
+    private static final double ANGLE_TOLERANCE_RADIANS = Units.degreesToRadians(1.5);
+    private static final double ANGLE_TOLERANCE_VELOCITY_RADIANS_PER_SEC = Units.degreesToRadians(8.0);
     private static final double FF_START_DELAY = 2.0; // Secs
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
@@ -96,6 +99,7 @@ public class DriveCommands {
         ProfiledPIDController angleController = new ProfiledPIDController(
                 ANGLE_KP, 0.0, ANGLE_KD, new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
         angleController.enableContinuousInput(-Math.PI, Math.PI);
+        angleController.setTolerance(ANGLE_TOLERANCE_RADIANS, ANGLE_TOLERANCE_VELOCITY_RADIANS_PER_SEC);
 
         // Construct command
         return Commands.run(
@@ -104,10 +108,19 @@ public class DriveCommands {
                             Translation2d linearVelocity =
                                     getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
+                            final var currentRotation = drive.getRotation();
+                            var targetRotation = rotationSupplier.get();
+                            if (Math.abs(targetRotation.minus(currentRotation).getRadians())
+                                    < ANGLE_SETPOINT_DEADBAND_RADIANS) {
+                                targetRotation = currentRotation;
+                            }
+
                             // Calculate angular speed
-                            double omega = angleController.calculate(
-                                    drive.getRotation().getRadians(),
-                                    rotationSupplier.get().getRadians());
+                            double omega =
+                                    angleController.calculate(currentRotation.getRadians(), targetRotation.getRadians());
+                            if (angleController.atGoal()) {
+                                omega = 0.0;
+                            }
 
                             // Convert to field relative speeds & send command
                             ChassisSpeeds speeds = new ChassisSpeeds(
