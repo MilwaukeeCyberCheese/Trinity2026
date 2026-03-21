@@ -75,6 +75,8 @@ public class Shooter extends SubsystemBase {
     public void runAiming(Pose2d pose) {
         final var velocity = ShooterMath.calculateTrajectoryFromRobot(pose);
 
+        System.out.println("a: " + velocity);
+
         this.setTargetLocked(velocity >= 0);
 
         // we use negative numbers to signal invalid states
