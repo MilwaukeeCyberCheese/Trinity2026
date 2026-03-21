@@ -32,6 +32,7 @@ public class ShooterCommands {
             final BooleanSupplier shouldAim) {
         return Commands.run(
                 () -> {
+                    System.out.println("rdv: " + shouldAim.getAsBoolean());
                     if (shouldAim.getAsBoolean()) {
                         shooter.runAiming(poseSupplier.get());
                     } else {
