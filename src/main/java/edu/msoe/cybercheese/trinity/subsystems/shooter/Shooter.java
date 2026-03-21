@@ -77,6 +77,8 @@ public class Shooter extends SubsystemBase {
 
         this.setTargetLocked(velocity >= 0);
 
+        System.out.println("aiming: " + velocity);
+
         // we use negative numbers to signal invalid states
         if (velocity < 0) return;
 
