@@ -35,7 +35,7 @@ public class ExternalShooterMath {
                 // TODO: fix this lol
 
                 // we sim 5 seconds, if we don't hit the ground we're probably doing something dumb
-                minVelocity = v;
+                maxVelocity = v;
                 continue;
             }
 
