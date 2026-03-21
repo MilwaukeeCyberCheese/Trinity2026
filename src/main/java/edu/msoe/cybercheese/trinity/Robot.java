@@ -1,6 +1,8 @@
 package edu.msoe.cybercheese.trinity;
 
 import com.revrobotics.util.StatusLogger;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.jspecify.annotations.Nullable;
@@ -65,6 +67,8 @@ public class Robot extends LoggedRobot {
 
         // Return to non-RT thread priority (do not modify the first argument)
         // Threads.setCurrentThreadPriority(false, 10);
+
+        SmartDashboard.updateValues();
     }
 
     @Override

@@ -6,6 +6,7 @@ import edu.msoe.cybercheese.trinity.Constants.Mode;
 import edu.msoe.cybercheese.trinity.odometry.OdometryCollector;
 import edu.msoe.cybercheese.trinity.subsystems.drive.gyro.GyroIO;
 import edu.msoe.cybercheese.trinity.subsystems.drive.module.ModuleIO;
+import edu.msoe.cybercheese.trinity.subsystems.shooter.ShooterMath;
 import edu.msoe.cybercheese.trinity.subsystems.vision.Vision;
 import edu.msoe.cybercheese.trinity.util.MathExtras;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
@@ -182,6 +183,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.CURRENT_MODE != Mode.SIM);
 
         field.setRobotPose(getPose());
+        SmartDashboard.putNumber("Drive/HubAngle", ShooterMath.absoluteHubAngle(this.getPose()));
     }
 
     /**
