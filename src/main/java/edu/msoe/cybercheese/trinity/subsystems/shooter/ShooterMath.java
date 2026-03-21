@@ -44,10 +44,13 @@ public class ShooterMath {
 
     public static double calculateTrajectoryFromRobot(final Pose2d robotPose) {
         final var relativeHubPos = relativeHubPos(robotPose);
+        System.out.println("rhp: " + relativeHubPos);
 
         final var difference = Math.sqrt(HUB_RADIUS_SQUARED - (relativeHubPos.getY() * relativeHubPos.getY()));
         final var minDistance = relativeHubPos.getX() - difference;
         final var maxDistance = relativeHubPos.getX() + difference;
+
+        System.out.printf("rd: %f (%f..=%f)\n", difference, minDistance, maxDistance);
 
         return calculateTrajectory(minDistance, maxDistance, HUB_HEIGHT);
     }
