@@ -39,9 +39,9 @@ public class ExternalShooterMath {
                 continue;
             }
 
-            if (simResult.linearProgression < 0.1 || simResult.attackAngle > -0.2) {
+            if (simResult.linearProgression < 0.1 /*|| simResult.attackAngle > -0.2*/) {
                 minVelocity = v;
-            } else if (simResult.linearProgression > 0.9 || simResult.attackAngle < -1.5) {
+            } else if (simResult.linearProgression > 0.9 /*|| simResult.attackAngle < -1.5*/) {
                 maxVelocity = v;
             } else {
                 return v;
