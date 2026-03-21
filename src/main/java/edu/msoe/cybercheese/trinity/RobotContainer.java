@@ -166,14 +166,14 @@ public class RobotContainer {
                 () -> -this.alterControllerInput(controller.getLeftX()),
                 () -> -this.alterControllerInput(controller.getRightX()),
                 true));
-        // this.controller
-        //         .rightBumper()
-        //         .whileTrue(DriveCommands.joystickDriveAtAngle(
-        //                 this.drive,
-        //                 () -> -this.alterControllerInput(controller.getLeftY()),
-        //                 () -> -this.alterControllerInput(controller.getLeftX()),
-        //                 () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
-        //                 true));
+        this.controller
+                .rightBumper()
+                .whileTrue(DriveCommands.joystickDriveAtAngle(
+                        this.drive,
+                        () -> -this.alterControllerInput(controller.getLeftY()),
+                        () -> -this.alterControllerInput(controller.getLeftX()),
+                        () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
+                        true));
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         // TODO: henry needs to tune this
