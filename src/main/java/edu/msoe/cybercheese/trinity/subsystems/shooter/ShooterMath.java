@@ -50,7 +50,7 @@ public class ShooterMath {
         final var minDistance = relativeHubPos.getX() - difference;
         final var maxDistance = relativeHubPos.getX() + difference;
 
-        System.out.printf("rd: %f (%f..=%f)\n", difference, minDistance, maxDistance);
+        System.out.printf("rd: %f (%f..=%f)\n", relativeHubPos.getX(), minDistance, maxDistance);
 
         return calculateTrajectory(minDistance, maxDistance, HUB_HEIGHT);
     }
