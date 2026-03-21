@@ -24,7 +24,7 @@ public class ShooterMath {
     private static final double HUB_HEIGHT = 1.8161;
     private static final Translation2d HUB_POS_BLUE = new Translation2d(4.6256194, 4.0346376);
     private static final Translation2d HUB_POS_RED = ChoreoAllianceFlipUtil.flip(HUB_POS_BLUE);
-    private static final double HUB_RADIUS = 1.052373;
+    private static final double HUB_RADIUS = 1.052373 / 2.;
     private static final double HUB_RADIUS_SQUARED = HUB_RADIUS * HUB_RADIUS;
 
     public static Translation2d hubPos() {
