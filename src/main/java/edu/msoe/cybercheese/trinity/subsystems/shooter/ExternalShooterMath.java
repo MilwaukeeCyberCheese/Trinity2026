@@ -35,6 +35,7 @@ public class ExternalShooterMath {
                 // TODO: fix this lol
 
                 // we sim 5 seconds, if we don't hit the ground we're probably doing something dumb
+                minVelocity = v;
                 continue;
             }
 
@@ -47,7 +48,7 @@ public class ExternalShooterMath {
             }
         }
 
-        return Double.MIN_VALUE;
+        return -Double.MAX_VALUE;
     }
 
     public static @Nullable SimulationResult simulateMotion(
