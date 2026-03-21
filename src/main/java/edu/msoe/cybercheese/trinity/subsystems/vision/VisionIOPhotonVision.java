@@ -22,6 +22,8 @@ public class VisionIOPhotonVision implements VisionIO {
         inputs.poseObservations.clear();
 
         for (var result : this.camera.getAllUnreadResults()) {
+            System.out.println("cam: " + this.camera.getName() + " @ " + result);
+
             if (result.hasTargets()) {
                 inputs.latestTargetObservation = new TargetObservation(
                         Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
