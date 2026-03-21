@@ -44,19 +44,18 @@ public class ShooterMath {
 
     public static double calculateTrajectoryFromRobot(final Pose2d robotPose) {
         final var relativeHubPos = relativeHubPos(robotPose);
-        System.out.println("rhp: " + relativeHubPos);
 
         final var difference = Math.sqrt(HUB_RADIUS_SQUARED - (relativeHubPos.getY() * relativeHubPos.getY()));
         final var minDistance = relativeHubPos.getX() - difference;
         final var maxDistance = relativeHubPos.getX() + difference;
-
-        System.out.printf("rd: %f (%f..=%f)\n", relativeHubPos.getX(), minDistance, maxDistance);
 
         return calculateTrajectory(minDistance, maxDistance, HUB_HEIGHT);
     }
 
     public static double calculateTrajectory(
             final double minDistance, final double maxDistance, final double targetHeight) {
+        System.out.printf("ct: (%f..=%f) at %f\n", minDistance, maxDistance, targetHeight);
+
         // TODO: handle the ranges better
 
         double minVelocity = 0;
