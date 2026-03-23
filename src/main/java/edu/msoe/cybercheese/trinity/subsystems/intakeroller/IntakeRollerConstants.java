@@ -8,5 +8,6 @@ public class IntakeRollerConstants {
     public static final MotorConfig ROLLER_MOTOR_CONFIG = MotorConfig.vortexBuilder(
                     MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.VELOCITY)
             .gearing(21. / 50.)
+            .currentLimit(30)
             .build();
 }

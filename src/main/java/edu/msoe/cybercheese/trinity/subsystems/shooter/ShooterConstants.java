@@ -6,8 +6,8 @@ import edu.wpi.first.math.util.Units;
 public class ShooterConstants {
 
     public static final double WHEEL_RADIUS = Units.inchesToMeters(4);
-    public static final double VELOCITY_ADJUSTMENT = 800.0;
-    public static final double IS_AT_SPEED_MARGIN = 35;
+    public static final double VELOCITY_ADJUSTMENT = 785.0;
+    public static final double IS_AT_SPEED_MARGIN = 30;
 
     public static final int SHOOTER_MOTOR_ID = 35;
     public static final MotorConfig SHOOTER_MOTOR_CONFIG = MotorConfig.vortexBuilder(
