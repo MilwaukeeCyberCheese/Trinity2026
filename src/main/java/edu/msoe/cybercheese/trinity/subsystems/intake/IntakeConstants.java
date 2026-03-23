@@ -11,6 +11,6 @@ public class IntakeConstants {
             .gearing(27. * (50. / 22.))
             .encoderGearing(1.)
             .pid(new PIDConstants(0.3, 0, 0))
-            .currentLimit(30)
+            .currentLimit(35)
             .build();
 }
