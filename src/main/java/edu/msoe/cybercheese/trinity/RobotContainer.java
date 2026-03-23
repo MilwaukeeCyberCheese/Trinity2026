@@ -162,16 +162,16 @@ public class RobotContainer {
 
         this.drive.setDefaultCommand(DriveCommands.joystickDrive(
                 this.drive,
-                () -> -this.alterControllerInput(controller.getLeftY()),
-                () -> -this.alterControllerInput(controller.getLeftX()),
-                () -> -this.alterControllerInput(controller.getRightX()),
+                () -> this.alterControllerInput(controller.getLeftY()),
+                () -> this.alterControllerInput(controller.getLeftX()),
+                () -> this.alterControllerInput(controller.getRightX()),
                 true));
         this.controller
                 .rightBumper()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
                         this.drive,
-                        () -> -this.alterControllerInput(controller.getLeftY()),
-                        () -> -this.alterControllerInput(controller.getLeftX()),
+                        () -> this.alterControllerInput(controller.getLeftY()),
+                        () -> this.alterControllerInput(controller.getLeftX()),
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
                         true));
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
@@ -182,7 +182,10 @@ public class RobotContainer {
                 .povLeft()
                 .toggleOnTrue(HopperCommands.runVelocity(
                         this.hopper, () -> this.controller.a().getAsBoolean() ? 2700 : -2700));
-        this.controller.povDown().whileTrue(HopperCommands.runVelocity(this.hopper, () -> 2700));
+        this.controller.povDown().whileTrue(Commands.parallel(
+            HopperCommands.runVelocity(this.hopper, () -> 2700),
+            LoaderCommands.runVelocity(this.loader, -40)
+        ));
 
         this.intake.setDefaultCommand(Commands.run(
                 () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
@@ -192,7 +195,7 @@ public class RobotContainer {
                         () -> this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
-        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -150));
+        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -250));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
