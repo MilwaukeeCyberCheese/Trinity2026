@@ -218,7 +218,7 @@ public class RobotContainer {
                         () -> this.alterControllerInput(controller.getRightX()),
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
                         false));
-        this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
+        this.controller.x().or(this.controller.rightStick()).onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
 
@@ -280,11 +280,15 @@ public class RobotContainer {
     private double alterControllerInput(double input) {
         final var deadbandedInput = MathUtil.applyDeadband(input, DriveConstants.CONTROLLER_INPUT_DEADBAND);
         double scaled = -deadbandedInput * DriveConstants.JOYSTICK_MULTIPLIER;
-        if (this.controller.leftBumper().getAsBoolean()) {
+        if (this.isSlowDriveEnabled()) {
             scaled *= DriveConstants.SLOW_MULTIPLIER;
         }
 
         return scaled;
+    }
+
+    private boolean isSlowDriveEnabled() {
+        return this.controller.leftBumper().getAsBoolean() || this.controller.leftStick().getAsBoolean();
     }
 
     public Command getAutonomousCommand() {
