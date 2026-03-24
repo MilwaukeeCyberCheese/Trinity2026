@@ -161,7 +161,7 @@ public class RobotContainer {
                         .ignoringDisable(true));
 
         this.drive.setDefaultCommand(DriveCommands.joystickDrive(
-                this.drive,
+                this.drive, 
                 () -> this.alterControllerInput(controller.getLeftY()),
                 () -> this.alterControllerInput(controller.getLeftX()),
                 () -> this.alterControllerInput(controller.getRightX()),
@@ -198,7 +198,7 @@ public class RobotContainer {
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
 
-        this.controller.povRight().toggleOnTrue(ShooterCommands.runVelocity(this.shooter, 35));
+        // this.controller.povRight().toggleOnTrue(ShooterCommands.runVelocity(this.shooter, 35));
 
         this.controller
                 .rightTrigger()
