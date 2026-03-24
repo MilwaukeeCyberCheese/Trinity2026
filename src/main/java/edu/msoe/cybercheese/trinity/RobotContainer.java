@@ -77,6 +77,10 @@ public class RobotContainer {
 
         System.out.println("Initializing simulatedArena...");
         this.simulatedArena = Constants.CURRENT_MODE == Constants.Mode.SIM ? new Arena2026Rebuilt() : null;
+        if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
+            SimulatedArena.overrideInstance(Objects.requireNonNull(this.simulatedArena));
+            this.simulatedArena.resetFieldForAuto();
+        }
         this.driveSimulation = this.simulatedArena != null
                 ? new SwerveDriveSimulation(
                         DriveConstants.DRIVE_TRAIN_SIMULATION_CONFIG, new Pose2d(3, 3, Rotation2d.kZero))
@@ -308,11 +312,9 @@ public class RobotContainer {
     public void updateSimulation() {
         if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
 
-        SimulatedArena.getInstance().simulationPeriodic();
+        Objects.requireNonNull(this.simulatedArena).simulationPeriodic();
         Logger.recordOutput("FieldSimulation/RobotPosition", this.driveSimulation.getSimulatedDriveTrainPose());
         Logger.recordOutput(
-                "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-        Logger.recordOutput(
-                "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+                "FieldSimulation/Fuel", this.simulatedArena.getGamePiecesArrayByType("Fuel"));
     }
 }
