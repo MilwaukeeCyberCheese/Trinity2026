@@ -226,6 +226,11 @@ public class RobotContainer {
             HopperCommands.runVelocity(this.hopper, () -> 2700),
             LoaderCommands.runVelocity(this.loader, -40)
         ));
+        // manual hopper
+        this.controller.povRight().whileTrue(Commands.parallel(
+            HopperCommands.runVelocity(this.hopper, () -> -2700),
+            LoaderCommands.runVelocity(this.loader, 40)
+        ));
 
         this.intake.setDefaultCommand(Commands.run(
                 () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
