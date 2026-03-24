@@ -143,15 +143,8 @@ public class RobotContainer {
             this.setupSysIdAutoChooser();
         }
 
-        this.autoFactory = new AutoFactory(
-                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, true, this.drive);
-
-        this.autoFactory.bind(
-                "shoot",
-                Commands.parallel(
-                        ShooterCommands.runVelocity(this.shooter, 430), // this works, don't touch!
-                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
-                        HopperCommands.runVelocity(this.hopper, () -> -2700)));
+        this.autoFactory = this.setupAutoFactory();
+    
         this.autoChooser.addOption(
                 "Backwards Then Shoot",
                 Commands.sequence(
@@ -175,6 +168,31 @@ public class RobotContainer {
         System.out.println("Binding controller...");
         this.configureButtonBindings();
         System.out.println("Done!");
+    }
+
+    private AutoFactory setupAutoFactory() {
+        AutoFactory autoFactory = new AutoFactory(
+                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, true, this.drive);
+
+        autoFactory.bind("intakeRaise", IntakeCommands.runPosition(this.intake, INTAKE_STOWED_POSITION));
+        autoFactory.bind("intakeLower", IntakeCommands.runPosition(this.intake, INTAKE_DEPLOYED_POSITION));
+        autoFactory.bind("intakeOn", IntakeRollerCommands.runVelocity(this.intakeRoller, -270));
+        autoFactory.bind("intakeOff", IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
+
+        autoFactory.bind(
+                "shootNormal",
+                Commands.parallel(
+                        ShooterCommands.runVelocity(this.shooter, 430),
+                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
+                        HopperCommands.runVelocity(this.hopper, () -> -2700)));
+        autoFactory.bind(
+                "shootHailMary",
+                Commands.parallel(
+                        ShooterCommands.hailMary(this.shooter),
+                        LoaderCommands.runVelocity(this.loader, 80),
+                        HopperCommands.runVelocity(this.hopper, () -> -2700)));
+        
+        return autoFactory;
     }
 
     private void setupSysIdAutoChooser() {

@@ -1,0 +1,19 @@
+
+digraph G {
+    "Center Start" -> "CenterShootCenter"
+    "CenterShootCenter" -> "SweepAroundLeft"
+    "CenterShootCenter" -> "SweepAroundRight"
+    "SweepAroundRight" -> "LeftInShoot"
+    "SweepAroundLeft" -> "RightInShoot"
+    "Left Start" -> "LeftShootCenter"
+    "LeftShootCenter" -> "SweepAroundLeft"
+    "LeftShootCenter" -> "SweepAroundRight"
+    "Right Start" -> "RightShootCenter"
+    "RightShootCenter" -> "SweepAroundLeft"
+    "RightShootCenter" -> "SweepAroundRight"
+    "Left Start" -> "SimpleLeftSweep"
+    "SimpleLeftSweep" -> "RightInShoot"
+    "Left Start" -> "LeftShootLeft"
+    "Right Start" -> "RightShootRight"
+    "Right Start" -> "SimpleRightSweep"
+}
