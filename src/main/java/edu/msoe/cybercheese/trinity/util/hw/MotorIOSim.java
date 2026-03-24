@@ -10,8 +10,8 @@ public class MotorIOSim extends MotorIOSpark {
 
     private final SparkSim sim;
 
-    public MotorIOSim(final MotorConfig config) {
-        super(-1, config);
+    public MotorIOSim(final int canId, final MotorConfig config) {
+        super(canId, config);
         this.sim = config.kind() == MotorConfig.ControllerKind.FLEX
                 ? new SparkFlexSim((SparkFlex) this.spark(), config.gearbox())
                 : new SparkMaxSim((SparkMax) this.spark(), config.gearbox());

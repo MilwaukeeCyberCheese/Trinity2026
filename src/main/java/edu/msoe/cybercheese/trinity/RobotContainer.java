@@ -254,7 +254,7 @@ public class RobotContainer {
     private MotorIO createMotorIo(final int canId, final MotorConfig config) {
         return switch (Constants.CURRENT_MODE) {
             case REAL -> new MotorIOSpark(canId, config);
-            case SIM -> new MotorIOSim(config);
+            case SIM -> new MotorIOSim(canId, config);
             case REPLAY -> inputs -> {};
         };
     }
