@@ -117,7 +117,7 @@ public class DriveCommands {
                                 final var squaredManualOmegaInput =
                                         Math.copySign(manualOmegaInput * manualOmegaInput, manualOmegaInput);
                                 manualRotationOffsetRadians[0] +=
-                                        squaredManualOmegaInput * drive.getMaxAngularSpeedRadPerSec() * 0.02;
+                                        squaredManualOmegaInput * drive.getMaxAngularSpeedRadPerSec() * 0.005;
                             } else {
                                 manualRotationOffsetRadians[0] = 0.0;
                             }
