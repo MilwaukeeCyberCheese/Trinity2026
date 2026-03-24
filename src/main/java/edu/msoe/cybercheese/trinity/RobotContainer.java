@@ -20,6 +20,7 @@ import edu.msoe.cybercheese.trinity.subsystems.intakeroller.IntakeRollerConstant
 import edu.msoe.cybercheese.trinity.subsystems.loader.*;
 import edu.msoe.cybercheese.trinity.subsystems.shooter.*;
 import edu.msoe.cybercheese.trinity.subsystems.vision.*;
+import edu.msoe.cybercheese.trinity.util.MathExtras;
 import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIO;
 import edu.msoe.cybercheese.trinity.util.hw.MotorIOSim;
@@ -105,7 +106,7 @@ public class RobotContainer {
         }
 
         this.autoFactory = new AutoFactory(
-                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, false, this.drive);
+                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, true, this.drive);
 
         this.autoFactory.bind(
                 "shoot",
@@ -156,7 +157,9 @@ public class RobotContainer {
                 .back()
                 .onTrue(Commands.runOnce(
                                 () -> this.drive.setPose(
-                                        new Pose2d(this.drive.getPose().getTranslation(), Rotation2d.kZero)),
+                                        new Pose2d(
+                                                this.drive.getPose().getTranslation(),
+                                                MathExtras.isFlipped() ? Rotation2d.kPi : Rotation2d.kZero)),
                                 this.drive)
                         .ignoringDisable(true));
 
@@ -165,7 +168,7 @@ public class RobotContainer {
                 () -> this.alterControllerInput(controller.getLeftY()),
                 () -> this.alterControllerInput(controller.getLeftX()),
                 () -> this.alterControllerInput(controller.getRightX()),
-                true));
+                false));
         this.controller
                 .rightBumper()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
@@ -174,7 +177,7 @@ public class RobotContainer {
                         () -> this.alterControllerInput(controller.getLeftX()),
                         () -> this.alterControllerInput(controller.getRightX()),
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
-                        true));
+                        false));
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
