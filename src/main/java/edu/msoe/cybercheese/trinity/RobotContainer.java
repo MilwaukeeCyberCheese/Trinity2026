@@ -72,34 +72,46 @@ public class RobotContainer {
     private final AutoFactory autoFactory;
 
     public RobotContainer() {
+        System.out.println("Starting CanandEventLoop...");
         CanandEventLoop.getInstance(); // starts management server for redux alchemist
 
+        System.out.println("Initializing simulatedArena...");
         this.simulatedArena = Constants.CURRENT_MODE == Constants.Mode.SIM ? new Arena2026Rebuilt() : null;
         this.driveSimulation = this.simulatedArena != null
                 ? new SwerveDriveSimulation(
                         DriveConstants.DRIVE_TRAIN_SIMULATION_CONFIG, new Pose2d(3, 3, Rotation2d.kZero))
                 : null;
 
+        System.out.println("Initializing swerve IOs...");
         final var moduleIos = new ModuleIO[DriveConstants.MODULE_DEFINITIONS.length];
         for (int i = 0; i < DriveConstants.MODULE_DEFINITIONS.length; i++) {
             moduleIos[i] = this.createModuleIo(
                     DriveConstants.MODULE_DEFINITIONS[i],
                     this.driveSimulation == null ? null : this.driveSimulation.getModules()[i]);
         }
+        System.out.println("Initializing Drive...");
         this.drive = new Drive(this.driveSimulation, this.createGyroIo(), moduleIos);
 
+        System.out.println("Initializing Vision...");
         final var cameras = new ArrayList<Camera>();
         for (final var cameraDef : VisionConstants.CAMERA_DEFINITIONS) {
             cameras.add(new Camera(cameraDef, this.createVisionIo(cameraDef, this.drive)));
         }
         this.vision = new Vision(this.drive, cameras);
 
+        System.out.print("Initializing subsystems: shooter...");
         this.shooter = new Shooter(this.createShooterIo());
+        System.out.print("ok, Intake...");
         this.intake = new Intake(this.createIntakeIo());
+        System.out.print("ok, IntakeRoller...");
         this.intakeRoller = new IntakeRoller(this.createIntakeRollerIo());
+        System.out.print("ok, Hopper...");
         this.hopper = new Hopper(this.createHopperIo());
+        System.out.print("ok, Loader...");
         this.loader = new Loader(this.createLoaderIo());
+        System.out.println("ok!");
 
+        System.out.println("Loading autos...");
         this.autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
         if (Constants.ENABLE_SYSID) {
             this.setupSysIdAutoChooser();
@@ -134,7 +146,9 @@ public class RobotContainer {
                             this.autoFactory.resetOdometry(trajName), this.autoFactory.trajectoryCmd(trajName)));
         }
 
+        System.out.println("Binding controller...");
         this.configureButtonBindings();
+        System.out.println("Done!");
     }
 
     private void setupSysIdAutoChooser() {
