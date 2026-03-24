@@ -77,6 +77,7 @@ public class RobotContainer {
     private final Loader loader;
 
     private int intakePositionIndex = 0;
+    private int savedIntakePositionIndex = 0;
 
     private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -238,6 +239,12 @@ public class RobotContainer {
         this.controller.povUp().onTrue(Commands.runOnce(() -> this.intakePositionIndex = 0));
         // lower
         this.controller.povDown().onTrue(Commands.runOnce(() -> this.intakePositionIndex = INTAKE_POSITIONS.length - 1));
+        this.controller.a().whileTrue(Commands.startEnd(
+                () -> {
+                    this.savedIntakePositionIndex = this.intakePositionIndex;
+                    this.intakePositionIndex = 0;
+                },
+                () -> this.intakePositionIndex = this.savedIntakePositionIndex));
         this.controller
                 .b()
                 .onTrue(Commands.runOnce(
