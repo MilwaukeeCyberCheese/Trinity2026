@@ -18,6 +18,7 @@ public class Shooter extends SubsystemBase {
     private final SysIdRoutine sysId;
 
     private boolean targetLocked = false;
+    private boolean aimingAtHub = false;
     private double targetVelocity = 0.0;
 
     public Shooter(MotorIO io) {
@@ -48,6 +49,10 @@ public class Shooter extends SubsystemBase {
         return this.targetLocked;
     }
 
+    public boolean isAimingAtHub() {
+        return this.aimingAtHub;
+    }
+
     public void setTargetLocked(boolean flag) {
         this.targetLocked = flag;
     }
@@ -64,6 +69,7 @@ public class Shooter extends SubsystemBase {
     public void runVelocity(double velocityRadPerSec) {
         velocityRadPerSec *= -1; // TODO: invert properly
 
+        this.aimingAtHub = false;
         this.targetVelocity = velocityRadPerSec;
         this.io.runVelocity(velocityRadPerSec);
     }
@@ -73,6 +79,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public void runAiming(Pose2d pose) {
+        this.aimingAtHub = true;
         final var velocity = ShooterMath.calculateTrajectoryFromRobot(pose);
 
         //System.out.println("a: " + velocity);
@@ -91,12 +98,14 @@ public class Shooter extends SubsystemBase {
     /** Runs the shooter with the specified voltage output. */
     public void runCharacterization(double volts) {
         // Characterization runs open loop
+        this.aimingAtHub = false;
         this.targetVelocity = 0.0;
         this.io.runOpenLoop(volts);
     }
 
     /** Stops the shooter. */
     public void stop() {
+        this.aimingAtHub = false;
         this.targetVelocity = 0.0;
         this.io.runOpenLoop(0.0);
     }

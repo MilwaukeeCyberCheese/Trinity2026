@@ -28,6 +28,8 @@ import edu.msoe.cybercheese.trinity.util.hw.MotorIOSpark;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -39,9 +41,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.jspecify.annotations.Nullable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -53,6 +57,8 @@ public class RobotContainer {
     private static final double INTAKE_MID_POSITION = (INTAKE_STOWED_POSITION + INTAKE_DEPLOYED_POSITION) / 2.0;
     private static final double INTAKE_SIM_EXTENSION_METERS = 0.35;
     private static final double INTAKE_SIM_ROLLER_ACTIVE_THRESHOLD = 1.0;
+    private static final double SHOOTING_SIM_LOADER_ACTIVE_THRESHOLD = 1.0;
+    private static final double SHOOTING_SIM_HUB_HEIGHT_METERS = 1.6;
     private static final double[] INTAKE_POSITIONS = {
         INTAKE_STOWED_POSITION, INTAKE_MID_POSITION, INTAKE_DEPLOYED_POSITION
     };
@@ -60,6 +66,7 @@ public class RobotContainer {
     private final @Nullable SimulatedArena simulatedArena;
     private final @Nullable SwerveDriveSimulation driveSimulation;
     private final @Nullable IntakeSimulation intakeSimulation;
+    private boolean wasShootingInSim = false;
 
     private final Drive drive;
     private final Vision vision;
@@ -336,9 +343,28 @@ public class RobotContainer {
 
             Logger.recordOutput("FieldSimulation/IntakeFuelCount", this.intakeSimulation.getGamePiecesAmount());
         }
+        final boolean shootingInSim = this.shooter.isAimingAtHub()
+                && this.shooter.isTargetLocked()
+                && this.shooter.isAtSpeed()
+                && this.loader.getTargetVelocity() > SHOOTING_SIM_LOADER_ACTIVE_THRESHOLD;
+        if (shootingInSim && !this.wasShootingInSim && this.intakeSimulation != null
+                && this.intakeSimulation.obtainGamePieceFromIntake()) {
+            this.spawnPerfectSimShot(Objects.requireNonNull(this.simulatedArena));
+        }
+        this.wasShootingInSim = shootingInSim;
         Objects.requireNonNull(this.simulatedArena).simulationPeriodic();
         Logger.recordOutput("FieldSimulation/RobotPosition", this.driveSimulation.getSimulatedDriveTrainPose());
         Logger.recordOutput(
                 "FieldSimulation/Fuel", this.simulatedArena.getGamePiecesArrayByType("Fuel"));
+    }
+
+    private void spawnPerfectSimShot(final SimulatedArena arena) {
+        arena.addGamePieceProjectile(new GamePieceProjectile(
+                RebuiltFuelOnField.REBUILT_FUEL_INFO,
+                ShooterMath.hubPos(),
+                new Translation2d(),
+                SHOOTING_SIM_HUB_HEIGHT_METERS,
+                0.0,
+                new Rotation3d()));
     }
 }

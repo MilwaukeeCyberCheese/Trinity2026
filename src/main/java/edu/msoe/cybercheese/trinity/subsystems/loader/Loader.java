@@ -8,6 +8,7 @@ public class Loader extends SubsystemBase {
 
     private final MotorIO.MotorInputs inputs = new MotorIO.MotorInputs();
     private final MotorIO io;
+    private double targetVelocity = 0.0;
 
     public Loader(MotorIO io) {
         this.io = io;
@@ -20,6 +21,11 @@ public class Loader extends SubsystemBase {
     }
 
     public void runVelocity(double velocity) {
+        this.targetVelocity = velocity;
         this.io.runVelocity(velocity);
+    }
+
+    public double getTargetVelocity() {
+        return this.targetVelocity;
     }
 }
