@@ -188,6 +188,7 @@ public class RobotContainer {
 
         this.intake.setDefaultCommand(Commands.run(
                 () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
+        this.controller.povUp().onTrue(Commands.runOnce(() -> this.intakePositionIndex = 0));
         this.controller
                 .b()
                 .onTrue(Commands.runOnce(
