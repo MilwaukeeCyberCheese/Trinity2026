@@ -172,16 +172,13 @@ public class RobotContainer {
                         this.drive,
                         () -> this.alterControllerInput(controller.getLeftY()),
                         () -> this.alterControllerInput(controller.getLeftX()),
+                        () -> this.alterControllerInput(controller.getRightX()),
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
                         true));
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         // TODO: henry needs to tune this
         this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
-        this.controller
-                .povLeft()
-                .toggleOnTrue(HopperCommands.runVelocity(
-                        this.hopper, () -> this.controller.a().getAsBoolean() ? 2700 : -2700));
         this.controller.povDown().whileTrue(Commands.parallel(
             HopperCommands.runVelocity(this.hopper, () -> 2700),
             LoaderCommands.runVelocity(this.loader, -40)
@@ -194,8 +191,9 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(
                         () -> this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
 
-        this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
-        this.controller.leftTrigger().whileTrue(IntakeRollerCommands.runVelocity(this.intakeRoller, -250));
+        this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(
+                this.intakeRoller,
+                () -> MathUtil.clamp(-300.0 * this.controller.getLeftTriggerAxis(), -300.0, 0.0)));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
@@ -205,6 +203,10 @@ public class RobotContainer {
         this.controller
                 .rightTrigger()
                 .whileTrue(Commands.parallel(
+                        HopperCommands.shootWhenReady(
+                                this.hopper,
+                                this.shooter,
+                                () -> this.controller.a().getAsBoolean() ? 2700 : -2700),
                         ShooterCommands.runDefaultedVelocity(
                                 this.shooter,
                                 this.drive::getPose,

@@ -2,15 +2,17 @@ package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
 import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.util.Units;
+import edu.msoe.cybercheese.trinity.util.PIDConstants;
 
 public class ShooterConstants {
 
     public static final double WHEEL_RADIUS = Units.inchesToMeters(4);
-    public static final double VELOCITY_ADJUSTMENT = 785.0;
-    public static final double IS_AT_SPEED_MARGIN = 30;
+    public static final double VELOCITY_ADJUSTMENT = 755.0;
+    public static final double IS_AT_SPEED_MARGIN = 20.0;
 
     public static final int SHOOTER_MOTOR_ID = 35;
     public static final MotorConfig SHOOTER_MOTOR_CONFIG = MotorConfig.vortexBuilder(
                     MotorConfig.ControllerKind.MAX, MotorConfig.ControlMode.VELOCITY)
+            .pid(new PIDConstants(0.003, 0.0, 0.0))
             .build();
 }

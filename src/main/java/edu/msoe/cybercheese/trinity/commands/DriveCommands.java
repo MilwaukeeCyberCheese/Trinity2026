@@ -24,12 +24,12 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
-    private static final double ANGLE_KP = 5.0;
+    private static final double ANGLE_KP = 6.5;
     private static final double ANGLE_KD = 0.0;
     private static final double ANGLE_MAX_VELOCITY = 12.0;
     private static final double ANGLE_MAX_ACCELERATION = 36.0;
-    private static final double ANGLE_SETPOINT_DEADBAND_RADIANS = Units.degreesToRadians(1.0);
-    private static final double ANGLE_TOLERANCE_RADIANS = Units.degreesToRadians(1.5);
+    private static final double ANGLE_SETPOINT_DEADBAND_RADIANS = Units.degreesToRadians(0.7);
+    private static final double ANGLE_TOLERANCE_RADIANS = Units.degreesToRadians(0.8);
     private static final double ANGLE_TOLERANCE_VELOCITY_RADIANS_PER_SEC = Units.degreesToRadians(8.0);
     private static final double FF_START_DELAY = 2.0; // Secs
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
@@ -92,6 +92,7 @@ public class DriveCommands {
             Drive drive,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier,
+            DoubleSupplier omegaSupplier,
             Supplier<Rotation2d> rotationSupplier,
             boolean disableAllianceFlip) {
 
@@ -102,6 +103,8 @@ public class DriveCommands {
         angleController.setTolerance(ANGLE_TOLERANCE_RADIANS, ANGLE_TOLERANCE_VELOCITY_RADIANS_PER_SEC);
 
         // Construct command
+        final double[] manualRotationOffsetRadians = {0.0};
+
         return Commands.run(
                         () -> {
                             // Get linear velocity
@@ -109,7 +112,18 @@ public class DriveCommands {
                                     getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
                             final var currentRotation = drive.getRotation();
-                            var targetRotation = rotationSupplier.get();
+                            final var manualOmegaInput = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+                            if (manualOmegaInput != 0.0) {
+                                final var squaredManualOmegaInput =
+                                        Math.copySign(manualOmegaInput * manualOmegaInput, manualOmegaInput);
+                                manualRotationOffsetRadians[0] +=
+                                        squaredManualOmegaInput * drive.getMaxAngularSpeedRadPerSec() * 0.02;
+                            } else {
+                                manualRotationOffsetRadians[0] = 0.0;
+                            }
+
+                            var targetRotation =
+                                    rotationSupplier.get().plus(Rotation2d.fromRadians(manualRotationOffsetRadians[0]));
                             if (Math.abs(targetRotation.minus(currentRotation).getRadians())
                                     < ANGLE_SETPOINT_DEADBAND_RADIANS) {
                                 targetRotation = currentRotation;
@@ -132,7 +146,10 @@ public class DriveCommands {
                         drive)
 
                 // Reset PID controller when command starts
-                .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+                .beforeStarting(() -> {
+                    manualRotationOffsetRadians[0] = 0.0;
+                    angleController.reset(drive.getRotation().getRadians());
+                });
     }
 
     /**
