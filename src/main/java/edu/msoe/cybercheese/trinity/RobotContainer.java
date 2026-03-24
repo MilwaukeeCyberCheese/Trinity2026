@@ -177,7 +177,6 @@ public class RobotContainer {
                         true));
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
-        // TODO: henry needs to tune this
         this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
         this.controller.povDown().whileTrue(Commands.parallel(
             HopperCommands.runVelocity(this.hopper, () -> 2700),

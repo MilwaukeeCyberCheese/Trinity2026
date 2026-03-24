@@ -41,12 +41,4 @@ public class ShooterCommands {
                 },
                 shooter);
     }
-
-    //    public static Command shootWhenAvailable(final Shooter shooter) {
-    //        return Commands.run(() -> {
-    //            if (Math.abs(shooter.isAtSpeed()) {
-    //                // TODO: shoot
-    //            }
-    //        }, TODO);
-    //    }
 }
