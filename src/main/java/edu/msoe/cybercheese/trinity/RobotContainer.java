@@ -220,14 +220,19 @@ public class RobotContainer {
         this.controller.x().onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
-        this.controller.povDown().whileTrue(Commands.parallel(
+
+        // unstick
+        this.controller.povLeft().whileTrue(Commands.parallel(
             HopperCommands.runVelocity(this.hopper, () -> 2700),
             LoaderCommands.runVelocity(this.loader, -40)
         ));
 
         this.intake.setDefaultCommand(Commands.run(
                 () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
+        // stow
         this.controller.povUp().onTrue(Commands.runOnce(() -> this.intakePositionIndex = 0));
+        // lower
+        this.controller.povDown().onTrue(Commands.runOnce(() -> this.intakePositionIndex = INTAKE_POSITIONS.length - 1));
         this.controller
                 .b()
                 .onTrue(Commands.runOnce(
@@ -239,8 +244,6 @@ public class RobotContainer {
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
-
-        // this.controller.povRight().toggleOnTrue(ShooterCommands.runVelocity(this.shooter, 35));
 
         this.controller
                 .rightTrigger()
