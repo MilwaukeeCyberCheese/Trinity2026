@@ -9,6 +9,7 @@ public class Intake extends SubsystemBase {
 
     private final MotorIO.MotorInputs inputs = new MotorIO.MotorInputs();
     private final MotorIO lift;
+    private double lowerPositionSetpoint = 0.0;
 
     public Intake(MotorIO lift) {
         this.lift = lift;
@@ -25,6 +26,11 @@ public class Intake extends SubsystemBase {
     }
 
     public void setLowerPosition(final double position) {
+        this.lowerPositionSetpoint = position;
         this.lift.runPosition(position);
+    }
+
+    public double getLowerPositionSetpoint() {
+        return this.lowerPositionSetpoint;
     }
 }

@@ -29,6 +29,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
 import java.util.Objects;
+import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
@@ -49,12 +51,15 @@ public class RobotContainer {
     private static final double INTAKE_STOWED_POSITION = 0;
     private static final double INTAKE_DEPLOYED_POSITION = -2.314;
     private static final double INTAKE_MID_POSITION = (INTAKE_STOWED_POSITION + INTAKE_DEPLOYED_POSITION) / 2.0;
+    private static final double INTAKE_SIM_EXTENSION_METERS = 0.35;
+    private static final double INTAKE_SIM_ROLLER_ACTIVE_THRESHOLD = 1.0;
     private static final double[] INTAKE_POSITIONS = {
         INTAKE_STOWED_POSITION, INTAKE_MID_POSITION, INTAKE_DEPLOYED_POSITION
     };
 
     private final @Nullable SimulatedArena simulatedArena;
     private final @Nullable SwerveDriveSimulation driveSimulation;
+    private final @Nullable IntakeSimulation intakeSimulation;
 
     private final Drive drive;
     private final Vision vision;
@@ -84,6 +89,15 @@ public class RobotContainer {
         this.driveSimulation = this.simulatedArena != null
                 ? new SwerveDriveSimulation(
                         DriveConstants.DRIVE_TRAIN_SIMULATION_CONFIG, new Pose2d(3, 3, Rotation2d.kZero))
+                : null;
+        this.intakeSimulation = this.driveSimulation != null
+                ? IntakeSimulation.OverTheBumperIntake(
+                        "Fuel",
+                        this.driveSimulation,
+                        Units.Meters.of(DriveConstants.TRACK_WIDTH),
+                        Units.Meters.of(INTAKE_SIM_EXTENSION_METERS),
+                        IntakeSimulation.IntakeSide.FRONT,
+                        100)
                 : null;
 
         System.out.println("Initializing swerve IOs...");
@@ -312,6 +326,16 @@ public class RobotContainer {
     public void updateSimulation() {
         if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
 
+        if (this.intakeSimulation != null) {
+            if (this.intake.getLowerPositionSetpoint() <= INTAKE_MID_POSITION
+                    && this.intakeRoller.getTargetVelocity() < -INTAKE_SIM_ROLLER_ACTIVE_THRESHOLD) {
+                this.intakeSimulation.startIntake();
+            } else {
+                this.intakeSimulation.stopIntake();
+            }
+
+            Logger.recordOutput("FieldSimulation/IntakeFuelCount", this.intakeSimulation.getGamePiecesAmount());
+        }
         Objects.requireNonNull(this.simulatedArena).simulationPeriodic();
         Logger.recordOutput("FieldSimulation/RobotPosition", this.driveSimulation.getSimulatedDriveTrainPose());
         Logger.recordOutput(
