@@ -64,6 +64,7 @@ public class Robot extends LoggedRobot {
         // Threads.setCurrentThreadPriority(true, 99);
 
         CommandScheduler.getInstance().run();
+        this.robotContainer.logAllianceDiagnostics();
 
         // Return to non-RT thread priority (do not modify the first argument)
         // Threads.setCurrentThreadPriority(false, 10);

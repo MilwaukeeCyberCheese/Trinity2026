@@ -60,9 +60,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     private final SwerveDrivePoseEstimator poseEstimator =
             new SwerveDrivePoseEstimator(kinematics, Rotation2d.kZero, lastModulePositions, Pose2d.kZero);
 
-    private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+    private final PIDController xController = new PIDController(13.0, 0.0, 0.0);
+    private final PIDController yController = new PIDController(13.0, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(7.0, 0.0, 0.0);
 
     private final Field2d field = new Field2d();
 
@@ -339,7 +339,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 sample.vy + yController.calculate(pose.getY(), sample.y),
                 sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
 
-        // Apply the generated speeds
-        this.runFieldRelativeVelocity(speeds);
+        // Choreo samples are already in field coordinates and may already be alliance-flipped.
+        this.runFieldRelativeVelocity(speeds, true);
     }
 }

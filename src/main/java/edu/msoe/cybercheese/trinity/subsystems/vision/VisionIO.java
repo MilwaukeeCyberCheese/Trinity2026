@@ -52,7 +52,7 @@ public interface VisionIO extends IO<VisionIO.VisionInputs> {
         public boolean shouldRejectPose() {
             if (this.tagCount() == 0) return true;
 
-            if (this.tagCount() == 1 && this.ambiguity() > VisionConstants.MAX_AMBIGUITY) return true;
+            if (this.tagCount() == 1) return true;
 
             if (Math.abs(this.pose().getZ()) > VisionConstants.MAX_Z_ERROR) return true;
 

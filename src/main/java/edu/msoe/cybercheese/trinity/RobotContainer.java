@@ -3,6 +3,7 @@ package edu.msoe.cybercheese.trinity;
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import com.reduxrobotics.canand.CanandEventLoop;
+import edu.msoe.cybercheese.trinity.auto.AutoRoutes;
 import edu.msoe.cybercheese.trinity.commands.DriveCommands;
 import edu.msoe.cybercheese.trinity.commands.ShooterCommands;
 import edu.msoe.cybercheese.trinity.subsystems.drive.*;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -59,6 +61,9 @@ public class RobotContainer {
     private static final double INTAKE_SIM_ROLLER_ACTIVE_THRESHOLD = 1.0;
     private static final double SHOOTING_SIM_LOADER_ACTIVE_THRESHOLD = 1.0;
     private static final double SHOOTING_SIM_HUB_HEIGHT_METERS = 1.6;
+    private static final double AUTO_SHOOT_DURATION = 4.0;
+    private static final double AUTO_FINAL_SHOOT_EXTRA_DURATION = 5.0;
+    private static final double AUTO_POST_SHOT_UNSTICK_DURATION = 0.5;
     private static final double[] INTAKE_POSITIONS = {
         INTAKE_STOWED_POSITION, INTAKE_MID_POSITION, INTAKE_DEPLOYED_POSITION
     };
@@ -144,18 +149,18 @@ public class RobotContainer {
         }
 
         this.autoFactory = this.setupAutoFactory();
-    
-        this.autoChooser.addOption(
-                "Backwards Then Shoot",
-                Commands.sequence(
-                        Commands.run(() -> this.drive.runVelocity(new ChassisSpeeds(1.0, 0.0, 0.0)), this.drive)
-                                .withTimeout(0.25),
-                        Commands.runOnce(this.drive::stop, this.drive),
-                        Commands.parallel(
-                                ShooterCommands.runDefaultedVelocity(
-                                        this.shooter, this.drive::getPose, 430, () -> false),
-                                LoaderCommands.shootWhenReady(this.loader, this.shooter, 80),
-                                HopperCommands.runVelocity(this.hopper, () -> -2700))));
+
+        boolean setDefaultAuto = !Constants.ENABLE_SYSID;
+        for (final var path : AutoRoutes.GRAPH.stopTerminatedPaths()) {
+            final var label = this.autoPathLabel(path);
+            final var command = this.buildAutoPathCommand(path);
+            if (setDefaultAuto) {
+                this.autoChooser.addDefaultOption(label, command);
+                setDefaultAuto = false;
+            } else {
+                this.autoChooser.addOption(label, command);
+            }
+        }
 
         for (final var trajName : Choreo.availableTrajectories()) {
             System.out.println("Loading Trajectory: " + trajName);
@@ -172,10 +177,10 @@ public class RobotContainer {
 
     private AutoFactory setupAutoFactory() {
         AutoFactory autoFactory = new AutoFactory(
-                this.drive::getPose, this.drive::setPose, this.drive::followTrajectory, true, this.drive);
+                this.drive::getPose, this::logAndSetAutoPose, this.drive::followTrajectory, true, this.drive);
 
-        autoFactory.bind("intakeRaise", IntakeCommands.runPosition(this.intake, INTAKE_STOWED_POSITION));
-        autoFactory.bind("intakeLower", IntakeCommands.runPosition(this.intake, INTAKE_DEPLOYED_POSITION));
+        autoFactory.bind("intakeRaise", this.autoSetIntakePositionIndex(0));
+        autoFactory.bind("intakeLower", this.autoSetIntakePositionIndex(INTAKE_POSITIONS.length - 1));
         autoFactory.bind("intakeOn", IntakeRollerCommands.runVelocity(this.intakeRoller, -270));
         autoFactory.bind("intakeOff", IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
 
@@ -193,6 +198,76 @@ public class RobotContainer {
                         HopperCommands.runVelocity(this.hopper, () -> -2700)));
         
         return autoFactory;
+    }
+
+    private Command autoSetIntakePositionIndex(final int index) {
+        return Commands.runOnce(() -> this.intakePositionIndex = index);
+    }
+
+    private void logAndSetAutoPose(final Pose2d pose) {
+        Logger.recordOutput("Auto/ResetPoseRequested", pose);
+        Logger.recordOutput("Auto/ResetPoseCurrentBefore", this.drive.getPose());
+        Logger.recordOutput("Auto/ResetPoseAllianceKnown", DriverStation.getAlliance().isPresent());
+        Logger.recordOutput("Auto/ResetPoseAllianceIsRed", MathExtras.isFlipped());
+        this.drive.setPose(pose);
+        Logger.recordOutput("Auto/ResetPoseCurrentAfter", this.drive.getPose());
+    }
+
+    public void logAllianceDiagnostics() {
+        Logger.recordOutput("Auto/AllianceKnown", DriverStation.getAlliance().isPresent());
+        Logger.recordOutput("Auto/AllianceIsRed", MathExtras.isFlipped());
+    }
+
+    private Command resolveAutoRouteAction(final String actionId) {
+        return this.resolveAutoRouteAction(actionId, false);
+    }
+
+    private Command resolveAutoRouteAction(final String actionId, final boolean isFinalAction) {
+        return switch (actionId) {
+            case AutoRoutes.AIM_AND_SHOOT -> this.autoAimAndShoot(isFinalAction
+                    ? AUTO_SHOOT_DURATION + AUTO_FINAL_SHOOT_EXTRA_DURATION
+                    : AUTO_SHOOT_DURATION);
+            default -> throw new IllegalArgumentException("Unknown auto route action: " + actionId);
+        };
+    }
+
+    private Command autoAimAndShoot() {
+        return this.autoAimAndShoot(AUTO_SHOOT_DURATION);
+    }
+
+    private Command autoAimAndShoot(final double durationSeconds) {
+        return Commands.sequence(
+                Commands.deadline(
+                        Commands.waitSeconds(durationSeconds),
+                        DriveCommands.joystickDriveAtAngle(
+                                this.drive,
+                                () -> 0.0,
+                                () -> 0.0,
+                                () -> 0.0,
+                                () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
+                                false),
+                        HopperCommands.shootWhenReady(this.hopper, this.shooter, () -> -2700),
+                        ShooterCommands.runDefaultedVelocity(this.shooter, this.drive::getPose, 430, () -> false),
+                        LoaderCommands.shootWhenReady(this.loader, this.shooter, 80)),
+                this.stopAutoShooting());
+    }
+
+    private Command stopAutoShooting() {
+        return Commands.runOnce(
+                () -> {
+                    this.shooter.setTargetLocked(false);
+                    this.shooter.runVelocity(0);
+                    this.loader.runVelocity(0);
+                    this.hopper.setVelocity(0);
+                },
+                this.shooter,
+                this.loader,
+                this.hopper);
+    }
+
+    private Command autoReverseHopperUnstick() {
+        return Commands.startEnd(() -> this.hopper.setVelocity(2700), () -> this.hopper.setVelocity(0), this.hopper)
+                .withTimeout(AUTO_POST_SHOT_UNSTICK_DURATION);
     }
 
     private void setupSysIdAutoChooser() {
@@ -311,6 +386,53 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return this.autoChooser.get();
+    }
+
+    private Command buildAutoPathCommand(final java.util.List<String> pathNodeIds) {
+        final var path = AutoRoutes.GRAPH.pathOf(pathNodeIds);
+        final var commands = new ArrayList<Command>();
+        boolean shouldResetOdometry = true;
+        boolean shouldRunPostShotUnstick = false;
+
+        for (int i = 0; i < path.size(); i++) {
+            final var node = path.get(i);
+            if (node.routeName() != null) {
+                if (shouldResetOdometry) {
+                    commands.add(this.autoFactory.resetOdometry(node.routeName()));
+                    shouldResetOdometry = false;
+                }
+                Command trajectoryCommand = this.autoFactory.trajectoryCmd(node.routeName());
+                if (shouldRunPostShotUnstick) {
+                    trajectoryCommand = Commands.parallel(trajectoryCommand, this.autoReverseHopperUnstick());
+                    shouldRunPostShotUnstick = false;
+                }
+                commands.add(trajectoryCommand);
+                if (node.postRouteActionId() != null) {
+                    final boolean isFinalAction = i == path.size() - 1;
+                    commands.add(this.resolveAutoRouteAction(node.postRouteActionId(), isFinalAction));
+                    if (AutoRoutes.AIM_AND_SHOOT.equals(node.postRouteActionId()) && !isFinalAction) {
+                        shouldRunPostShotUnstick = true;
+                    }
+                }
+            }
+
+            if (i + 1 >= path.size()) {
+                continue;
+            }
+
+            final var transition = AutoRoutes.GRAPH.transition(node.id(), path.get(i + 1).id());
+            if (transition.transitionActionId() != null) {
+                commands.add(this.resolveAutoRouteAction(transition.transitionActionId()));
+            }
+        }
+
+        return commands.isEmpty() ? Commands.none() : Commands.sequence(commands.toArray(Command[]::new));
+    }
+
+    private String autoPathLabel(final java.util.List<String> pathNodeIds) {
+        final var labels = new ArrayList<String>(pathNodeIds);
+        labels.add("Stop");
+        return String.join(" -> ", labels);
     }
 
     private VisionIO createVisionIo(final VisionConstants.CameraDefinition definition, final Drive drive) {
