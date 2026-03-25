@@ -242,9 +242,11 @@
     {"t":13.27951, "x":1.96108, "y":6.25064, "heading":-0.02083, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0]
  },
-"events":[
-   {"name":"intakeLower", "from":{"target":3, "targetTimestamp":3.63917, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"intakeLower"}}},
-   {"name":"intakeOn", "from":{"target":3, "targetTimestamp":3.63917, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"intakeOn"}}},
-   {"name":"intakeOff", "from":{"target":6, "targetTimestamp":9.89972, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"intakeOff"}}},
-   {"name":"intakeRaise", "from":{"target":6, "targetTimestamp":9.89972, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"intakeRaise"}}}]
+ "events":[
+   {"name":"Marker", "from":{"target":3, "targetTimestamp":3.63917, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"intakeLower"}},
+       {"type":"named", "data":{"name":"intakeOn"}}]}}},
+   {"name":"Marker", "from":{"target":6, "targetTimestamp":9.89972, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"intakeOff"}},
+       {"type":"named", "data":{"name":"intakeRaise"}}]}}}]
 }
