@@ -2,5 +2,6 @@
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive",
     "editor.tabSize": 4,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "python.defaultInterpreterPath": "/home/nerd/.cache/uv/environments-v2/autochooser-9d42bbdb72de8bf0/bin/python3"
 }

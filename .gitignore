@@ -27,3 +27,5 @@ simgui*.json
 bin/
 
 *.wpilog
+
+*__pycache__*

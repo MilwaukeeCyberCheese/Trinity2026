@@ -1,6 +1,7 @@
 package edu.msoe.cybercheese.trinity.subsystems.drive;
 
 import com.ctre.phoenix6.CANBus;
+import edu.msoe.cybercheese.trinity.Constants;
 import edu.msoe.cybercheese.trinity.util.FFConstants;
 import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.msoe.cybercheese.trinity.util.UnitTypes;
@@ -16,7 +17,8 @@ import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class DriveConstants {
 
-    public static final double MAX_SPEED = 4.8;
+    public static final double REAL_MAX_SPEED = 4.8;
+    public static final double SIM_MAX_SPEED = 5.4;
     public static final double ODOMETRY_FREQUENCY = 250.0; // Hz
     public static final double TRACK_WIDTH = Units.inchesToMeters(28);
     public static final double WHEEL_BASE = Units.inchesToMeters(28);
@@ -94,6 +96,10 @@ public class DriveConstants {
             UnitTypes.METERS.of(WHEEL_BASE),
             () -> new GyroSimulation(0.5, 0.02),
             () -> new SwerveModuleSimulation(SWERVE_MODULE_SIMULATION_CONFIG));
+
+    public static double maxSpeedMetersPerSecond() {
+        return Constants.CURRENT_MODE == Constants.Mode.SIM ? SIM_MAX_SPEED : REAL_MAX_SPEED;
+    }
 
     public record ModuleDefinition(int driveCanId, int turnCanId, Rotation2d zeroRotation) {}
 }

@@ -195,7 +195,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.MAX_SPEED);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.maxSpeedMetersPerSecond());
 
         // Log unoptimized setpoints
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -321,12 +321,12 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     /** Returns the maximum linear speed in meters per sec. */
     public double getMaxLinearSpeedMetersPerSec() {
-        return DriveConstants.MAX_SPEED;
+        return DriveConstants.maxSpeedMetersPerSecond();
     }
 
     /** Returns the maximum angular speed in radians per sec. */
     public double getMaxAngularSpeedRadPerSec() {
-        return DriveConstants.MAX_SPEED / DriveConstants.DRIVE_BASE_RADIUS;
+        return DriveConstants.maxSpeedMetersPerSecond() / DriveConstants.DRIVE_BASE_RADIUS;
     }
 
     public void followTrajectory(SwerveSample sample) {
