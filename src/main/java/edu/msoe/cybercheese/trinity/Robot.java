@@ -2,9 +2,14 @@ package edu.msoe.cybercheese.trinity;
 
 import com.revrobotics.util.StatusLogger;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.sql.Driver;
+import java.util.logging.Level;
+
 import org.jspecify.annotations.Nullable;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -26,6 +31,10 @@ public class Robot extends LoggedRobot {
     private @Nullable Command autonomousCommand;
 
     public Robot() {
+        DriverStation.silenceJoystickConnectionWarning(true);
+        // java.util.logging.Logger.getLogger("edu.wpi.first.wpilibj.Notifier").setLevel(Level.SEVERE);
+        // java.util.logging.Logger.getLogger("edu.wpi.first.wpilibj.RobotBase").setLevel(Level.SEVERE);
+
         Logger.recordMetadata("BuildTimestamp", BuildConstants.BUILD_TIME.toString());
         Logger.recordMetadata("ImplementationTitle", BuildConstants.TITLE);
         Logger.recordMetadata("ImplementationVersion", BuildConstants.VERSION);

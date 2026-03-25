@@ -255,10 +255,6 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Marker", "from":{"target":3, "targetTimestamp":3.94925, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"intakeLower"}},
-       {"type":"named", "data":{"name":"intakeOn"}}]}}},
-   {"name":"Marker", "from":{"target":6, "targetTimestamp":9.95992, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"intakeOff"}},
-       {"type":"named", "data":{"name":"intakeRaise"}}]}}}]
+   {"name":"intakeDeployOn", "from":{"target":3, "targetTimestamp":3.94925, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"intakeDeployOn"}}},
+   {"name":"intakeStowOff", "from":{"target":6, "targetTimestamp":9.95992, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"intakeStowOff"}}}]
 }

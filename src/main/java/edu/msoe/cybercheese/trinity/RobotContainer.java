@@ -2,6 +2,8 @@ package edu.msoe.cybercheese.trinity;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.msoe.cybercheese.trinity.auto.AutoRoutes;
 import edu.msoe.cybercheese.trinity.commands.DriveCommands;
@@ -41,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
@@ -164,10 +167,7 @@ public class RobotContainer {
 
         for (final var trajName : Choreo.availableTrajectories()) {
             System.out.println("Loading Trajectory: " + trajName);
-            this.autoChooser.addOption(
-                    trajName,
-                    Commands.sequence(
-                            this.autoFactory.resetOdometry(trajName), this.autoFactory.trajectoryCmd(trajName)));
+            this.autoChooser.addOption(trajName, this.buildSingleTrajectoryAutoCommand(trajName));
         }
 
         System.out.println("Binding controller...");
@@ -179,10 +179,19 @@ public class RobotContainer {
         AutoFactory autoFactory = new AutoFactory(
                 this.drive::getPose, this::logAndSetAutoPose, this.drive::followTrajectory, true, this.drive);
 
-        autoFactory.bind("intakeRaise", this.autoSetIntakePositionIndex(0));
-        autoFactory.bind("intakeLower", this.autoSetIntakePositionIndex(INTAKE_POSITIONS.length - 1));
-        autoFactory.bind("intakeOn", IntakeRollerCommands.runVelocity(this.intakeRoller, -270));
-        autoFactory.bind("intakeOff", IntakeRollerCommands.runVelocity(this.intakeRoller, 0));
+        autoFactory.bind(
+                "intakeDeployOn",
+                this.dbgLoggedCommand(
+                        "intakeDeployOn",
+                        Commands.parallel(
+                                this.autoSetIntakePositionIndex(INTAKE_POSITIONS.length - 1),
+                                IntakeRollerCommands.runVelocity(this.intakeRoller, -270))));
+        autoFactory.bind(
+                "intakeStowOff",
+                this.dbgLoggedCommand(
+                        "intakeStowOff",
+                        Commands.parallel(
+                                this.autoSetIntakePositionIndex(0), IntakeRollerCommands.runVelocity(this.intakeRoller, 0))));
 
         autoFactory.bind(
                 "shootNormal",
@@ -206,6 +215,15 @@ public class RobotContainer {
             Logger.recordOutput("Auto/Intake/RequestedIndex", this.intakePositionIndex);
             Logger.recordOutput("Auto/Intake/RequestedPosition", INTAKE_POSITIONS[this.intakePositionIndex]);
         });
+    }
+
+    private Command dbgLoggedCommand(final String markerName, final Command command) {
+        return command.beforeStarting(() -> {
+                    System.out.println("START " + markerName);
+                })
+                .finallyDo(interrupted -> {
+                    System.out.println("END " + markerName + " interrupted=" + interrupted);
+                });
     }
 
     private void logAndSetAutoPose(final Pose2d pose) {
@@ -397,46 +415,73 @@ public class RobotContainer {
         return this.autoChooser.get();
     }
 
+    private Command buildSingleTrajectoryAutoCommand(final String trajectoryName) {
+        final AutoRoutine routine = this.autoFactory.newRoutine("Trajectory_" + trajectoryName);
+        final AutoTrajectory trajectory = routine.trajectory(trajectoryName);
+        final AtomicBoolean finished = new AtomicBoolean(false);
+
+        routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
+        trajectory.done().onTrue(Commands.runOnce(() -> finished.set(true)));
+
+        return routine.cmd(finished::get);
+    }
+
     private Command buildAutoPathCommand(final java.util.List<String> pathNodeIds) {
         final var path = AutoRoutes.GRAPH.pathOf(pathNodeIds);
-        final var commands = new ArrayList<Command>();
-        boolean shouldResetOdometry = true;
-        boolean shouldRunPostShotUnstick = false;
+        final AutoRoutine routine = this.autoFactory.newRoutine(
+                "Path_" + String.join("_", pathNodeIds).replace(' ', '_'));
+        final ArrayList<RouteStep> routeSteps = new ArrayList<>();
+        final AtomicBoolean finished = new AtomicBoolean(false);
 
         for (int i = 0; i < path.size(); i++) {
             final var node = path.get(i);
             if (node.routeName() != null) {
-                if (shouldResetOdometry) {
-                    commands.add(this.autoFactory.resetOdometry(node.routeName()));
-                    shouldResetOdometry = false;
-                }
-                Command trajectoryCommand = this.autoFactory.trajectoryCmd(node.routeName());
-                if (shouldRunPostShotUnstick) {
-                    trajectoryCommand = Commands.parallel(trajectoryCommand, this.autoReverseHopperUnstick());
-                    shouldRunPostShotUnstick = false;
-                }
-                commands.add(trajectoryCommand);
-                if (node.postRouteActionId() != null) {
-                    final boolean isFinalAction = i == path.size() - 1;
-                    commands.add(this.resolveAutoRouteAction(node.postRouteActionId(), isFinalAction));
-                    if (AutoRoutes.AIM_AND_SHOOT.equals(node.postRouteActionId()) && !isFinalAction) {
-                        shouldRunPostShotUnstick = true;
-                    }
-                }
-            }
-
-            if (i + 1 >= path.size()) {
-                continue;
-            }
-
-            final var transition = AutoRoutes.GRAPH.transition(node.id(), path.get(i + 1).id());
-            if (transition.transitionActionId() != null) {
-                commands.add(this.resolveAutoRouteAction(transition.transitionActionId()));
+                routeSteps.add(new RouteStep(i, node.postRouteActionId(), routine.trajectory(node.routeName())));
             }
         }
 
-        return commands.isEmpty() ? Commands.none() : Commands.sequence(commands.toArray(Command[]::new));
+        if (routeSteps.isEmpty()) {
+            return Commands.none();
+        }
+
+        final RouteStep firstStep = routeSteps.getFirst();
+        routine.active().onTrue(Commands.sequence(firstStep.trajectory().resetOdometry(), firstStep.trajectory().cmd()));
+
+        for (int routeStepIndex = 0; routeStepIndex < routeSteps.size(); routeStepIndex++) {
+            final RouteStep currentStep = routeSteps.get(routeStepIndex);
+            final boolean hasNextRoute = routeStepIndex + 1 < routeSteps.size();
+            final boolean isFinalRoute = !hasNextRoute;
+            Command continuation = Commands.none();
+
+            if (currentStep.postRouteActionId() != null) {
+                continuation = continuation.andThen(this.resolveAutoRouteAction(currentStep.postRouteActionId(), isFinalRoute));
+            }
+
+            if (currentStep.pathIndex() + 1 < path.size()) {
+                final var transition = AutoRoutes.GRAPH.transition(
+                        path.get(currentStep.pathIndex()).id(), path.get(currentStep.pathIndex() + 1).id());
+                if (transition.transitionActionId() != null) {
+                    continuation = continuation.andThen(this.resolveAutoRouteAction(transition.transitionActionId()));
+                }
+            }
+
+            if (hasNextRoute) {
+                Command nextTrajectory = routeSteps.get(routeStepIndex + 1).trajectory().cmd();
+                if (AutoRoutes.AIM_AND_SHOOT.equals(currentStep.postRouteActionId())) {
+                    nextTrajectory = Commands.parallel(nextTrajectory, this.autoReverseHopperUnstick());
+                }
+                continuation = continuation.andThen(nextTrajectory);
+            } else {
+                continuation = continuation.andThen(Commands.runOnce(() -> finished.set(true)));
+            }
+
+            currentStep.trajectory().done().onTrue(continuation);
+        }
+
+        return routine.cmd(finished::get);
     }
+
+    private record RouteStep(int pathIndex, @Nullable String postRouteActionId, AutoTrajectory trajectory) {}
 
     private String autoPathLabel(final java.util.List<String> pathNodeIds) {
         final var labels = new ArrayList<String>(pathNodeIds);
