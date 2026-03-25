@@ -19,6 +19,7 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         this.lift.updateInputs(this.inputs);
         Logger.processInputs("Intake", this.inputs);
+        Logger.recordOutput("Intake/LowerPositionSetpoint", this.lowerPositionSetpoint);
 
         if (DriverStation.isDisabled()) {
             this.lift.runOpenLoop(0);

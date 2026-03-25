@@ -201,7 +201,11 @@ public class RobotContainer {
     }
 
     private Command autoSetIntakePositionIndex(final int index) {
-        return Commands.runOnce(() -> this.intakePositionIndex = index);
+        return Commands.runOnce(() -> {
+            this.intakePositionIndex = index;
+            Logger.recordOutput("Auto/Intake/RequestedIndex", this.intakePositionIndex);
+            Logger.recordOutput("Auto/Intake/RequestedPosition", INTAKE_POSITIONS[this.intakePositionIndex]);
+        });
     }
 
     private void logAndSetAutoPose(final Pose2d pose) {
@@ -327,7 +331,12 @@ public class RobotContainer {
         ));
 
         this.intake.setDefaultCommand(Commands.run(
-                () -> this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]), this.intake));
+                () -> {
+                    Logger.recordOutput("Intake/CommandedIndex", this.intakePositionIndex);
+                    Logger.recordOutput("Intake/CommandedPosition", INTAKE_POSITIONS[this.intakePositionIndex]);
+                    this.intake.setLowerPosition(INTAKE_POSITIONS[this.intakePositionIndex]);
+                },
+                this.intake));
         // stow
         this.controller.povUp().onTrue(Commands.runOnce(() -> this.intakePositionIndex = 0));
         // lower
