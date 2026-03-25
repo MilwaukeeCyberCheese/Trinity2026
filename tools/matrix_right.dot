@@ -1,0 +1,142 @@
+digraph G {
+
+      node [
+          fontname="Helvetica",
+          fontsize=12,
+          style="filled,rounded",
+          color="#3b3b3b",
+          penwidth=1.4,
+          margin="0.16,0.10"
+      ]
+
+      edge [
+          fontname="Helvetica",
+          fontsize=10,
+          color="#6b7280",
+          penwidth=1.2,
+          arrowsize=0.8,
+          labeldistance=1.8
+      ]
+
+      "Right Start" [
+          shape=box,
+          fillcolor="#b8d8ba",
+          color="#40634a",
+          fontcolor="#1f2a21",
+          penwidth=2
+      ]
+
+      right_sweep_first [
+          shape=diamond,
+          label="Sweep neutral zone\nwithout shooting first?",
+          fillcolor="#f6d98c",
+          color="#9a6b00",
+          fontcolor="#3b2a00"
+      ]
+
+      right_hub_space [
+          shape=diamond,
+          label="What space around\nthe Hub is available?",
+          fillcolor="#f6d98c",
+          color="#9a6b00",
+          fontcolor="#3b2a00"
+      ]
+
+      right_sweep_neutral [
+          shape=diamond,
+          label="Sweep neutral\nzone?",
+          fillcolor="#f6d98c",
+          color="#9a6b00",
+          fontcolor="#3b2a00"
+      ]
+
+      right_push_fuel [
+          shape=diamond,
+          label="Need to push Fuel\nto human players?",
+          fillcolor="#f6d98c",
+          color="#9a6b00",
+          fontcolor="#3b2a00"
+      ]
+
+      "SimpleRightSweep" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "RightShootCenter" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "RightShootRight" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "SweepAroundLeft" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "SweepAroundRight" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "LeftInShoot" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "RightInShoot" [
+          shape=box,
+          fillcolor="#bcd4f6",
+          color="#3c5f91",
+          fontcolor="#16263d"
+      ]
+
+      "Stop" [
+          shape=box,
+          style="filled,rounded",
+          fillcolor="#efb0b0",
+          color="#9b3d3d",
+          fontcolor="#4a1515"
+      ]
+
+      "Right Start" -> right_sweep_first
+
+      right_sweep_first -> "SimpleRightSweep" [label="Yes"]
+      "SimpleRightSweep" -> "Stop"
+
+      right_sweep_first -> right_hub_space [label="No"]
+
+      right_hub_space -> "RightShootCenter" [label="Center"]
+      right_hub_space -> "RightShootRight" [label="Right"]
+
+      "RightShootCenter" -> right_sweep_neutral
+      right_sweep_neutral -> "Stop" [label="No"]
+      right_sweep_neutral -> right_push_fuel [label="Yes"]
+
+      right_push_fuel -> "SweepAroundRight" [label="Yes"]
+      right_push_fuel -> "SweepAroundLeft" [label="No"]
+
+      "SweepAroundLeft" -> "Stop" [label="Stop"]
+      "SweepAroundLeft" -> "RightInShoot" [label="Continue"]
+      "SweepAroundRight" -> "Stop" [label="Stop"]
+      "SweepAroundRight" -> "LeftInShoot" [label="Continue"]
+      "LeftInShoot" -> "Stop"
+      "RightInShoot" -> "Stop"
+      "RightShootRight" -> "Stop"
+  }
