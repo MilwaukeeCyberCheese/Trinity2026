@@ -444,7 +444,7 @@ public class RobotContainer {
             return Commands.none();
         }
 
-        final RouteStep firstStep = routeSteps.getFirst();
+        final RouteStep firstStep = routeSteps.get(0);
         routine.active().onTrue(Commands.sequence(firstStep.trajectory().resetOdometry(), firstStep.trajectory().cmd()));
 
         for (int routeStepIndex = 0; routeStepIndex < routeSteps.size(); routeStepIndex++) {
