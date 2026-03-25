@@ -13,32 +13,32 @@ import argparse
 import ntcore
 import matplotlib.pyplot as plt
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-    QLabel, QPushButton, QFrame, QSizePolicy
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QPushButton, QFrame, QSizePolicy, QLineEdit
 )
 from PyQt6.QtCore import QTimer, QCoreApplication, Qt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
 # --- Auto Route Graph Definition ---
-ROOTS =["Left Start", "Center Start", "Right Start"]
+ROOTS = ["Left Start", "Center Start", "Right Start"]
 
-EDGES =[
-    ("Center Start", "CenterShootCenter"),
-    ("CenterShootCenter", "SweepAroundLeft"),
-    ("CenterShootCenter", "SweepAroundRight"),
-    ("SweepAroundRight", "LeftInShoot"),
-    ("SweepAroundLeft", "RightInShoot"),
+EDGES = [
     ("Left Start", "LeftShootCenter"),
+    ("Left Start", "LeftShootLeft"),
+    ("Left Start", "SimpleLeftSweep"),
+    ("Center Start", "CenterShootCenter"),
+    ("Right Start", "RightShootCenter"),
+    ("Right Start", "RightShootRight"),
+    ("Right Start", "SimpleRightSweep"),
     ("LeftShootCenter", "SweepAroundLeft"),
     ("LeftShootCenter", "SweepAroundRight"),
-    ("Right Start", "RightShootCenter"),
+    ("CenterShootCenter", "SweepAroundLeft"),
+    ("CenterShootCenter", "SweepAroundRight"),
     ("RightShootCenter", "SweepAroundLeft"),
     ("RightShootCenter", "SweepAroundRight"),
-    ("Left Start", "SimpleLeftSweep"),
+    ("SweepAroundRight", "LeftInShoot"),
+    ("SweepAroundLeft", "RightInShoot"),
     ("SimpleLeftSweep", "RightInShoot"),
-    ("Left Start", "LeftShootLeft"),
-    ("Right Start", "RightShootRight"),
-    ("Right Start", "SimpleRightSweep")
 ]
 
 POSITIONS = {
@@ -56,15 +56,82 @@ POSITIONS = {
 
     "SweepAroundLeft": (4, 4),
     "SweepAroundRight": (4, 2),
-
-    "LeftInShoot": (6, 5),
-    "RightInShoot": (6, 1),
+    "RightInShoot": (6, 4),
+    "LeftInShoot": (6, 2),
 }
 
-# Build adjacency list
-ADJACENCY = {node:[] for node in POSITIONS}
-for u, v in EDGES:
-    ADJACENCY[u].append(v)
+NODE_LABELS = {
+    "Left Start": "Left Start",
+    "Center Start": "Center Start",
+    "Right Start": "Right Start",
+    "SimpleLeftSweep": "Simple Left Sweep",
+    "LeftShootCenter": "Left Shoot Center",
+    "LeftShootLeft": "Left Shoot Left",
+    "CenterShootCenter": "Center Shoot Center",
+    "RightShootCenter": "Right Shoot Center",
+    "SimpleRightSweep": "Simple Right Sweep",
+    "RightShootRight": "Right Shoot Right",
+    "SweepAroundLeft": "Sweep Around Left",
+    "SweepAroundRight": "Sweep Around Right",
+    "LeftInShoot": "Left In Shoot",
+    "RightInShoot": "Right In Shoot",
+}
+
+NODE_CODES = {
+    "Left Start": "LS",
+    "Center Start": "CS",
+    "Right Start": "RS",
+    "SimpleLeftSweep": "SL",
+    "LeftShootCenter": "LC",
+    "LeftShootLeft": "LL",
+    "CenterShootCenter": "CC",
+    "RightShootCenter": "RC",
+    "SimpleRightSweep": "SR",
+    "RightShootRight": "RR",
+    "SweepAroundLeft": "WL",
+    "SweepAroundRight": "WR",
+    "LeftInShoot": "LI",
+    "RightInShoot": "RI",
+}
+
+CODE_TO_NODE = {code: node for node, code in NODE_CODES.items()}
+ADJACENCY = {node: [] for node in POSITIONS}
+for start_node, end_node in EDGES:
+    ADJACENCY[start_node].append(end_node)
+
+
+def format_route(route):
+    return " -> ".join(NODE_LABELS.get(node, node) for node in route)
+
+
+def format_route_code(route):
+    if not route:
+        return "not selected"
+    return "-".join(NODE_CODES[node] for node in route)
+
+
+def parse_route_code(route_code):
+    normalized = route_code.strip().upper().replace(" ", "")
+    if not normalized:
+        raise ValueError("Enter a route code.")
+
+    parts = [part for part in normalized.split("-") if part]
+    if not parts:
+        raise ValueError("Enter a route code.")
+
+    try:
+        path = [CODE_TO_NODE[part] for part in parts]
+    except KeyError as exc:
+        raise ValueError(f"Unknown route code segment: {exc.args[0]}") from exc
+
+    if path[0] not in ROOTS:
+        raise ValueError("Route code must start with a start position.")
+
+    for current, next_node in zip(path, path[1:]):
+        if next_node not in ADJACENCY.get(current, []):
+            raise ValueError(f"Invalid transition in route code: {NODE_CODES[current]}-{NODE_CODES[next_node]}")
+
+    return path
 
 # --- Qt Style Sheet (Dark Theme + CyberCheese Colors) ---
 STYLESHEET = """
@@ -122,6 +189,14 @@ QLabel#Status {
 QLabel#Question {
     font-size: 16px;
 }
+QLineEdit {
+    background-color: #444444;
+    color: white;
+    border: 1px solid #555555;
+    border-radius: 5px;
+    padding: 8px;
+    font-family: Arial, sans-serif;
+}
 """
 
 class AutoSelectorGUI(QWidget):
@@ -131,10 +206,10 @@ class AutoSelectorGUI(QWidget):
         self.setObjectName("MainGUI")
         self.setWindowTitle("Trinity AutoChooser")
         self.resize(1000, 650)
-        
-        self.current_path =[]
-        self.path_lines =[]
-        self.path_scatters =[]
+
+        self.current_path = []
+        self.path_lines = []
+        self.path_scatters = []
 
         # --- NetworkTables Setup ---
         self.nt_inst = ntcore.NetworkTableInstance.getDefault()
@@ -177,7 +252,7 @@ class AutoSelectorGUI(QWidget):
         controls_layout.addWidget(self.status_label)
 
         # Title
-        title = QLabel("Auto Route Builder")
+        title = QLabel("Trinity AutoChooser")
         title.setObjectName("Title")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         controls_layout.addWidget(title)
@@ -187,6 +262,25 @@ class AutoSelectorGUI(QWidget):
         self.question_label.setObjectName("Question")
         self.question_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         controls_layout.addWidget(self.question_label)
+
+        self.preview_label = QLabel("Route: not selected")
+        self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        controls_layout.addWidget(self.preview_label)
+
+        self.code_label = QLabel("Code: not selected")
+        self.code_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        controls_layout.addWidget(self.code_label)
+
+        restore_row = QHBoxLayout()
+        self.code_input = QLineEdit()
+        self.code_input.setPlaceholderText("Restore route code, e.g. LS-LC-WR-LI")
+        self.code_input.returnPressed.connect(self.restore_path_from_code)
+        restore_row.addWidget(self.code_input)
+
+        self.restore_btn = QPushButton("Restore Code")
+        self.restore_btn.clicked.connect(self.restore_path_from_code)
+        restore_row.addWidget(self.restore_btn)
+        controls_layout.addLayout(restore_row)
 
         # Dynamic Buttons Layout Container
         self.buttons_container = QWidget()
@@ -213,7 +307,7 @@ class AutoSelectorGUI(QWidget):
         main_layout.addWidget(self.controls_frame, 1)
         main_layout.addWidget(self.plot_frame, 3)
 
-        self.ask_next()
+        self.render_current_step()
 
     def _setup_matplotlib(self, parent_layout):
         self.fig, self.ax = plt.subplots(figsize=(7, 6))
@@ -229,7 +323,15 @@ class AutoSelectorGUI(QWidget):
 
         for node, (x, y) in POSITIONS.items():
             self.ax.scatter(x, y, color='gray', s=80, alpha=0.5, zorder=2)
-            self.ax.text(x, y + 0.3, node, color='white', ha='center', fontsize=9, alpha=0.7)
+            self.ax.text(
+                x,
+                y + 0.3,
+                NODE_LABELS.get(node, node),
+                color='white',
+                ha='center',
+                fontsize=9,
+                alpha=0.7
+            )
 
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -250,49 +352,68 @@ class AutoSelectorGUI(QWidget):
             if child.widget():
                 child.widget().deleteLater()
 
-    def ask_next(self):
+    def render_current_step(self):
         self._clear_buttons()
+        self.preview_label.setText(
+            f"Route: {format_route(self.current_path) if self.current_path else 'not selected'}"
+        )
+        self.code_label.setText(f"Code: {format_route_code(self.current_path)}")
+        self.code_input.setText("" if not self.current_path else format_route_code(self.current_path))
+
+        if self.current_path:
+            send_btn = QPushButton("Send to Robot")
+            send_btn.setObjectName("ActionBtn")
+            send_btn.clicked.connect(self.finish_path)
+            self.buttons_layout.addWidget(send_btn)
 
         if not self.current_path:
             self.question_label.setText("Select a starting position:")
-            for root in ROOTS:
-                btn = QPushButton(root)
-                btn.setObjectName("ActionBtn")
-                btn.clicked.connect(lambda checked, r=root: self.choose_node(r))
-                self.buttons_layout.addWidget(btn)
+            next_nodes = ROOTS
         else:
-            last_node = self.current_path[-1]
-            options = ADJACENCY.get(last_node,[])
-            self.question_label.setText(f"Current: {last_node}\nChoose next step:")
+            current_node = self.current_path[-1]
+            next_nodes = ADJACENCY.get(current_node, [])
+            if next_nodes:
+                self.question_label.setText(
+                    f"Current node: {NODE_LABELS[current_node]}\nChoose the next route or send to stop here."
+                )
+            else:
+                self.question_label.setText(
+                    f"Current node: {NODE_LABELS[current_node]}\nNo further routes are available."
+                )
 
-            for opt in options:
-                btn = QPushButton(opt)
-                btn.setObjectName("ActionBtn")
-                btn.clicked.connect(lambda checked, o=opt: self.choose_node(o))
-                self.buttons_layout.addWidget(btn)
-
-            stop_btn = QPushButton("Stop Here")
-            stop_btn.setObjectName("StopBtn")
-            stop_btn.clicked.connect(self.finish_path)
-            self.buttons_layout.addWidget(stop_btn)
+        for node in next_nodes:
+            btn = QPushButton(NODE_LABELS.get(node, node))
+            btn.setObjectName("ActionBtn")
+            btn.clicked.connect(lambda checked, next_node=node: self.choose_node(next_node))
+            self.buttons_layout.addWidget(btn)
 
     def choose_node(self, node):
         self.buttons_container.setEnabled(False)
         self.restart_btn.setEnabled(False)
-
-        if self.current_path:
-            self.animate_step(self.current_path[-1], node)
-        
-        x, y = POSITIONS[node]
-        scat = self.ax.scatter(x, y, color='#ffcc00', s=180, zorder=3, edgecolors='white', linewidths=2)
-        self.path_scatters.append(scat)
-        self.canvas.draw()
-
-        self.current_path.append(node)
-        
+        self.restore_btn.setEnabled(False)
+        self._append_route_node(node)
         self.buttons_container.setEnabled(True)
         self.restart_btn.setEnabled(True)
-        self.ask_next()
+        self.restore_btn.setEnabled(True)
+        self.render_current_step()
+
+    def _append_route_node(self, node):
+        if self.current_path:
+            self.animate_step(self.current_path[-1], node)
+
+        x, y = POSITIONS[node]
+        scat = self.ax.scatter(
+            x,
+            y,
+            color='#ffcc00',
+            s=180,
+            zorder=3,
+            edgecolors='white',
+            linewidths=2
+        )
+        self.path_scatters.append(scat)
+        self.canvas.draw()
+        self.current_path.append(node)
 
     def animate_step(self, start_node, end_node):
         x1, y1 = POSITIONS[start_node]
@@ -314,17 +435,22 @@ class AutoSelectorGUI(QWidget):
         # Format explicitly identical to Java backend
         final_list = self.current_path + ["Stop"]
         auto_label = " -> ".join(final_list)
+        display_label = f"{format_route(self.current_path)} -> Stop"
         
         # Publish to NT4
         self.selected_pub.set(auto_label)
         print(f"[NT] Published to 'SmartDashboard/Auto Choices/selected': {auto_label}")
         
-        self.question_label.setText(f"Sent to Robot!\n\n{auto_label}")
+        self.question_label.setText(f"Sent to Robot!\n\n{display_label}")
         self._clear_buttons()
+        send_again_btn = QPushButton("Send Again")
+        send_again_btn.setObjectName("ActionBtn")
+        send_again_btn.clicked.connect(self.finish_path)
+        self.buttons_layout.addWidget(send_again_btn)
 
     def restart_path(self):
         self.current_path.clear()
-        
+
         for line in self.path_lines:
             line.remove()
         for scat in self.path_scatters:
@@ -333,8 +459,27 @@ class AutoSelectorGUI(QWidget):
         self.path_lines.clear()
         self.path_scatters.clear()
         self.canvas.draw()
-        
-        self.ask_next()
+
+        self.render_current_step()
+
+    def restore_path_from_code(self):
+        try:
+            restored_path = parse_route_code(self.code_input.text())
+        except ValueError as exc:
+            self.question_label.setText(f"Could not restore route.\n\n{exc}")
+            return
+
+        self.restart_path()
+        self.buttons_container.setEnabled(False)
+        self.restart_btn.setEnabled(False)
+        self.restore_btn.setEnabled(False)
+        for node in restored_path:
+            self._append_route_node(node)
+        self.buttons_container.setEnabled(True)
+        self.restart_btn.setEnabled(True)
+        self.restore_btn.setEnabled(True)
+        self.render_current_step()
+        self.question_label.setText("Route restored from code.\nSend to Robot or continue extending it.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CyberCheese Auto Selector GUI")
