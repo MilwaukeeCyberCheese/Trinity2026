@@ -12,5 +12,6 @@ public class IntakeConstants {
             .encoderGearing(1.)
             .pid(new PIDConstants(0.3, 0, 0))
             .currentLimit(37)
+            .inverted(true)
             .build();
 }
