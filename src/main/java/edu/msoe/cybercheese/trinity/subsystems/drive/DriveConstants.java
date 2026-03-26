@@ -65,7 +65,7 @@ public class DriveConstants {
             .gearing((45.0 * 22.0) / (14.0 * 15.0))
             .pid(new PIDConstants(0.0105, 0, 0.0001))
             .feedForward(new FFConstants(0, 0.25))
-            .currentLimit(35)
+            .currentLimit(37)
             .build();
 
     public static final MotorConfig TURN_MOTOR_CONFIG = MotorConfig.builder(
