@@ -8,26 +8,27 @@ import edu.wpi.first.math.util.Units;
 import java.util.List;
 
 public class VisionConstants {
-    public record CameraDefinition(String name, Transform3d transform, double stdDevFactor) {}
+    public record CameraDefinition(String name, Transform3d transform, double stdDevFactor) {
+    }
 
-    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT =
-            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT = AprilTagFieldLayout
+            .loadField(AprilTagFields.kDefaultField);
 
     public static final List<CameraDefinition> CAMERA_DEFINITIONS = List.of(
             new CameraDefinition(
                     "FrontThrifty",
                     new Transform3d(
-                            Units.inchesToMeters(10.0),
-                            Units.inchesToMeters(-11.0),
-                            Units.inchesToMeters(17.0),
+                            Units.inchesToMeters(9.0),
+                            Units.inchesToMeters(-10.0),
+                            Units.inchesToMeters(17.5),
                             new Rotation3d()),
                     1.0),
             new CameraDefinition(
                     "BackThrifty",
                     new Transform3d(
-                            Units.inchesToMeters(-11.5),
-                            Units.inchesToMeters(-5.5),
-                            Units.inchesToMeters(16.0),
+                            Units.inchesToMeters(-13.0),
+                            Units.inchesToMeters(-5.0),
+                            Units.inchesToMeters(17.0),
                             new Rotation3d(0.0, 0.0, Math.PI)),
                     1.0));
 
