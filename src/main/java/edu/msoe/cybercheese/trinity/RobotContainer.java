@@ -58,7 +58,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
 
     private static final double INTAKE_STOWED_POSITION = 0;
-    private static final double INTAKE_DEPLOYED_POSITION = -2.314;
+    private static final double INTAKE_DEPLOYED_POSITION = 4.775;
     private static final double INTAKE_MID_POSITION = (INTAKE_STOWED_POSITION + INTAKE_DEPLOYED_POSITION) / 2.0;
     private static final double INTAKE_SIM_EXTENSION_METERS = 0.35;
     private static final double INTAKE_SIM_ROLLER_ACTIVE_THRESHOLD = 1.0;
