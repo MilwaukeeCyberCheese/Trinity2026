@@ -87,17 +87,17 @@ def run_nt(nt: ntcore.NetworkTableInstance, neopixel: CCNeoPixel):
         "BackThrifty": HeartbeatSubscriber(),
     }
 
-    fms_info = nt.getTable("FMSInfo")
-    pv = nt.getTable("photonvision")
-    akit = nt.getTable("AdvantageKit")
-    ds = nt.getTable("AdvantageKit/DriverStation")
-
     while True:
         sleep(0.1)
 
         if not nt.isConnected():
             neopixel.set_all(C_NOCONN)
             continue
+
+        fms_info = nt.getTable("FMSInfo")
+        pv = nt.getTable("photonvision")
+        akit = nt.getTable("AdvantageKit")
+        ds = nt.getTable("AdvantageKit/DriverStation")
 
         estop = ds.getBoolean("EmergencyStop", False)
 
