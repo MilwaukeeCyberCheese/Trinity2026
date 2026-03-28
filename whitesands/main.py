@@ -4,12 +4,11 @@ from neopixel import NeoPixel
 from typing import Optional
 from time import sleep
 import argparse
-from os.path import basename
-import ntcore
+from networktables import NetworkTables
 from time import time
 import board
 
-C_NOCONN = 0
+C_NOCONN = 0xFFFFFF
 # orange
 C_ESTOP = 0xF4A524
 
@@ -81,27 +80,30 @@ class HeartbeatSubscriber:
         return new_time > self.time + 0.5
 
 
-def run_nt(nt: ntcore.NetworkTableInstance, neopixel: CCNeoPixel):
+def run_nt(neopixel: CCNeoPixel):
     cameras = {
         "FrontThrifty": HeartbeatSubscriber(),
         "BackThrifty": HeartbeatSubscriber(),
     }
 
+    fms_info = NetworkTables.getTable("FMSInfo")
+    pv = NetworkTables.getTable("photonvision")
+    akit = NetworkTables.getTable("AdvantageKit")
+    ds = NetworkTables.getTable("AdvantageKit/DriverStation")
+    i = 0
+
     while True:
         sleep(0.1)
 
-        if not nt.isConnected():
+        if not NetworkTables.isConnected():
+            print("noconn!")
             neopixel.set_all(C_NOCONN)
             continue
-
-        fms_info = nt.getTable("FMSInfo")
-        pv = nt.getTable("photonvision")
-        akit = nt.getTable("AdvantageKit")
-        ds = nt.getTable("AdvantageKit/DriverStation")
 
         estop = ds.getBoolean("EmergencyStop", False)
 
         if estop:
+            print("estop!")
             neopixel.set_all(C_ESTOP)
             continue
 
@@ -128,35 +130,23 @@ def run_nt(nt: ntcore.NetworkTableInstance, neopixel: CCNeoPixel):
         if not can_connected:
             colors.append(C_CAN)
 
+        if i % 10 == 0:
+            print(colors)
+
         neopixel.set_cycle(colors)
+        i += 1
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-p",
-        "--protocol",
-        type=int,
-        choices=[3, 4],
-        help="NT Protocol to use",
-        default=4,
-    )
     parser.add_argument("ip", type=str, help="IP address to connect to")
     args = parser.parse_args()
 
-    inst = ntcore.NetworkTableInstance.getDefault()
-
-    identity = basename(__file__)
-    if args.protocol == 3:
-        inst.startClient3(identity)
-    else:
-        inst.startClient4(identity)
-
-    inst.setServer(args.ip)
+    NetworkTables.initialize(server=args.ip)
 
     np = CCNeoPixel(board.D18, 64)
 
-    run_nt(inst, np)
+    run_nt(np)
 
 
 if __name__ == "__main__":
