@@ -366,10 +366,10 @@ public class RobotContainer {
                     this.intakePositionIndex = 0;
                 },
                 () -> this.intakePositionIndex = this.savedIntakePositionIndex));
-        this.controller
-                .b()
-                .onTrue(Commands.runOnce(
-                        () -> this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
+        // this.controller
+        //         .b()
+        //         .onTrue(Commands.runOnce(
+        //                 () -> this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(
                 this.intakeRoller,
