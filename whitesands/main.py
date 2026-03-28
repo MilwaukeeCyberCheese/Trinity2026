@@ -43,10 +43,14 @@ class CCNeoPixel:
         self.inner = NeoPixel(pin, count, auto_write=False, pixel_order=neopixel.RGB)
 
     def set_all(self, color: int):
+        print("zv: " + hex(color))
+
         self.inner.fill(color)
         self.inner.show()
 
     def set_cycle(self, colors: list[int]):
+        print("cy: " + ", ".join([hex(c) for c in colors]))
+
         it = itertools.cycle(colors)
 
         for i in range(self.inner.n):
@@ -96,14 +100,12 @@ def run_nt(neopixel: CCNeoPixel):
         sleep(0.1)
 
         if not NetworkTables.isConnected():
-            print("noconn!")
             neopixel.set_all(C_NOCONN)
             continue
 
         estop = ds.getBoolean("EmergencyStop", False)
 
         if estop:
-            print("estop!")
             neopixel.set_all(C_ESTOP)
             continue
 
@@ -129,9 +131,6 @@ def run_nt(neopixel: CCNeoPixel):
             colors.append(C_PHOTON)
         if not can_connected:
             colors.append(C_CAN)
-
-        if i % 10 == 0:
-            print(colors)
 
         neopixel.set_cycle(colors)
         i += 1
