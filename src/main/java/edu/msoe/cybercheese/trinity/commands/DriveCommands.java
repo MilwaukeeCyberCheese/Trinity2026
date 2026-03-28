@@ -28,9 +28,9 @@ public class DriveCommands {
     private static final double ANGLE_KD = 0.0;
     private static final double ANGLE_MAX_VELOCITY = 12.0;
     private static final double ANGLE_MAX_ACCELERATION = 36.0;
-    private static final double ANGLE_SETPOINT_DEADBAND_RADIANS = Units.degreesToRadians(0.7);
+    private static final double ANGLE_SETPOINT_DEADBAND_RADIANS = Units.degreesToRadians(0.1);
     private static final double ANGLE_TOLERANCE_RADIANS = Units.degreesToRadians(0.8);
-    private static final double ANGLE_TOLERANCE_VELOCITY_RADIANS_PER_SEC = Units.degreesToRadians(8.0);
+    private static final double ANGLE_TOLERANCE_VELOCITY_RADIANS_PER_SEC = Units.degreesToRadians(5.0);
     private static final double FF_START_DELAY = 2.0; // Secs
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
