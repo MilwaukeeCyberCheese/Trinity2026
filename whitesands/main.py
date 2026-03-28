@@ -8,7 +8,7 @@ from networktables import NetworkTables
 from time import time
 import board
 
-C_NOCONN = 0xFFFFFF
+C_NOCONN = 0xFF0000
 # orange
 C_ESTOP = 0xF4A524
 
