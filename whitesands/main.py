@@ -40,7 +40,7 @@ class CCNeoPixel:
     inner: NeoPixel
 
     def __init__(self, pin, count: int):
-        self.inner = NeoPixel(pin, count, auto_write=False, pixel_order=neopixel.RGB)
+        self.inner = NeoPixel(pin, count, auto_write=False, pixel_order=neopixel.GRB)
 
     def set_all(self, color: int):
         print("zv: " + hex(color))
