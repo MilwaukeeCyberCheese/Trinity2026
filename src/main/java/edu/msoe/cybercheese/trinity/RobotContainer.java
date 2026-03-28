@@ -185,7 +185,7 @@ public class RobotContainer {
                         "intakeDeployOn",
                         Commands.parallel(
                                 this.autoSetIntakePositionIndex(INTAKE_POSITIONS.length - 1),
-                                IntakeRollerCommands.runVelocity(this.intakeRoller, -600))));
+                                IntakeRollerCommands.runVelocity(this.intakeRoller, -550.0))));
         autoFactory.bind(
                 "intakeStowOff",
                 this.dbgLoggedCommand(
@@ -340,7 +340,8 @@ public class RobotContainer {
         // unstick
         this.controller.povLeft().whileTrue(Commands.parallel(
             HopperCommands.runVelocity(this.hopper, () -> 2700),
-            LoaderCommands.runVelocity(this.loader, -40)
+            LoaderCommands.runVelocity(this.loader, -40),
+            IntakeRollerCommands.runVelocity(this.intakeRoller, 550.0)
         ));
         // manual hopper
         this.controller.povRight().whileTrue(Commands.parallel(
@@ -372,7 +373,7 @@ public class RobotContainer {
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(
                 this.intakeRoller,
-                () -> MathUtil.clamp(-600.0 * this.controller.getLeftTriggerAxis(), -600.0, 0.0)));
+                () -> MathUtil.clamp(-550.0 * this.controller.getLeftTriggerAxis(), -550.0, 0.0)));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
