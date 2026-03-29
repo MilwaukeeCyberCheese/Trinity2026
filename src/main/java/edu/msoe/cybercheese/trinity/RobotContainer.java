@@ -36,6 +36,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -56,6 +57,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
+    private static final String GAMING_MODE_DASHBOARD_KEY = "GamingModeActive";
 
     private static final double INTAKE_STOWED_POSITION = 0;
     private static final double INTAKE_DEPLOYED_POSITION = 4.775;
@@ -169,6 +171,9 @@ public class RobotContainer {
             System.out.println("Loading Trajectory: " + trajName);
             this.autoChooser.addOption(trajName, this.buildSingleTrajectoryAutoCommand(trajName));
         }
+
+        SmartDashboard.putBoolean(
+                GAMING_MODE_DASHBOARD_KEY, SmartDashboard.getBoolean(GAMING_MODE_DASHBOARD_KEY, false));
 
         System.out.println("Binding controller...");
         this.configureButtonBindings();
@@ -308,6 +313,14 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        this.controller
+                .start()
+                .onTrue(Commands.runOnce(
+                                () -> SmartDashboard.putBoolean(
+                                        GAMING_MODE_DASHBOARD_KEY,
+                                        !SmartDashboard.getBoolean(GAMING_MODE_DASHBOARD_KEY, false)))
+                        .ignoringDisable(true));
+
         this.controller
                 .back()
                 .onTrue(Commands.runOnce(

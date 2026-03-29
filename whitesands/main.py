@@ -1,11 +1,9 @@
 import neopixel
-import itertools
 from neopixel import NeoPixel
 from typing import Optional
-from time import sleep
+from time import sleep, time
 import argparse
 from networktables import NetworkTables
-from time import time
 import board
 
 C_NOCONN = 0x000000
@@ -18,12 +16,12 @@ C_BLUE = 0x0000FF
 # teal
 C_FMS = 0x77EABC
 # purple
-C_PHOTON = 0x7839DD
+C_PHOTON = 0x690ef9
 # yellow
-C_CAN = 0xC1ED3D
+C_CAN = 0xFFFF00
 
 
-AKIT_CONN_KEYS = [
+AKIT_CONN_KEYS =[
     "Drive/Gyro",
     "Hopper",
     "Intake",
@@ -32,8 +30,21 @@ AKIT_CONN_KEYS = [
 ]
 
 for i in range(4):
-    for c in ["drive", "turn"]:
+    for c in["drive", "turn"]:
         AKIT_CONN_KEYS.append(f"Drive/{i}/{c}")
+
+
+# Helper function to generate smooth RGB colors for the rainbow
+def colorwheel(pos: int):
+    pos = int(pos) % 256
+    if pos < 85:
+        return (255 - pos * 3, pos * 3, 0)
+    elif pos < 170:
+        pos -= 85
+        return (0, 255 - pos * 3, pos * 3)
+    else:
+        pos -= 170
+        return (pos * 3, 0, 255 - pos * 3)
 
 
 class CCNeoPixel:
@@ -49,13 +60,22 @@ class CCNeoPixel:
         self.inner.show()
 
     def set_cycle(self, colors: list[int]):
-        print("cy: " + ", ".join([hex(c) for c in colors]))
+        color_idx = int(time() * 2) % len(colors)
+        active_color = colors[color_idx]
 
-        it = itertools.cycle(colors)
+        print("flash: " + hex(active_color) + " (cycle: " + ", ".join([hex(c) for c in colors]) + ")")
 
+        self.inner.fill(active_color)
+        self.inner.show()
+
+    def set_rainbow(self):
+        print("gaming mode")
+        offset = int(time() * 150) % 256
+        
         for i in range(self.inner.n):
-            self.inner[i] = next(it)
-
+            pixel_index = int((i * 256 / self.inner.n) + offset)
+            self.inner[i] = colorwheel(pixel_index)
+            
         self.inner.show()
 
 
@@ -101,6 +121,7 @@ def run_nt(neopixel: CCNeoPixel):
         pv = NetworkTables.getTable("photonvision")
         akit = NetworkTables.getTable("AdvantageKit")
         ds = NetworkTables.getTable("AdvantageKit/DriverStation")
+        sd = NetworkTables.getTable("SmartDashboard")
 
         estop = ds.getBoolean("EmergencyStop", False)
 
@@ -110,6 +131,8 @@ def run_nt(neopixel: CCNeoPixel):
 
         is_red = fms_info.getBoolean("IsRedAlliance", False)
         fms_connected = ds.getBoolean("FMSAttached", False)
+        
+        gaming_mode = sd.getBoolean("GamingModeActive", False)
 
         pv_connected = True
         for name, hb in cameras.items():
@@ -131,7 +154,10 @@ def run_nt(neopixel: CCNeoPixel):
         if not can_connected:
             colors.append(C_CAN)
 
-        neopixel.set_cycle(colors)
+        if len(colors) == 1 and gaming_mode:
+            neopixel.set_rainbow()
+        else:
+            neopixel.set_cycle(colors)
 
 
 def main():
@@ -139,6 +165,7 @@ def main():
     parser.add_argument("ip", type=str, help="IP address to connect to")
     args = parser.parse_args()
 
+    NetworkTables.setNetworkIdentity("whitesands")
     NetworkTables.initialize(server=args.ip)
 
     np = CCNeoPixel(board.D18, 64)

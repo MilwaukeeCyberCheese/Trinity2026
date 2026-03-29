@@ -29,6 +29,7 @@ import org.littletonrobotics.urcl.URCL;
  */
 public class Robot extends LoggedRobot {
     private static final int PDH_CAN_ID = 1;
+    private static final String GAMING_MODE_DASHBOARD_KEY = "GamingModeActive";
 
     private final RobotContainer robotContainer;
     private final @Nullable PowerDistribution powerDistribution;
@@ -117,6 +118,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testInit() {
+        SmartDashboard.putBoolean(GAMING_MODE_DASHBOARD_KEY, true);
         CommandScheduler.getInstance().cancelAll();
     }
 
