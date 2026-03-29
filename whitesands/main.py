@@ -90,18 +90,17 @@ def run_nt(neopixel: CCNeoPixel):
         "BackThrifty": HeartbeatSubscriber(),
     }
 
-    fms_info = NetworkTables.getTable("FMSInfo")
-    pv = NetworkTables.getTable("photonvision")
-    akit = NetworkTables.getTable("AdvantageKit")
-    ds = NetworkTables.getTable("AdvantageKit/DriverStation")
-    i = 0
-
     while True:
         sleep(0.1)
 
         if not NetworkTables.isConnected():
             neopixel.set_all(C_NOCONN)
             continue
+
+        fms_info = NetworkTables.getTable("FMSInfo")
+        pv = NetworkTables.getTable("photonvision")
+        akit = NetworkTables.getTable("AdvantageKit")
+        ds = NetworkTables.getTable("AdvantageKit/DriverStation")
 
         estop = ds.getBoolean("EmergencyStop", False)
 
@@ -133,7 +132,6 @@ def run_nt(neopixel: CCNeoPixel):
             colors.append(C_CAN)
 
         neopixel.set_cycle(colors)
-        i += 1
 
 
 def main():
