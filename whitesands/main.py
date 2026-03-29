@@ -110,7 +110,7 @@ def run_nt(neopixel: CCNeoPixel):
             continue
 
         is_red = fms_info.getBoolean("IsRedAlliance", False)
-        fms_connected = fms_info.getBoolean("FMSAttached", False)
+        fms_connected = ds.getBoolean("FMSAttached", False)
 
         pv_connected = True
         for name, hb in cameras.items():
