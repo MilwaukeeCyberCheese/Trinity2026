@@ -1,17 +1,12 @@
 package edu.msoe.cybercheese.trinity;
 
 import com.revrobotics.util.StatusLogger;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import java.sql.Driver;
-import java.util.logging.Level;
-
 import org.jspecify.annotations.Nullable;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -68,8 +63,9 @@ public class Robot extends LoggedRobot {
         StatusLogger.disableAutoLogging();
 
         // WPILib only publishes PDH telemetry after the device is instantiated.
-        this.powerDistribution =
-                Constants.CURRENT_MODE == Constants.Mode.REPLAY ? null : new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
+        this.powerDistribution = Constants.CURRENT_MODE == Constants.Mode.REPLAY
+                ? null
+                : new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
 
         Logger.start();
 

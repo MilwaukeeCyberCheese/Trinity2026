@@ -110,7 +110,8 @@ public final class AutoRouteGraph {
                 continue;
             }
 
-            final var transition = this.transition(path.get(i).id(), path.get(i + 1).id());
+            final var transition =
+                    this.transition(path.get(i).id(), path.get(i + 1).id());
             if (transition.transitionActionId() != null) {
                 commands.add(transitionCommandFactory.apply(transition.transitionActionId()));
             }
@@ -120,7 +121,8 @@ public final class AutoRouteGraph {
     }
 
     public boolean hasTransition(final String fromId, final String toId) {
-        return this.node(fromId).transitions().stream().anyMatch(choice -> choice.nextNodeId().equals(toId));
+        return this.node(fromId).transitions().stream()
+                .anyMatch(choice -> choice.nextNodeId().equals(toId));
     }
 
     public Choice transition(final String fromId, final String toId) {
@@ -146,11 +148,7 @@ public final class AutoRouteGraph {
         }
     }
 
-    public record Choice(
-            String label,
-            String nextNodeId,
-            @Nullable String transitionActionId,
-            boolean stopChoice) {
+    public record Choice(String label, String nextNodeId, @Nullable String transitionActionId, boolean stopChoice) {
         public Choice {
             Objects.requireNonNull(label);
             Objects.requireNonNull(nextNodeId);

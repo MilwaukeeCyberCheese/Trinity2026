@@ -35,7 +35,8 @@ public class DriveConstants {
         // fl
         new ModuleDefinition(16, 17, Rotation2d.fromDegrees(90)),
         // fr
-        new ModuleDefinition(22, 23, Rotation2d.fromDegrees(0)), // FIXME: someone put fr and br on backwards, fix on robot
+        new ModuleDefinition(
+                22, 23, Rotation2d.fromDegrees(0)), // FIXME: someone put fr and br on backwards, fix on robot
         // bl
         new ModuleDefinition(20, 21, Rotation2d.fromDegrees(0)),
         // br

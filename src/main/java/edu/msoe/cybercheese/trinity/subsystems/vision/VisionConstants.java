@@ -8,11 +8,10 @@ import edu.wpi.first.math.util.Units;
 import java.util.List;
 
 public class VisionConstants {
-    public record CameraDefinition(String name, Transform3d transform, double stdDevFactor) {
-    }
+    public record CameraDefinition(String name, Transform3d transform, double stdDevFactor) {}
 
-    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT = AprilTagFieldLayout
-            .loadField(AprilTagFields.kDefaultField);
+    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT =
+            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     public static final List<CameraDefinition> CAMERA_DEFINITIONS = List.of(
             new CameraDefinition(

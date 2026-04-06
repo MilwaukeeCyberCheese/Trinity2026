@@ -82,13 +82,13 @@ public class Shooter extends SubsystemBase {
         this.aimingAtHub = true;
         final var velocity = ShooterMath.calculateTrajectoryFromRobot(pose);
 
-        //System.out.println("a: " + velocity);
+        // System.out.println("a: " + velocity);
 
         this.setTargetLocked(velocity >= 0);
 
         // we use negative numbers to signal invalid states
         if (velocity < 0) {
-            //System.out.println("invalid state!");
+            // System.out.println("invalid state!");
             return;
         }
 

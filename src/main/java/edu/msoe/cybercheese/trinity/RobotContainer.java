@@ -33,11 +33,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -47,9 +46,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.jspecify.annotations.Nullable;
@@ -196,7 +195,8 @@ public class RobotContainer {
                 this.dbgLoggedCommand(
                         "intakeStowOff",
                         Commands.parallel(
-                                this.autoSetIntakePositionIndex(0), IntakeRollerCommands.runVelocity(this.intakeRoller, 0))));
+                                this.autoSetIntakePositionIndex(0),
+                                IntakeRollerCommands.runVelocity(this.intakeRoller, 0))));
 
         autoFactory.bind(
                 "shootNormal",
@@ -210,7 +210,7 @@ public class RobotContainer {
                         ShooterCommands.hailMary(this.shooter),
                         LoaderCommands.runVelocity(this.loader, 80),
                         HopperCommands.runVelocity(this.hopper, () -> -2700)));
-        
+
         return autoFactory;
     }
 
@@ -234,7 +234,8 @@ public class RobotContainer {
     private void logAndSetAutoPose(final Pose2d pose) {
         Logger.recordOutput("Auto/ResetPoseRequested", pose);
         Logger.recordOutput("Auto/ResetPoseCurrentBefore", this.drive.getPose());
-        Logger.recordOutput("Auto/ResetPoseAllianceKnown", DriverStation.getAlliance().isPresent());
+        Logger.recordOutput(
+                "Auto/ResetPoseAllianceKnown", DriverStation.getAlliance().isPresent());
         Logger.recordOutput("Auto/ResetPoseAllianceIsRed", MathExtras.isFlipped());
         this.drive.setPose(pose);
         Logger.recordOutput("Auto/ResetPoseCurrentAfter", this.drive.getPose());
@@ -251,9 +252,8 @@ public class RobotContainer {
 
     private Command resolveAutoRouteAction(final String actionId, final boolean isFinalAction) {
         return switch (actionId) {
-            case AutoRoutes.AIM_AND_SHOOT -> this.autoAimAndShoot(isFinalAction
-                    ? AUTO_SHOOT_DURATION + AUTO_FINAL_SHOOT_EXTRA_DURATION
-                    : AUTO_SHOOT_DURATION);
+            case AutoRoutes.AIM_AND_SHOOT -> this.autoAimAndShoot(
+                    isFinalAction ? AUTO_SHOOT_DURATION + AUTO_FINAL_SHOOT_EXTRA_DURATION : AUTO_SHOOT_DURATION);
             default -> throw new IllegalArgumentException("Unknown auto route action: " + actionId);
         };
     }
@@ -315,24 +315,22 @@ public class RobotContainer {
     private void configureButtonBindings() {
         this.controller
                 .start()
-                .onTrue(Commands.runOnce(
-                                () -> SmartDashboard.putBoolean(
-                                        GAMING_MODE_DASHBOARD_KEY,
-                                        !SmartDashboard.getBoolean(GAMING_MODE_DASHBOARD_KEY, false)))
+                .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean(
+                                GAMING_MODE_DASHBOARD_KEY,
+                                !SmartDashboard.getBoolean(GAMING_MODE_DASHBOARD_KEY, false)))
                         .ignoringDisable(true));
 
         this.controller
                 .back()
                 .onTrue(Commands.runOnce(
-                                () -> this.drive.setPose(
-                                        new Pose2d(
-                                                this.drive.getPose().getTranslation(),
-                                                MathExtras.isFlipped() ? Rotation2d.kPi : Rotation2d.kZero)),
+                                () -> this.drive.setPose(new Pose2d(
+                                        this.drive.getPose().getTranslation(),
+                                        MathExtras.isFlipped() ? Rotation2d.kPi : Rotation2d.kZero)),
                                 this.drive)
                         .ignoringDisable(true));
 
         this.drive.setDefaultCommand(DriveCommands.joystickDrive(
-                this.drive, 
+                this.drive,
                 () -> this.alterControllerInput(controller.getLeftY()),
                 () -> this.alterControllerInput(controller.getLeftX()),
                 () -> this.alterControllerInput(controller.getRightX()),
@@ -346,21 +344,26 @@ public class RobotContainer {
                         () -> this.alterControllerInput(controller.getRightX()),
                         () -> Rotation2d.fromRadians(ShooterMath.absoluteHubAngle(this.drive.getPose())),
                         false));
-        this.controller.x().or(this.controller.rightStick()).onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
+        this.controller
+                .x()
+                .or(this.controller.rightStick())
+                .onTrue(Commands.runOnce(this.drive::stopWithX, this.drive));
 
         this.hopper.setDefaultCommand(HopperCommands.runVelocity(this.hopper, () -> 0));
 
         // unstick
-        this.controller.povLeft().whileTrue(Commands.parallel(
-            HopperCommands.runVelocity(this.hopper, () -> 2700),
-            LoaderCommands.runVelocity(this.loader, -40),
-            IntakeRollerCommands.runVelocity(this.intakeRoller, 550.0)
-        ));
+        this.controller
+                .povLeft()
+                .whileTrue(Commands.parallel(
+                        HopperCommands.runVelocity(this.hopper, () -> 2700),
+                        LoaderCommands.runVelocity(this.loader, -40),
+                        IntakeRollerCommands.runVelocity(this.intakeRoller, 550.0)));
         // manual hopper
-        this.controller.povRight().whileTrue(Commands.parallel(
-            HopperCommands.runVelocity(this.hopper, () -> -2700),
-            LoaderCommands.runVelocity(this.loader, 40)
-        ));
+        this.controller
+                .povRight()
+                .whileTrue(Commands.parallel(
+                        HopperCommands.runVelocity(this.hopper, () -> -2700),
+                        LoaderCommands.runVelocity(this.loader, 40)));
 
         this.intake.setDefaultCommand(Commands.run(
                 () -> {
@@ -372,21 +375,24 @@ public class RobotContainer {
         // stow
         this.controller.povUp().onTrue(Commands.runOnce(() -> this.intakePositionIndex = 0));
         // lower
-        this.controller.povDown().onTrue(Commands.runOnce(() -> this.intakePositionIndex = INTAKE_POSITIONS.length - 1));
-        this.controller.a().whileTrue(Commands.startEnd(
-                () -> {
-                    this.savedIntakePositionIndex = this.intakePositionIndex;
-                    this.intakePositionIndex = 0;
-                },
-                () -> this.intakePositionIndex = this.savedIntakePositionIndex));
+        this.controller
+                .povDown()
+                .onTrue(Commands.runOnce(() -> this.intakePositionIndex = INTAKE_POSITIONS.length - 1));
+        this.controller
+                .a()
+                .whileTrue(Commands.startEnd(
+                        () -> {
+                            this.savedIntakePositionIndex = this.intakePositionIndex;
+                            this.intakePositionIndex = 0;
+                        },
+                        () -> this.intakePositionIndex = this.savedIntakePositionIndex));
         // this.controller
         //         .b()
         //         .onTrue(Commands.runOnce(
         //                 () -> this.intakePositionIndex = (this.intakePositionIndex + 1) % INTAKE_POSITIONS.length));
 
         this.intakeRoller.setDefaultCommand(IntakeRollerCommands.runVelocity(
-                this.intakeRoller,
-                () -> MathUtil.clamp(-550.0 * this.controller.getLeftTriggerAxis(), -550.0, 0.0)));
+                this.intakeRoller, () -> MathUtil.clamp(-550.0 * this.controller.getLeftTriggerAxis(), -550.0, 0.0)));
 
         this.shooter.setDefaultCommand(ShooterCommands.runVelocity(this.shooter, 0));
         this.loader.setDefaultCommand(LoaderCommands.runVelocity(this.loader, 0));
@@ -422,7 +428,8 @@ public class RobotContainer {
     }
 
     private boolean isSlowDriveEnabled() {
-        return this.controller.leftBumper().getAsBoolean() || this.controller.leftStick().getAsBoolean();
+        return this.controller.leftBumper().getAsBoolean()
+                || this.controller.leftStick().getAsBoolean();
     }
 
     public Command getAutonomousCommand() {
@@ -459,7 +466,10 @@ public class RobotContainer {
         }
 
         final RouteStep firstStep = routeSteps.get(0);
-        routine.active().onTrue(Commands.sequence(firstStep.trajectory().resetOdometry(), firstStep.trajectory().cmd()));
+        routine.active()
+                .onTrue(Commands.sequence(
+                        firstStep.trajectory().resetOdometry(),
+                        firstStep.trajectory().cmd()));
 
         for (int routeStepIndex = 0; routeStepIndex < routeSteps.size(); routeStepIndex++) {
             final RouteStep currentStep = routeSteps.get(routeStepIndex);
@@ -468,19 +478,22 @@ public class RobotContainer {
             Command continuation = Commands.none();
 
             if (currentStep.postRouteActionId() != null) {
-                continuation = continuation.andThen(this.resolveAutoRouteAction(currentStep.postRouteActionId(), isFinalRoute));
+                continuation = continuation.andThen(
+                        this.resolveAutoRouteAction(currentStep.postRouteActionId(), isFinalRoute));
             }
 
             if (currentStep.pathIndex() + 1 < path.size()) {
                 final var transition = AutoRoutes.GRAPH.transition(
-                        path.get(currentStep.pathIndex()).id(), path.get(currentStep.pathIndex() + 1).id());
+                        path.get(currentStep.pathIndex()).id(),
+                        path.get(currentStep.pathIndex() + 1).id());
                 if (transition.transitionActionId() != null) {
                     continuation = continuation.andThen(this.resolveAutoRouteAction(transition.transitionActionId()));
                 }
             }
 
             if (hasNextRoute) {
-                Command nextTrajectory = routeSteps.get(routeStepIndex + 1).trajectory().cmd();
+                Command nextTrajectory =
+                        routeSteps.get(routeStepIndex + 1).trajectory().cmd();
                 if (AutoRoutes.AIM_AND_SHOOT.equals(currentStep.postRouteActionId())) {
                     nextTrajectory = Commands.parallel(nextTrajectory, this.autoReverseHopperUnstick());
                 }
@@ -574,15 +587,16 @@ public class RobotContainer {
                 && this.shooter.isTargetLocked()
                 && this.shooter.isAtSpeed()
                 && this.loader.getTargetVelocity() > SHOOTING_SIM_LOADER_ACTIVE_THRESHOLD;
-        if (shootingInSim && !this.wasShootingInSim && this.intakeSimulation != null
+        if (shootingInSim
+                && !this.wasShootingInSim
+                && this.intakeSimulation != null
                 && this.intakeSimulation.obtainGamePieceFromIntake()) {
             this.spawnPerfectSimShot(Objects.requireNonNull(this.simulatedArena));
         }
         this.wasShootingInSim = shootingInSim;
         Objects.requireNonNull(this.simulatedArena).simulationPeriodic();
         Logger.recordOutput("FieldSimulation/RobotPosition", this.driveSimulation.getSimulatedDriveTrainPose());
-        Logger.recordOutput(
-                "FieldSimulation/Fuel", this.simulatedArena.getGamePiecesArrayByType("Fuel"));
+        Logger.recordOutput("FieldSimulation/Fuel", this.simulatedArena.getGamePiecesArrayByType("Fuel"));
     }
 
     private void spawnPerfectSimShot(final SimulatedArena arena) {

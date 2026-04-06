@@ -130,8 +130,8 @@ public class DriveCommands {
                             }
 
                             // Calculate angular speed
-                            double omega =
-                                    angleController.calculate(currentRotation.getRadians(), targetRotation.getRadians());
+                            double omega = angleController.calculate(
+                                    currentRotation.getRadians(), targetRotation.getRadians());
                             if (angleController.atGoal()) {
                                 omega = 0.0;
                             }

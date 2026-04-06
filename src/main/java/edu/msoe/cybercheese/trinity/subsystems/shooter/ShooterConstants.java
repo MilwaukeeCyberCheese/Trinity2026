@@ -1,8 +1,8 @@
 package edu.msoe.cybercheese.trinity.subsystems.shooter;
 
+import edu.msoe.cybercheese.trinity.util.PIDConstants;
 import edu.msoe.cybercheese.trinity.util.hw.MotorConfig;
 import edu.wpi.first.math.util.Units;
-import edu.msoe.cybercheese.trinity.util.PIDConstants;
 
 public class ShooterConstants {
 
